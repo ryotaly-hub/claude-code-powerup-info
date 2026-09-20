@@ -26,7 +26,8 @@
 4. **生成する** — `node build.js` を実行し、エラーなく終わることを確認する。
 5. **公開する** — `posts/YYYY-MM-DD.json`、生成された HTML、`index.html` をコミットして push する。
    コミットメッセージは `Add issue YYYY-MM-DD: <headline>` の形。
-6. **Slack に流す** — `node slack.js YYYY-MM-DD` の出力を、そのまま Slack `#general` に投稿する。
+6. **Slack に流す** — `node slack.js YYYY-MM-DD` の出力を、そのまま Slack `#general`（ID: `C0ANTJKPZEJ`）に投稿する。
+   Slack MCP の `slack_send_message` は**標準 Markdown** を受け取る（Slack 独自の mrkdwn ではない）ので、`slack.js` の出力は加工しないこと。
 
 ## 書くときの約束
 
