@@ -1,0 +1,76 @@
+{
+  "date": "2026-09-20",
+  "headline": "AGENTS.md 直読み対応と Mods で、Claude Code の「設定まわり」が一段ラクになる",
+  "lead": "今週の Claude Code は、リポジトリの指示ファイルとプラグインまわりが大きく動いた。AGENTS.md をそのまま読めるようになり、プラグインの挙動を TypeScript で差し込む Mods が公開され、その効果を数値で比べる claude plugin eval も揃った。今日から効く5本をまとめる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "AGENTS.md を Claude Code が直接読むようになった（v2.1.277）",
+      "body": "これまで AGENTS.md の内容を Claude Code に読ませるには、CLAUDE.md 側から import する一手間が必要だった。v2.1.277 でこれが解消され、AGENTS.md が直接読み込まれるようになった。CLAUDE.md を置いていないリポジトリでそのまま効く。\n\n設定の初期値は `claude-md-or-agents-md`。名前のとおり「どちらか一方」を読む挙動なので、両方を併読させたい場合は `/config` の Project instructions を明示的に切り替える必要がある。ここを知らないと「AGENTS.md に書いたのに CLAUDE.md しか効かない」とハマる。",
+      "howto": [
+        "他ツールと共用の AGENTS.md がすでにあるなら、CLAUDE.md への import 行はもう消してよい",
+        "CLAUDE.md と AGENTS.md を両方読ませたいときだけ `/config` → Project instructions を変更する",
+        "まずは `claude --version` で v2.1.277 以降になっているか確認する"
+      ],
+      "links": [
+        { "label": "今週の Claude Code・Codex・Gemini CLI 変更点まとめ（2026年9月20日週）— Qiita", "url": "https://qiita.com/aicoding-guide/items/8ab9d3885652fdbc138a" },
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "Mods — プラグインの挙動を TypeScript の関数で差し込む",
+      "body": "v2.1.269〜v2.1.275 で入った **Mods** は、Claude Code の実行パスに「ミドルウェア」として割り込む仕組みだ。プラグインの動作を TypeScript の関数として定義でき、従来のフック設定より込み入った制御を書ける。\n\n組み込みの Mod が3つ公開されている。`sec-default`（セキュリティ隔離）、`diff`（変更差分の表示）、`telemetry`（分析ログ）。まずはこの3つを触ってどんな粒度で介入できるか掴むのが早い。\n\n注意点として、利用には環境変数 `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` が必要。設定しないと有効にならない。",
+      "howto": [
+        "`export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` を shell の設定に入れてから起動する",
+        "自作の前に組み込みの `diff` Mod を有効にして、編集差分が見える運用を試す",
+        "あわせて `bashEditDiffEnabled` を設定すると Bash 経由の編集でも差分が出る"
+      ],
+      "links": [
+        { "label": "Claude Code更新 Mods・Slides【9/11〜17】— サーバーワークスエンジニアブログ", "url": "https://blog.serverworks.co.jp/2026/09/19/190000" },
+        { "label": "Claude Code 新機能ダイジェスト（公式）", "url": "https://code.claude.com/docs/ja/whats-new" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "claude plugin eval — 「そのプラグイン、本当に効いてる?」を数値で出す",
+      "body": "v2.1.269 の `claude plugin eval` は、プラグインをテストケースのスイートに対して実行し、結果をスコアリングして、プラグインなしのベースラインと比較してくれる。体感でしかなかった「入れた方が良さそう」を数字にできる。\n\n`claude plugin eval init` を叩けば、テストケースとグレーダーの雛形を作ってくれるので、ゼロから書き起こす必要はない。レポートは JSON と HTML の両方で出る。\n\nただし実行時に実際のモデル呼び出しが発生する。ケース数×モデル呼び出しのコストがかかるので、スイートは小さく始めるのが無難。",
+      "howto": [
+        "`claude plugin eval init` で雛形を作り、まず3〜5ケースだけ書く",
+        "HTML レポートをチームに共有して、プラグイン採用の判断材料にする",
+        "CI に入れる前に、1回あたりの実行コストを実測しておく"
+      ],
+      "links": [
+        { "label": "Week 37 ダイジェスト（2026/9/7–11, v2.1.263–v2.1.269）— 公式", "url": "https://code.claude.com/docs/ja/whats-new" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Claude Slides と 新しい Projects — ターミナルの外側も動いている",
+      "body": "9月16日に **Claude Slides** が発表された。`/slides` でテーマを渡すとデッキを生成し、コメント経由で修正を依頼でき、PowerPoint や PDF でダウンロードできる。設計メモや調査結果をそのまま共有資料にする用途と相性がいい。\n\n9月17日には **Projects** が刷新された。1本の会話が司令塔になり、タスクごとにクラウドセッションを並列で立てる。各セッションは独立したコンテキストウィンドウを持ち、自分のブランチで作業して、必要なら PR を開くところまでやる。\n\n注意したいのは、この Projects は claude.ai/code 側の機能でターミナルからは使えない点。CLI の `claude project` は別物（ローカル状態のクリーンアップ）なので混同しないこと。",
+      "howto": [
+        "調査タスクの成果物を資料にするときは `/slides` を試す（有料プラン向け機能）",
+        "並列で走らせたい複数タスクがあるときは claude.ai/code の Projects を使う",
+        "`claude project purge` と Projects は無関係。名前が似ているだけ"
+      ],
+      "links": [
+        { "label": "Claude Code更新 Mods・Slides【9/11〜17】— サーバーワークスエンジニアブログ", "url": "https://blog.serverworks.co.jp/2026/09/19/190000" },
+        { "label": "Claude Code 新機能ダイジェスト（公式）", "url": "https://code.claude.com/docs/ja/whats-new" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "見落としがちな足回り 3つ — /diff ライブパネル、/skill-doctor、maxEffortLevel",
+      "body": "派手な新機能の陰で、日々の作業に効く小さな改善も入っている。\n\n`/diff` はフルスクリーン描画のとき、会話の横にライブパネルを開くようになった。Claude が編集するたびに更新されるので、「何をどう変えたか」を後追いで確認する手間が減る。\n\n`/skill-doctor` は、各スキルがコンテキストをどれだけ食っているか、どのくらいの頻度で使われているかを表示する。スキルを増やしすぎて重いと感じたら、まずこれで棚卸しする。\n\n`maxEffortLevel` 設定は、すべてのプロバイダーに対してエフォートレベルの上限をかける。コストを一定に抑えたいときの効き所。加えて WebFetch は、5分以内にダウンロードが終わらないページでハングせず失敗を返すようになった。",
+      "howto": [
+        "編集レビューを省略しがちな人ほど `/diff` のライブパネルを常用する",
+        "月イチで `/skill-doctor` を走らせ、使われていないスキルを外す",
+        "`maxEffortLevel` でコスト上限を先に決めてしまう"
+      ],
+      "links": [
+        { "label": "Claude Code 新機能ダイジェスト（公式）", "url": "https://code.claude.com/docs/ja/whats-new" },
+        { "label": "50 Claude Code Tips & Tricks — AgentsRoom", "url": "https://agentsroom.dev/claude-code-tips" }
+      ]
+    }
+  ]
+}

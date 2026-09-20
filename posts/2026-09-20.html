@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AGENTS.md 直読み対応と Mods で、Claude Code の「設定まわり」が一段ラクになる｜Claude code の PowerUP info</title>
+<meta name="description" content="今週の Claude Code は、リポジトリの指示ファイルとプラグインまわりが大きく動いた。AGENTS.md をそのまま読めるようになり、プラグインの挙動を TypeScript で差し込む Mods が公開され、その効果を数値で比べる claude plugin eval も揃った。今日から効く5本をまとめる。">
+<meta property="og:title" content="AGENTS.md 直読み対応と Mods で、Claude Code の「設定まわり」が一段ラクになる｜Claude code の PowerUP info">
+<meta property="og:description" content="今週の Claude Code は、リポジトリの指示ファイルとプラグインまわりが大きく動いた。AGENTS.md をそのまま読めるようになり、プラグインの挙動を TypeScript で差し込む Mods が公開され、その効果を数値で比べる claude plugin eval も揃った。今日から効く5本をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.1</p>
+      <div class="article__head">
+        <span class="chip">2026.09.20</span>
+        <h1>AGENTS.md 直読み対応と Mods で、Claude Code の「設定まわり」が一段ラクになる</h1>
+        <div class="article__date">2026年9月20日(日)公開 ／ VOL.1</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.1</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.20</div>
+      </div></div>
+      <p class="lead">今週の Claude Code は、リポジトリの指示ファイルとプラグインまわりが大きく動いた。AGENTS.md をそのまま読めるようになり、プラグインの挙動を TypeScript で差し込む Mods が公開され、その効果を数値で比べる claude plugin eval も揃った。今日から効く5本をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">AGENTS.md を Claude Code が直接読むようになった（v2.1.277）</a></li><li><a href="#item-2">Mods — プラグインの挙動を TypeScript の関数で差し込む</a></li><li><a href="#item-3">claude plugin eval — 「そのプラグイン、本当に効いてる?」を数値で出す</a></li><li><a href="#item-4">Claude Slides と 新しい Projects — ターミナルの外側も動いている</a></li><li><a href="#item-5">見落としがちな足回り 3つ — /diff ライブパネル、/skill-doctor、maxEffortLevel</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>AGENTS.md を Claude Code が直接読むようになった（v2.1.277）</h2>
+      <p>これまで AGENTS.md の内容を Claude Code に読ませるには、CLAUDE.md 側から import する一手間が必要だった。v2.1.277 でこれが解消され、AGENTS.md が直接読み込まれるようになった。CLAUDE.md を置いていないリポジトリでそのまま効く。</p>
+      <p>設定の初期値は <code>claude-md-or-agents-md</code>。名前のとおり「どちらか一方」を読む挙動なので、両方を併読させたい場合は <code>/config</code> の Project instructions を明示的に切り替える必要がある。ここを知らないと「AGENTS.md に書いたのに CLAUDE.md しか効かない」とハマる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>他ツールと共用の AGENTS.md がすでにあるなら、CLAUDE.md への import 行はもう消してよい</li><li>CLAUDE.md と AGENTS.md を両方読ませたいときだけ <code>/config</code> → Project instructions を変更する</li><li>まずは <code>claude --version</code> で v2.1.277 以降になっているか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://qiita.com/aicoding-guide/items/8ab9d3885652fdbc138a" target="_blank" rel="noopener">今週の Claude Code・Codex・Gemini CLI 変更点まとめ（2026年9月20日週）— Qiita</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>Mods — プラグインの挙動を TypeScript の関数で差し込む</h2>
+      <p>v2.1.269〜v2.1.275 で入った <strong>Mods</strong> は、Claude Code の実行パスに「ミドルウェア」として割り込む仕組みだ。プラグインの動作を TypeScript の関数として定義でき、従来のフック設定より込み入った制御を書ける。</p>
+      <p>組み込みの Mod が3つ公開されている。<code>sec-default</code>（セキュリティ隔離）、<code>diff</code>（変更差分の表示）、<code>telemetry</code>（分析ログ）。まずはこの3つを触ってどんな粒度で介入できるか掴むのが早い。</p>
+      <p>注意点として、利用には環境変数 <code>CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1</code> が必要。設定しないと有効にならない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>export CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1</code> を shell の設定に入れてから起動する</li><li>自作の前に組み込みの <code>diff</code> Mod を有効にして、編集差分が見える運用を試す</li><li>あわせて <code>bashEditDiffEnabled</code> を設定すると Bash 経由の編集でも差分が出る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://blog.serverworks.co.jp/2026/09/19/190000" target="_blank" rel="noopener">Claude Code更新 Mods・Slides【9/11〜17】— サーバーワークスエンジニアブログ</a></li><li><a href="https://code.claude.com/docs/ja/whats-new" target="_blank" rel="noopener">Claude Code 新機能ダイジェスト（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>claude plugin eval — 「そのプラグイン、本当に効いてる?」を数値で出す</h2>
+      <p>v2.1.269 の <code>claude plugin eval</code> は、プラグインをテストケースのスイートに対して実行し、結果をスコアリングして、プラグインなしのベースラインと比較してくれる。体感でしかなかった「入れた方が良さそう」を数字にできる。</p>
+      <p><code>claude plugin eval init</code> を叩けば、テストケースとグレーダーの雛形を作ってくれるので、ゼロから書き起こす必要はない。レポートは JSON と HTML の両方で出る。</p>
+      <p>ただし実行時に実際のモデル呼び出しが発生する。ケース数×モデル呼び出しのコストがかかるので、スイートは小さく始めるのが無難。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>claude plugin eval init</code> で雛形を作り、まず3〜5ケースだけ書く</li><li>HTML レポートをチームに共有して、プラグイン採用の判断材料にする</li><li>CI に入れる前に、1回あたりの実行コストを実測しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/ja/whats-new" target="_blank" rel="noopener">Week 37 ダイジェスト（2026/9/7–11, v2.1.263–v2.1.269）— 公式</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">エコシステム</span>
+      <h2>Claude Slides と 新しい Projects — ターミナルの外側も動いている</h2>
+      <p>9月16日に <strong>Claude Slides</strong> が発表された。<code>/slides</code> でテーマを渡すとデッキを生成し、コメント経由で修正を依頼でき、PowerPoint や PDF でダウンロードできる。設計メモや調査結果をそのまま共有資料にする用途と相性がいい。</p>
+      <p>9月17日には <strong>Projects</strong> が刷新された。1本の会話が司令塔になり、タスクごとにクラウドセッションを並列で立てる。各セッションは独立したコンテキストウィンドウを持ち、自分のブランチで作業して、必要なら PR を開くところまでやる。</p>
+      <p>注意したいのは、この Projects は claude.ai/code 側の機能でターミナルからは使えない点。CLI の <code>claude project</code> は別物（ローカル状態のクリーンアップ）なので混同しないこと。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>調査タスクの成果物を資料にするときは <code>/slides</code> を試す（有料プラン向け機能）</li><li>並列で走らせたい複数タスクがあるときは claude.ai/code の Projects を使う</li><li><code>claude project purge</code> と Projects は無関係。名前が似ているだけ</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://blog.serverworks.co.jp/2026/09/19/190000" target="_blank" rel="noopener">Claude Code更新 Mods・Slides【9/11〜17】— サーバーワークスエンジニアブログ</a></li><li><a href="https://code.claude.com/docs/ja/whats-new" target="_blank" rel="noopener">Claude Code 新機能ダイジェスト（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>見落としがちな足回り 3つ — /diff ライブパネル、/skill-doctor、maxEffortLevel</h2>
+      <p>派手な新機能の陰で、日々の作業に効く小さな改善も入っている。</p>
+      <p><code>/diff</code> はフルスクリーン描画のとき、会話の横にライブパネルを開くようになった。Claude が編集するたびに更新されるので、「何をどう変えたか」を後追いで確認する手間が減る。</p>
+      <p><code>/skill-doctor</code> は、各スキルがコンテキストをどれだけ食っているか、どのくらいの頻度で使われているかを表示する。スキルを増やしすぎて重いと感じたら、まずこれで棚卸しする。</p>
+      <p><code>maxEffortLevel</code> 設定は、すべてのプロバイダーに対してエフォートレベルの上限をかける。コストを一定に抑えたいときの効き所。加えて WebFetch は、5分以内にダウンロードが終わらないページでハングせず失敗を返すようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>編集レビューを省略しがちな人ほど <code>/diff</code> のライブパネルを常用する</li><li>月イチで <code>/skill-doctor</code> を走らせ、使われていないスキルを外す</li><li><code>maxEffortLevel</code> でコスト上限を先に決めてしまう</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/ja/whats-new" target="_blank" rel="noopener">Claude Code 新機能ダイジェスト（公式）</a></li><li><a href="https://agentsroom.dev/claude-code-tips" target="_blank" rel="noopener">50 Claude Code Tips &amp; Tricks — AgentsRoom</a></li></ul>
+    </section>
+      
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
