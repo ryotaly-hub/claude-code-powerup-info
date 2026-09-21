@@ -1,0 +1,83 @@
+{
+  "date": "2026-09-21",
+  "headline": "Auto mode の分類器がサーバー実行に無料化、その裏でスキル同期の落とし穴も",
+  "lead": "v2.1.278 で Auto mode の安全チェックがサーバー側実行になり、課金対象から外れた。一方で v2.1.273〜276 台の claude.ai スキル同期には、ローカルに入れたスキルが無通知で退避される既知の不具合がある。あわせて、メッセージ即送信キーやプラグイン導入まわりの地味だが効く変更も入った。今日から効く6本。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Auto mode の分類器がサーバー実行になり、課金対象外に（v2.1.278）",
+      "body": "Auto mode は、シェルコマンドやネットワークリクエストを実行する前に「分類器（classifier）」が安全チェックを行う仕組みで動いている。これまでこの分類器の呼び出し自体もトークン課金の対象だったが、v2.1.278 からは Claude API・Enterprise プラン、および Bedrock・Vertex・Foundry・ゲートウェイ経由の利用で、この安全チェックがサーバー側実行になり、課金されなくなった。\n\nPro・Max・Team プランはもともと対象外（表示も出ない）。ゲートウェイやプロキシがリクエストのヘッダーやフィールドを書き換えていると、サーバー側チェックが届かず従来どおりの課金にフォールバックし、その旨の通知が出る。`/status` の `Auto mode server` 行で `Enabled`/`Disabled` を確認できる。",
+      "howto": [
+        "Claude API・Enterprise・Bedrock/Vertex/Foundry で Auto mode を使っているなら `/status` の `Auto mode server` 行を確認する",
+        "ゲートウェイ経由で通知が出続ける場合は、ゲートウェイ提供元にヘッダー・フィールドをそのまま素通しするよう依頼する",
+        "サーバー側チェックを使わせたくない場合だけ `export CLAUDE_CODE_AUTO_MODE_SERVER=0` を設定する"
+      ],
+      "links": [
+        { "label": "Auto mode classifier request charges — 公式ドキュメント", "url": "https://code.claude.com/docs/en/auto-mode-classifier-billing" },
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "claude.ai スキル同期の既知の不具合 — ローカルスキルが無通知で `.trash` へ",
+      "body": "v2.1.273 前後で入った、claude.ai アカウントの skills/plugins を端末セッションに自動同期する機能（`~/.claude/skills/synced/` を約10分おきに更新）で、既知の不具合が報告されている。ドキュメント上は掃除の対象が `synced/` 配下だけのはずだが、実際には `~/.claude/skills/` 直下にある**ローカルインストール済みのスキルまで**まとめて `~/.claude/skills/.trash/` に退避されるケースがある。\n\n報告では `syncClaudeAiSkills: false` を設定していてもこの掃除が走り、7回のバックグラウンド走査で83個のスキルディレクトリが移動されたとされる。claude.ai 経由でない第三者スキルパックをローカルに置いている場合は影響が大きい。本稿執筆時点で GitHub Issue は未解決。",
+      "howto": [
+        "ローカルにスキルを直接置いている人は `~/.claude/skills/.trash/` の有無を確認する",
+        "アップグレード前に `~/.claude/skills/` 全体をバックアップしておく",
+        "同期を止めたい場合は `syncClaudeAiSkills: false` / `syncClaudeAiPlugins: false` を設定するが、現状は不具合を完全には防げない点に注意する"
+      ],
+      "links": [
+        { "label": "Account skills sync moves locally-installed skills into skills/.trash — anthropics/claude-code Issue #95373", "url": "https://github.com/anthropics/claude-code/issues/95373" },
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "送信キー ctrl+enter — 溜めたメッセージを待たずに即送信する（v2.1.275）",
+      "body": "Claude が作業中に追加でメッセージを入力してキューに溜める運用は多いが、通常は今のターンが終わるまで送信されない。v2.1.275 で追加された send-now キー（`ctrl+enter`、または `ctrl+x ctrl+s`）を使うと、実行中のターンをその場で中断し、キューに溜まっているメッセージをまとめて即座に送信できる。送信済み・送信待ちのメッセージは、モデルが受け取るまでグレー表示になる。",
+      "howto": [
+        "方針転換を急いで伝えたいときは、待たずに `ctrl+enter` で割り込んで送る",
+        "グレー表示のメッセージが黒くなるまでは、まだモデルに届いていないと判断する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "npm 由来プラグインが `--ignore-scripts` でインストールされるようになった（v2.1.275）",
+      "body": "セキュリティ強化として、npm 経由で配布されるプラグインは `npm pack --ignore-scripts` で取得され、整合性検証（integrity 検証）が行われるようになった。つまりパッケージの install スクリプトはもう実行されない。\n\n普段使う分には安全性が上がるだけだが、install スクリプトでビルドや初期セットアップを行う自作・カスタムプラグインを npm 経由で配っている場合は、そのスクリプトが動かなくなる点に注意が必要。",
+      "howto": [
+        "自作プラグインを npm 配布しているなら、install スクリプト前提のセットアップが壊れていないか確認する",
+        "ビルドが必要なプラグインは、install スクリプトに頼らずリポジトリ側でビルド済み成果物を配布する形に変える"
+      ],
+      "links": [
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/plugin install <plugin> --marketplace <source>` — 未登録マーケットプレースでもワンステップ導入（v2.1.275）",
+      "body": "これまでプラグインを導入するには、先に `claude plugin marketplace add` でマーケットプレースを登録してから `/plugin install` する二段階が必要だった。v2.1.275 からは `/plugin install <plugin> --marketplace <source>` を実行すると、そのマーケットプレースが未登録の場合に追加するかどうかをその場で聞いてくれるようになり、一度のコマンドで済むようになった。",
+      "howto": [
+        "初めて使うマーケットプレースのプラグインは、事前登録を省いて `--marketplace` オプション付きで直接インストールする",
+        "社内共有の手順書がある場合は、二段階の説明をこのワンステップに書き換える"
+      ],
+      "links": [
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/ultrareview` が「レビューするものがない」ときも迷わなくなった（v2.1.277）",
+      "body": "`/ultrareview` は、レビュー対象がない状況でのメッセージが改善され、今どういう状態にあるのかを明示したうえで、直近のコミットをレビューするコマンドを案内してくれるようになった。あわせて、新規リポジトリで最初のコミットしかない場合は、その1コミットを全体レビューする挙動になった。\n\nこれまでは「差分がない」ときに何をすればいいか分かりにくかったが、この変更で初回導入時のとまどいが減る。",
+      "howto": [
+        "新規リポジトリ立ち上げ直後でも `/ultrareview` を試し、最初のコミット全体をレビューさせる",
+        "差分がないと言われたら、案内される「直近のコミットをレビューする」コマンドをそのまま使う"
+      ],
+      "links": [
+        { "label": "Claude Code changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

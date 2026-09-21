@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auto mode の分類器がサーバー実行に無料化、その裏でスキル同期の落とし穴も｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.278 で Auto mode の安全チェックがサーバー側実行になり、課金対象から外れた。一方で v2.1.273〜276 台の claude.ai スキル同期には、ローカルに入れたスキルが無通知で退避される既知の不具合がある。あわせて、メッセージ即送信キーやプラグイン導入まわりの地味だが効く変更も入った。今日から効く6本。">
+<meta property="og:title" content="Auto mode の分類器がサーバー実行に無料化、その裏でスキル同期の落とし穴も｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.278 で Auto mode の安全チェックがサーバー側実行になり、課金対象から外れた。一方で v2.1.273〜276 台の claude.ai スキル同期には、ローカルに入れたスキルが無通知で退避される既知の不具合がある。あわせて、メッセージ即送信キーやプラグイン導入まわりの地味だが効く変更も入った。今日から効く6本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.2</p>
+      <div class="article__head">
+        <span class="chip">2026.09.21</span>
+        <h1>Auto mode の分類器がサーバー実行に無料化、その裏でスキル同期の落とし穴も</h1>
+        <div class="article__date">2026年9月21日(月)公開 ／ VOL.2</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.2</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.21</div>
+      </div></div>
+      <p class="lead">v2.1.278 で Auto mode の安全チェックがサーバー側実行になり、課金対象から外れた。一方で v2.1.273〜276 台の claude.ai スキル同期には、ローカルに入れたスキルが無通知で退避される既知の不具合がある。あわせて、メッセージ即送信キーやプラグイン導入まわりの地味だが効く変更も入った。今日から効く6本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Auto mode の分類器がサーバー実行になり、課金対象外に（v2.1.278）</a></li><li><a href="#item-2">claude.ai スキル同期の既知の不具合 — ローカルスキルが無通知で `.trash` へ</a></li><li><a href="#item-3">送信キー ctrl+enter — 溜めたメッセージを待たずに即送信する（v2.1.275）</a></li><li><a href="#item-4">npm 由来プラグインが `--ignore-scripts` でインストールされるようになった（v2.1.275）</a></li><li><a href="#item-5">`/plugin install &lt;plugin&gt; --marketplace &lt;source&gt;` — 未登録マーケットプレースでもワンステップ導入（v2.1.275）</a></li><li><a href="#item-6">`/ultrareview` が「レビューするものがない」ときも迷わなくなった（v2.1.277）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Auto mode の分類器がサーバー実行になり、課金対象外に（v2.1.278）</h2>
+      <p>Auto mode は、シェルコマンドやネットワークリクエストを実行する前に「分類器（classifier）」が安全チェックを行う仕組みで動いている。これまでこの分類器の呼び出し自体もトークン課金の対象だったが、v2.1.278 からは Claude API・Enterprise プラン、および Bedrock・Vertex・Foundry・ゲートウェイ経由の利用で、この安全チェックがサーバー側実行になり、課金されなくなった。</p>
+      <p>Pro・Max・Team プランはもともと対象外（表示も出ない）。ゲートウェイやプロキシがリクエストのヘッダーやフィールドを書き換えていると、サーバー側チェックが届かず従来どおりの課金にフォールバックし、その旨の通知が出る。<code>/status</code> の <code>Auto mode server</code> 行で <code>Enabled</code>/<code>Disabled</code> を確認できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude API・Enterprise・Bedrock/Vertex/Foundry で Auto mode を使っているなら <code>/status</code> の <code>Auto mode server</code> 行を確認する</li><li>ゲートウェイ経由で通知が出続ける場合は、ゲートウェイ提供元にヘッダー・フィールドをそのまま素通しするよう依頼する</li><li>サーバー側チェックを使わせたくない場合だけ <code>export CLAUDE_CODE_AUTO_MODE_SERVER=0</code> を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/auto-mode-classifier-billing" target="_blank" rel="noopener">Auto mode classifier request charges — 公式ドキュメント</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>claude.ai スキル同期の既知の不具合 — ローカルスキルが無通知で `.trash` へ</h2>
+      <p>v2.1.273 前後で入った、claude.ai アカウントの skills/plugins を端末セッションに自動同期する機能（<code>~/.claude/skills/synced/</code> を約10分おきに更新）で、既知の不具合が報告されている。ドキュメント上は掃除の対象が <code>synced/</code> 配下だけのはずだが、実際には <code>~/.claude/skills/</code> 直下にある<strong>ローカルインストール済みのスキルまで</strong>まとめて <code>~/.claude/skills/.trash/</code> に退避されるケースがある。</p>
+      <p>報告では <code>syncClaudeAiSkills: false</code> を設定していてもこの掃除が走り、7回のバックグラウンド走査で83個のスキルディレクトリが移動されたとされる。claude.ai 経由でない第三者スキルパックをローカルに置いている場合は影響が大きい。本稿執筆時点で GitHub Issue は未解決。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ローカルにスキルを直接置いている人は <code>~/.claude/skills/.trash/</code> の有無を確認する</li><li>アップグレード前に <code>~/.claude/skills/</code> 全体をバックアップしておく</li><li>同期を止めたい場合は <code>syncClaudeAiSkills: false</code> / <code>syncClaudeAiPlugins: false</code> を設定するが、現状は不具合を完全には防げない点に注意する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/issues/95373" target="_blank" rel="noopener">Account skills sync moves locally-installed skills into skills/.trash — anthropics/claude-code Issue #95373</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>送信キー ctrl+enter — 溜めたメッセージを待たずに即送信する（v2.1.275）</h2>
+      <p>Claude が作業中に追加でメッセージを入力してキューに溜める運用は多いが、通常は今のターンが終わるまで送信されない。v2.1.275 で追加された send-now キー（<code>ctrl+enter</code>、または <code>ctrl+x ctrl+s</code>）を使うと、実行中のターンをその場で中断し、キューに溜まっているメッセージをまとめて即座に送信できる。送信済み・送信待ちのメッセージは、モデルが受け取るまでグレー表示になる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>方針転換を急いで伝えたいときは、待たずに <code>ctrl+enter</code> で割り込んで送る</li><li>グレー表示のメッセージが黒くなるまでは、まだモデルに届いていないと判断する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>npm 由来プラグインが `--ignore-scripts` でインストールされるようになった（v2.1.275）</h2>
+      <p>セキュリティ強化として、npm 経由で配布されるプラグインは <code>npm pack --ignore-scripts</code> で取得され、整合性検証（integrity 検証）が行われるようになった。つまりパッケージの install スクリプトはもう実行されない。</p>
+      <p>普段使う分には安全性が上がるだけだが、install スクリプトでビルドや初期セットアップを行う自作・カスタムプラグインを npm 経由で配っている場合は、そのスクリプトが動かなくなる点に注意が必要。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作プラグインを npm 配布しているなら、install スクリプト前提のセットアップが壊れていないか確認する</li><li>ビルドが必要なプラグインは、install スクリプトに頼らずリポジトリ側でビルド済み成果物を配布する形に変える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">ワークフロー</span>
+      <h2>`/plugin install &lt;plugin&gt; --marketplace &lt;source&gt;` — 未登録マーケットプレースでもワンステップ導入（v2.1.275）</h2>
+      <p>これまでプラグインを導入するには、先に <code>claude plugin marketplace add</code> でマーケットプレースを登録してから <code>/plugin install</code> する二段階が必要だった。v2.1.275 からは <code>/plugin install &lt;plugin&gt; --marketplace &lt;source&gt;</code> を実行すると、そのマーケットプレースが未登録の場合に追加するかどうかをその場で聞いてくれるようになり、一度のコマンドで済むようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>初めて使うマーケットプレースのプラグインは、事前登録を省いて <code>--marketplace</code> オプション付きで直接インストールする</li><li>社内共有の手順書がある場合は、二段階の説明をこのワンステップに書き換える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>`/ultrareview` が「レビューするものがない」ときも迷わなくなった（v2.1.277）</h2>
+      <p><code>/ultrareview</code> は、レビュー対象がない状況でのメッセージが改善され、今どういう状態にあるのかを明示したうえで、直近のコミットをレビューするコマンドを案内してくれるようになった。あわせて、新規リポジトリで最初のコミットしかない場合は、その1コミットを全体レビューする挙動になった。</p>
+      <p>これまでは「差分がない」ときに何をすればいいか分かりにくかったが、この変更で初回導入時のとまどいが減る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>新規リポジトリ立ち上げ直後でも <code>/ultrareview</code> を試し、最初のコミット全体をレビューさせる</li><li>差分がないと言われたら、案内される「直近のコミットをレビューする」コマンドをそのまま使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-20.html">AGENTS.md 直読み対応と Mods で、Claude Code の「設定まわり」が一段ラクになる</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
