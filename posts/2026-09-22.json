@@ -1,0 +1,80 @@
+{
+  "date": "2026-09-22",
+  "headline": "Auto mode の allowed_domains と MCP まわりの地味な修正が、今週いちばん効く",
+  "lead": "今週は派手な新機能より、ネットワークまわりと MCP の細かい修正が実務に効く。Bash Auto Mode にコマンド単位の接続先制限が入り、MCP サーバーの起動待ちとタイムアウトの不具合も直った。あわせて Remote Control セッションをバックグラウンドにフォークできるようになるなど、今日から効く6本。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Auto mode の Bash/PowerShell に `allowed_domains` — コマンドごとに接続先を絞れる（v2.1.271）",
+      "body": "サンドボックス付き Auto mode で実行する Bash・PowerShell・Monitor ツールに、コマンド単位の `allowed_domains` が追加された。そのコマンドが必要とするホストだけがレビューされ、実行中だけ開放される。それ以外のホストへの通信は拒否される。\n\nこれまでの Auto mode のネットワーク許可はセッション全体にかかる粗い設定だったが、これでコマンドごとに「このホストだけ」を明示できるようになった。",
+      "howto": [
+        "外部通信を伴うコマンドを Auto mode で実行するときは、必要なホストだけを `allowed_domains` に明示する",
+        "セッション全体の許可リストを緩めるのではなく、コマンド単位で絞る運用に切り替える"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "Remote Control セッションをバックグラウンドにフォークできるようになった（v2.1.275）",
+      "body": "`claude --remote-control` や Claude アプリの `/remote-control` で始めたセッションを、フォークして手元のマシン上のバックグラウンドセッションとして走らせられるようになった。スマホやタブレットから始めた調査・実装を、そのまま裏で継続させられる。",
+      "howto": [
+        "外出先で始めた作業を、そのまま裏で走らせ続けたいときにフォークする",
+        "フォーク後の状態は `claude agents` などローカル側のツールで確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "`/output-style [name]` が Remote Control・headless セッションでも使えるように（v2.1.269）",
+      "body": "出力スタイルの一覧表示・切り替えを行う `/output-style [name]` が、Remote Control 経由やクラウド・その他の headless セッションでも動くようになった。これまでインタラクティブなターミナルでしか触れなかった設定に、リモートからでも手を出せる。",
+      "howto": [
+        "リモートセッションで出力の粒度を変えたいときは `/output-style` を実行し、まず名前なしで一覧を確認する",
+        "確認したうえで `/output-style <name>` を実行して切り替える"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` で MCP 接続待ちの上限を設定できる（v2.1.274）",
+      "body": "非対話（`-p` など）で最初のターンを実行するとき、Claude Code は接続中の MCP サーバーの起動完了を待ってから動き出す仕様だった。`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` でこの待ち時間に上限を設定できるようになり、`0` を指定すれば待たずに進む。起動が遅い MCP サーバーが CI やバッチ実行の立ち上がりを遅らせているなら効く。",
+      "howto": [
+        "CI・バッチ実行で MCP サーバーの起動待ちがボトルネックなら `CLAUDE_CODE_MCP_STARTUP_WAIT_MS=0` から試す",
+        "完全に待たないのが不安なら、まず数千ミリ秒程度の小さい値で様子を見る"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "MCP の Streamable HTTP、タイムアウト設定を無視して約5分で切れていた不具合が直った（v2.1.274）",
+      "body": "MCP サーバー側の per-server `timeout` を長めに設定していても、Streamable HTTP 経由のツール呼び出しは実際には約5分で強制的にタイムアウトしていた不具合が修正された。長時間かかる処理を MCP ツール経由で呼んでいた場合、設定した `timeout` より先に打ち切られていた可能性がある。",
+      "howto": [
+        "長時間実行する MCP ツールを使っているなら v2.1.274 以降にアップデートする",
+        "過去に「5分前後で原因不明に失敗する」現象があったなら、この不具合が原因だった可能性を疑って再テストする"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "見落としがちな地味アップデート3つ — `/config` のマウス操作、送信時オートスクロール抑制、Write のエラー表示",
+      "body": "派手さはないが積み重なると効く改善も入っている。\n\nフルスクリーンの `/config` パネルがマウス操作に対応し、ホイールで設定リストをスクロールし、値をクリックして変更できるようになった。ポインタが乗っている行はハイライトされる。\n\nVS Code 拡張では、返信がストリーミング中に上へスクロールしても勝手に一番下へ引き戻される挙動があったが修正され、`claudeCode.scrollToBottomOnSend` 設定で送信時のジャンプ自体をオフにもできるようになった。\n\nWrite ツールで書き込み先パスが既存のディレクトリだった場合、これまでは権限が拒否されたかのように黙ってターンが終わっていたが、明確なエラーが返るようになった。",
+      "howto": [
+        "ターミナルの `/config` はマウスで操作できるので、矢印キーでの上下移動にこだわらなくてよい",
+        "VS Code で長い返信を読みながら手を止めたいなら `claudeCode.scrollToBottomOnSend` をオフにする",
+        "Write で謎の「権限拒否」が出たら、まずターゲットパスが既存ディレクトリになっていないか確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

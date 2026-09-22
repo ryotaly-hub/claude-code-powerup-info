@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Auto mode の allowed_domains と MCP まわりの地味な修正が、今週いちばん効く｜Claude code の PowerUP info</title>
+<meta name="description" content="今週は派手な新機能より、ネットワークまわりと MCP の細かい修正が実務に効く。Bash Auto Mode にコマンド単位の接続先制限が入り、MCP サーバーの起動待ちとタイムアウトの不具合も直った。あわせて Remote Control セッションをバックグラウンドにフォークできるようになるなど、今日から効く6本。">
+<meta property="og:title" content="Auto mode の allowed_domains と MCP まわりの地味な修正が、今週いちばん効く｜Claude code の PowerUP info">
+<meta property="og:description" content="今週は派手な新機能より、ネットワークまわりと MCP の細かい修正が実務に効く。Bash Auto Mode にコマンド単位の接続先制限が入り、MCP サーバーの起動待ちとタイムアウトの不具合も直った。あわせて Remote Control セッションをバックグラウンドにフォークできるようになるなど、今日から効く6本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.3</p>
+      <div class="article__head">
+        <span class="chip">2026.09.22</span>
+        <h1>Auto mode の allowed_domains と MCP まわりの地味な修正が、今週いちばん効く</h1>
+        <div class="article__date">2026年9月22日(火)公開 ／ VOL.3</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.3</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.22</div>
+      </div></div>
+      <p class="lead">今週は派手な新機能より、ネットワークまわりと MCP の細かい修正が実務に効く。Bash Auto Mode にコマンド単位の接続先制限が入り、MCP サーバーの起動待ちとタイムアウトの不具合も直った。あわせて Remote Control セッションをバックグラウンドにフォークできるようになるなど、今日から効く6本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Auto mode の Bash/PowerShell に `allowed_domains` — コマンドごとに接続先を絞れる（v2.1.271）</a></li><li><a href="#item-2">Remote Control セッションをバックグラウンドにフォークできるようになった（v2.1.275）</a></li><li><a href="#item-3">`/output-style [name]` が Remote Control・headless セッションでも使えるように（v2.1.269）</a></li><li><a href="#item-4">`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` で MCP 接続待ちの上限を設定できる（v2.1.274）</a></li><li><a href="#item-5">MCP の Streamable HTTP、タイムアウト設定を無視して約5分で切れていた不具合が直った（v2.1.274）</a></li><li><a href="#item-6">見落としがちな地味アップデート3つ — `/config` のマウス操作、送信時オートスクロール抑制、Write のエラー表示</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Auto mode の Bash/PowerShell に `allowed_domains` — コマンドごとに接続先を絞れる（v2.1.271）</h2>
+      <p>サンドボックス付き Auto mode で実行する Bash・PowerShell・Monitor ツールに、コマンド単位の <code>allowed_domains</code> が追加された。そのコマンドが必要とするホストだけがレビューされ、実行中だけ開放される。それ以外のホストへの通信は拒否される。</p>
+      <p>これまでの Auto mode のネットワーク許可はセッション全体にかかる粗い設定だったが、これでコマンドごとに「このホストだけ」を明示できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>外部通信を伴うコマンドを Auto mode で実行するときは、必要なホストだけを <code>allowed_domains</code> に明示する</li><li>セッション全体の許可リストを緩めるのではなく、コマンド単位で絞る運用に切り替える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>Remote Control セッションをバックグラウンドにフォークできるようになった（v2.1.275）</h2>
+      <p><code>claude --remote-control</code> や Claude アプリの <code>/remote-control</code> で始めたセッションを、フォークして手元のマシン上のバックグラウンドセッションとして走らせられるようになった。スマホやタブレットから始めた調査・実装を、そのまま裏で継続させられる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>外出先で始めた作業を、そのまま裏で走らせ続けたいときにフォークする</li><li>フォーク後の状態は <code>claude agents</code> などローカル側のツールで確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">新機能</span>
+      <h2>`/output-style [name]` が Remote Control・headless セッションでも使えるように（v2.1.269）</h2>
+      <p>出力スタイルの一覧表示・切り替えを行う <code>/output-style [name]</code> が、Remote Control 経由やクラウド・その他の headless セッションでも動くようになった。これまでインタラクティブなターミナルでしか触れなかった設定に、リモートからでも手を出せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>リモートセッションで出力の粒度を変えたいときは <code>/output-style</code> を実行し、まず名前なしで一覧を確認する</li><li>確認したうえで <code>/output-style &lt;name&gt;</code> を実行して切り替える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`CLAUDE_CODE_MCP_STARTUP_WAIT_MS` で MCP 接続待ちの上限を設定できる（v2.1.274）</h2>
+      <p>非対話（<code>-p</code> など）で最初のターンを実行するとき、Claude Code は接続中の MCP サーバーの起動完了を待ってから動き出す仕様だった。<code>CLAUDE_CODE_MCP_STARTUP_WAIT_MS</code> でこの待ち時間に上限を設定できるようになり、<code>0</code> を指定すれば待たずに進む。起動が遅い MCP サーバーが CI やバッチ実行の立ち上がりを遅らせているなら効く。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI・バッチ実行で MCP サーバーの起動待ちがボトルネックなら <code>CLAUDE_CODE_MCP_STARTUP_WAIT_MS=0</code> から試す</li><li>完全に待たないのが不安なら、まず数千ミリ秒程度の小さい値で様子を見る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>MCP の Streamable HTTP、タイムアウト設定を無視して約5分で切れていた不具合が直った（v2.1.274）</h2>
+      <p>MCP サーバー側の per-server <code>timeout</code> を長めに設定していても、Streamable HTTP 経由のツール呼び出しは実際には約5分で強制的にタイムアウトしていた不具合が修正された。長時間かかる処理を MCP ツール経由で呼んでいた場合、設定した <code>timeout</code> より先に打ち切られていた可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長時間実行する MCP ツールを使っているなら v2.1.274 以降にアップデートする</li><li>過去に「5分前後で原因不明に失敗する」現象があったなら、この不具合が原因だった可能性を疑って再テストする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>見落としがちな地味アップデート3つ — `/config` のマウス操作、送信時オートスクロール抑制、Write のエラー表示</h2>
+      <p>派手さはないが積み重なると効く改善も入っている。</p>
+      <p>フルスクリーンの <code>/config</code> パネルがマウス操作に対応し、ホイールで設定リストをスクロールし、値をクリックして変更できるようになった。ポインタが乗っている行はハイライトされる。</p>
+      <p>VS Code 拡張では、返信がストリーミング中に上へスクロールしても勝手に一番下へ引き戻される挙動があったが修正され、<code>claudeCode.scrollToBottomOnSend</code> 設定で送信時のジャンプ自体をオフにもできるようになった。</p>
+      <p>Write ツールで書き込み先パスが既存のディレクトリだった場合、これまでは権限が拒否されたかのように黙ってターンが終わっていたが、明確なエラーが返るようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ターミナルの <code>/config</code> はマウスで操作できるので、矢印キーでの上下移動にこだわらなくてよい</li><li>VS Code で長い返信を読みながら手を止めたいなら <code>claudeCode.scrollToBottomOnSend</code> をオフにする</li><li>Write で謎の「権限拒否」が出たら、まずターゲットパスが既存ディレクトリになっていないか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-21.html">Auto mode の分類器がサーバー実行に無料化、その裏でスキル同期の落とし穴も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
