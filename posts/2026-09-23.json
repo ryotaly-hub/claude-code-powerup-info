@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-23",
+  "headline": "Claude Opus 5.5 が登場、Pro/Team Standard のデフォルトも切り替わる",
+  "lead": "v2.1.280 で Claude Opus 5.5 がリリースされ、Pro・Team Standard プランのデフォルトモデルになった。あわせてシンボリックリンク越し書き込みの権限判定バグ修正、MCP ツール説明の文字数上限を変更できる新しい環境変数、Slack 版 Claude Tag への Working インジケーター追加など、リリースされたばかりの更新5本をまとめる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Claude Opus 5.5 が追加され、Opus のデフォルトモデルになった（v2.1.280）",
+      "body": "Claude Opus 5.5（モデル ID: `claude-opus-5-5`）が追加された。1M トークンのコンテキストウィンドウを持ち、価格は入力 $4／出力 $20（per Mtok）、キャッシュ読み込みは $0.20／Mtok。Opus のデフォルトモデルに設定された。\n\nあわせて、以前は起動時のエフォートレベルを引き継いでいた Opus 4.7・Opus 4.8・Fable 5 が、その扱いをやめた。エフォートレベルを固定で使っていた場合は挙動が変わる可能性がある。",
+      "howto": [
+        "`/model` で `claude-opus-5-5` を選べる。既存プロジェクトで Opus を指定している場合は自動でこちらに切り替わる",
+        "Opus 4.7・4.8・Fable 5 でエフォートレベルを固定運用していたなら、`/effort` で現在の設定を確認し直す"
+      ],
+      "links": [
+        { "label": "Introducing Claude Opus 5.5（Anthropic）", "url": "https://www.anthropic.com/claude-opus-5-5" },
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Pro/Team Standard プランのデフォルトモデルが Sonnet から Opus に変わった（v2.1.280）",
+      "body": "Pro および Team Standard プランで新しく始めるセッションのデフォルトモデルが、Sonnet から Opus に変更された。Opus は Sonnet よりコストが高いモデルなので、特に意識せず使い続けるとプラン上限への到達ペースが変わる。",
+      "howto": [
+        "プラン上限を意識する作業では `/model` で明示的に Sonnet を選ぶ",
+        "切り替わり後の消費ペースが気になるなら `/usage` や `/cost` で確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "シンボリックリンク越しの書き込みを acceptEdits・Auto mode が誤って許可できていたバグが直った（v2.1.280）",
+      "body": "シンボリックリンク経由のパスへの書き込みが、リンク先ではなく見た目上のパス（in-tree の綴り）で権限判定されるバグがあった。プロンプトには書き込み先が正しく示されていたものの、`acceptEdits` モードや許可ルール、Auto mode の判定は別の実体パスに着地する書き込みも通してしまう可能性があった。v2.1.280 でこの判定が実際の着地先を見るように修正された。",
+      "howto": [
+        "シンボリックリンクを含むプロジェクトで `acceptEdits` や許可ルール、Auto mode を使っているなら v2.1.280 以降にアップデートする",
+        "`claude update` で更新し、`/status` でバージョンを確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` で MCP ツール説明の文字数上限を変更できる（v2.1.280）",
+      "body": "MCP サーバーのツール説明やサーバー指示（instructions）は、これまでセッションごとに 2,048 文字で切り詰められていた。新しい環境変数 `CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` で、この上限をセッション内の全 MCP サーバーに対してまとめて変更できるようになった。",
+      "howto": [
+        "説明文が長い MCP サーバーでツールの呼び出しが思わしくないなら、`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH=8192 claude` のように起動時に上限を緩めて試す",
+        "逆にコンテキストを節約したいなら、デフォルトの 2,048 より小さい値を設定する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Slack 版 Claude Tag に Working インジケーター・Stop ボタン・スレッドタイトルが追加された（v2.1.280）",
+      "body": "Slack 上で動く Claude Tag のスレッドに、Slack 標準の「作業中」インジケーター、Stop ボタン、スレッドタイトルが表示されるようになった。これまで Claude の作業状況や中断操作は Claude Tag 独自の UI に頼っていたが、Slack ネイティブの見た目・操作に統合された。",
+      "howto": [
+        "Slack で Claude Tag に依頼したタスクを途中で止めたいときは、スレッド上の Stop ボタンをそのまま押す",
+        "長いタスクを流しているスレッドは、追加されたスレッドタイトルで内容を見分けやすくなる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

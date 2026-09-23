@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Opus 5.5 が登場、Pro/Team Standard のデフォルトも切り替わる｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.280 で Claude Opus 5.5 がリリースされ、Pro・Team Standard プランのデフォルトモデルになった。あわせてシンボリックリンク越し書き込みの権限判定バグ修正、MCP ツール説明の文字数上限を変更できる新しい環境変数、Slack 版 Claude Tag への Working インジケーター追加など、リリースされたばかりの更新5本をまとめる。">
+<meta property="og:title" content="Claude Opus 5.5 が登場、Pro/Team Standard のデフォルトも切り替わる｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.280 で Claude Opus 5.5 がリリースされ、Pro・Team Standard プランのデフォルトモデルになった。あわせてシンボリックリンク越し書き込みの権限判定バグ修正、MCP ツール説明の文字数上限を変更できる新しい環境変数、Slack 版 Claude Tag への Working インジケーター追加など、リリースされたばかりの更新5本をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.4</p>
+      <div class="article__head">
+        <span class="chip">2026.09.23</span>
+        <h1>Claude Opus 5.5 が登場、Pro/Team Standard のデフォルトも切り替わる</h1>
+        <div class="article__date">2026年9月23日(水)公開 ／ VOL.4</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.4</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.23</div>
+      </div></div>
+      <p class="lead">v2.1.280 で Claude Opus 5.5 がリリースされ、Pro・Team Standard プランのデフォルトモデルになった。あわせてシンボリックリンク越し書き込みの権限判定バグ修正、MCP ツール説明の文字数上限を変更できる新しい環境変数、Slack 版 Claude Tag への Working インジケーター追加など、リリースされたばかりの更新5本をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Claude Opus 5.5 が追加され、Opus のデフォルトモデルになった（v2.1.280）</a></li><li><a href="#item-2">Pro/Team Standard プランのデフォルトモデルが Sonnet から Opus に変わった（v2.1.280）</a></li><li><a href="#item-3">シンボリックリンク越しの書き込みを acceptEdits・Auto mode が誤って許可できていたバグが直った（v2.1.280）</a></li><li><a href="#item-4">`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` で MCP ツール説明の文字数上限を変更できる（v2.1.280）</a></li><li><a href="#item-5">Slack 版 Claude Tag に Working インジケーター・Stop ボタン・スレッドタイトルが追加された（v2.1.280）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Claude Opus 5.5 が追加され、Opus のデフォルトモデルになった（v2.1.280）</h2>
+      <p>Claude Opus 5.5（モデル ID: <code>claude-opus-5-5</code>）が追加された。1M トークンのコンテキストウィンドウを持ち、価格は入力 $4／出力 $20（per Mtok）、キャッシュ読み込みは $0.20／Mtok。Opus のデフォルトモデルに設定された。</p>
+      <p>あわせて、以前は起動時のエフォートレベルを引き継いでいた Opus 4.7・Opus 4.8・Fable 5 が、その扱いをやめた。エフォートレベルを固定で使っていた場合は挙動が変わる可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/model</code> で <code>claude-opus-5-5</code> を選べる。既存プロジェクトで Opus を指定している場合は自動でこちらに切り替わる</li><li>Opus 4.7・4.8・Fable 5 でエフォートレベルを固定運用していたなら、<code>/effort</code> で現在の設定を確認し直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://www.anthropic.com/claude-opus-5-5" target="_blank" rel="noopener">Introducing Claude Opus 5.5（Anthropic）</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Pro/Team Standard プランのデフォルトモデルが Sonnet から Opus に変わった（v2.1.280）</h2>
+      <p>Pro および Team Standard プランで新しく始めるセッションのデフォルトモデルが、Sonnet から Opus に変更された。Opus は Sonnet よりコストが高いモデルなので、特に意識せず使い続けるとプラン上限への到達ペースが変わる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>プラン上限を意識する作業では <code>/model</code> で明示的に Sonnet を選ぶ</li><li>切り替わり後の消費ペースが気になるなら <code>/usage</code> や <code>/cost</code> で確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>シンボリックリンク越しの書き込みを acceptEdits・Auto mode が誤って許可できていたバグが直った（v2.1.280）</h2>
+      <p>シンボリックリンク経由のパスへの書き込みが、リンク先ではなく見た目上のパス（in-tree の綴り）で権限判定されるバグがあった。プロンプトには書き込み先が正しく示されていたものの、<code>acceptEdits</code> モードや許可ルール、Auto mode の判定は別の実体パスに着地する書き込みも通してしまう可能性があった。v2.1.280 でこの判定が実際の着地先を見るように修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>シンボリックリンクを含むプロジェクトで <code>acceptEdits</code> や許可ルール、Auto mode を使っているなら v2.1.280 以降にアップデートする</li><li><code>claude update</code> で更新し、<code>/status</code> でバージョンを確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` で MCP ツール説明の文字数上限を変更できる（v2.1.280）</h2>
+      <p>MCP サーバーのツール説明やサーバー指示（instructions）は、これまでセッションごとに 2,048 文字で切り詰められていた。新しい環境変数 <code>CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH</code> で、この上限をセッション内の全 MCP サーバーに対してまとめて変更できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>説明文が長い MCP サーバーでツールの呼び出しが思わしくないなら、<code>CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH=8192 claude</code> のように起動時に上限を緩めて試す</li><li>逆にコンテキストを節約したいなら、デフォルトの 2,048 より小さい値を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>Slack 版 Claude Tag に Working インジケーター・Stop ボタン・スレッドタイトルが追加された（v2.1.280）</h2>
+      <p>Slack 上で動く Claude Tag のスレッドに、Slack 標準の「作業中」インジケーター、Stop ボタン、スレッドタイトルが表示されるようになった。これまで Claude の作業状況や中断操作は Claude Tag 独自の UI に頼っていたが、Slack ネイティブの見た目・操作に統合された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Slack で Claude Tag に依頼したタスクを途中で止めたいときは、スレッド上の Stop ボタンをそのまま押す</li><li>長いタスクを流しているスレッドは、追加されたスレッドタイトルで内容を見分けやすくなる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-22.html">Auto mode の allowed_domains と MCP まわりの地味な修正が、今週いちばん効く</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
