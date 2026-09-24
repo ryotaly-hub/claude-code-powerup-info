@@ -1,0 +1,68 @@
+{
+  "date": "2026-09-24",
+  "headline": "v2.1.281 で `attribution: false` が追加、コミット・PR の署名行を丸ごと消せる",
+  "lead": "v2.1.281 は大型リリースで、細かい修正が100件近く入った。中でも設定ひとつでコミット・PR の attribution 行を全部消せる `attribution` キーと、`/insights` の auto mode 推奨表示が今日から使える実用ネタ。あわせて、危険な `rm` がコマンド置換を挟むと確認なしで実行されていた不具合、NUL バイトを含む権限ルールがワイルドカード化されていた不具合など、見逃せない注意点3本を含む5本。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`\"attribution\": false` で全コミット・PR の attribution 行を非表示にできる（v2.1.281）",
+      "body": "`settings.json` に `\"attribution\": false` を設定すると、Claude Code がコミットメッセージや PR 本文に自動で付けている attribution 行（Co-Authored-By や Generated with のような署名）をまとめて非表示にできるようになった。これまでは個別の仕組みを組み合わせて消す必要があったが、単一のキーで済むようになった。",
+      "howto": [
+        "社内ポリシーで attribution 行を残したくないなら、リポジトリの `.claude/settings.json`（チーム共有）か `~/.claude/settings.json`（自分だけ）に `\"attribution\": false` を追加する",
+        "プロジェクト単位・自分だけの切り替えなど、設定を置く場所によって適用範囲が変わる点は `Settings files and precedence` のドキュメントで確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" },
+        { "label": "Settings files and precedence（公式）", "url": "https://code.claude.com/docs/en/settings" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/insights` が auto mode への切り替えを提案してくれるようになった（v2.1.281）",
+      "body": "利用状況を振り返る `/insights` コマンドに、auto mode への切り替えを勧める推奨表示が追加された。毎回の許可プロンプトに時間を取られている使い方をしていると、`/insights` がそれを検知して auto mode を提案してくれる。",
+      "howto": [
+        "しばらく使い込んだセッションで `/insights` を実行し、auto mode の推奨が出るか確認する",
+        "推奨が出たら、まずは影響の小さいリポジトリで auto mode を試してから本番運用に広げる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "コマンド置換を含む再帰的 `rm` が、確認なしで実行されていた不具合が直った（v2.1.281）",
+      "body": "危険な `rm` コマンドの実行前には通常確認が入る仕組みだが、`rm -rf $(...)` のようにコマンド置換の出力を対象に渡すパターンでは、この確認が働かず無確認で実行されてしまう不具合があった。v2.1.281 でこの抜け道が塞がれた。",
+      "howto": [
+        "自動実行系（Auto mode や `acceptEdits`）を使っているプロジェクトは v2.1.281 以降にアップデートする",
+        "`claude update` で更新し、`/status` でバージョンを確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "NUL バイトを含む権限ルールがワイルドカード扱いされていた不具合が直った（v2.1.281）",
+      "body": "許可・拒否ルールの文字列に NUL バイトが含まれていると、意図したパス指定ではなく実質的なワイルドカードとして展開されてしまう不具合があった。特定のパスだけを許可・拒否したつもりが、想定より広い範囲に効いていた可能性がある。あわせて、Read・Write・Edit・NotebookEdit が NUL バイトを含むパスを扱えるようにもなった。",
+      "howto": [
+        "外部入力からパスや権限ルール文字列を組み立てている場合は v2.1.281 以降にアップデートする",
+        "重要な許可・拒否ルールを設定している人は、アップデート後に `/permissions` で意図どおりの範囲になっているか見直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`claude plugin validate` が MCP サーバー設定もチェックするようになった（v2.1.281）",
+      "body": "プラグインの整合性を確認する `claude plugin validate` に、プラグインが同梱する MCP サーバー設定のチェックが加わった。これまでは manifest の記述ミスなどは検出できても、MCP サーバー設定の不備は実際にインストールして動かすまで気づきにくかった。",
+      "howto": [
+        "MCP サーバーを同梱するプラグインを作っているなら、公開前に `claude plugin validate` を通す",
+        "既存プラグインも一度 `claude plugin validate` を再実行し、新しく検出されるようになった問題がないか確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.281 で `attribution: false` が追加、コミット・PR の署名行を丸ごと消せる｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.281 は大型リリースで、細かい修正が100件近く入った。中でも設定ひとつでコミット・PR の attribution 行を全部消せる `attribution` キーと、`/insights` の auto mode 推奨表示が今日から使える実用ネタ。あわせて、危険な `rm` がコマンド置換を挟むと確認なしで実行されていた不具合、NUL バイトを含む権限ルールがワイルドカード化されていた不具合など、見逃せない注意点3本を含む5本。">
+<meta property="og:title" content="v2.1.281 で `attribution: false` が追加、コミット・PR の署名行を丸ごと消せる｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.281 は大型リリースで、細かい修正が100件近く入った。中でも設定ひとつでコミット・PR の attribution 行を全部消せる `attribution` キーと、`/insights` の auto mode 推奨表示が今日から使える実用ネタ。あわせて、危険な `rm` がコマンド置換を挟むと確認なしで実行されていた不具合、NUL バイトを含む権限ルールがワイルドカード化されていた不具合など、見逃せない注意点3本を含む5本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.5</p>
+      <div class="article__head">
+        <span class="chip">2026.09.24</span>
+        <h1>v2.1.281 で `attribution: false` が追加、コミット・PR の署名行を丸ごと消せる</h1>
+        <div class="article__date">2026年9月24日(木)公開 ／ VOL.5</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.5</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.24</div>
+      </div></div>
+      <p class="lead">v2.1.281 は大型リリースで、細かい修正が100件近く入った。中でも設定ひとつでコミット・PR の attribution 行を全部消せる `attribution` キーと、`/insights` の auto mode 推奨表示が今日から使える実用ネタ。あわせて、危険な `rm` がコマンド置換を挟むと確認なしで実行されていた不具合、NUL バイトを含む権限ルールがワイルドカード化されていた不具合など、見逃せない注意点3本を含む5本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`&quot;attribution&quot;: false` で全コミット・PR の attribution 行を非表示にできる（v2.1.281）</a></li><li><a href="#item-2">`/insights` が auto mode への切り替えを提案してくれるようになった（v2.1.281）</a></li><li><a href="#item-3">コマンド置換を含む再帰的 `rm` が、確認なしで実行されていた不具合が直った（v2.1.281）</a></li><li><a href="#item-4">NUL バイトを含む権限ルールがワイルドカード扱いされていた不具合が直った（v2.1.281）</a></li><li><a href="#item-5">`claude plugin validate` が MCP サーバー設定もチェックするようになった（v2.1.281）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`&quot;attribution&quot;: false` で全コミット・PR の attribution 行を非表示にできる（v2.1.281）</h2>
+      <p><code>settings.json</code> に <code>&quot;attribution&quot;: false</code> を設定すると、Claude Code がコミットメッセージや PR 本文に自動で付けている attribution 行（Co-Authored-By や Generated with のような署名）をまとめて非表示にできるようになった。これまでは個別の仕組みを組み合わせて消す必要があったが、単一のキーで済むようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>社内ポリシーで attribution 行を残したくないなら、リポジトリの <code>.claude/settings.json</code>（チーム共有）か <code>~/.claude/settings.json</code>（自分だけ）に <code>&quot;attribution&quot;: false</code> を追加する</li><li>プロジェクト単位・自分だけの切り替えなど、設定を置く場所によって適用範囲が変わる点は <code>Settings files and precedence</code> のドキュメントで確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li><li><a href="https://code.claude.com/docs/en/settings" target="_blank" rel="noopener">Settings files and precedence（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`/insights` が auto mode への切り替えを提案してくれるようになった（v2.1.281）</h2>
+      <p>利用状況を振り返る <code>/insights</code> コマンドに、auto mode への切り替えを勧める推奨表示が追加された。毎回の許可プロンプトに時間を取られている使い方をしていると、<code>/insights</code> がそれを検知して auto mode を提案してくれる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>しばらく使い込んだセッションで <code>/insights</code> を実行し、auto mode の推奨が出るか確認する</li><li>推奨が出たら、まずは影響の小さいリポジトリで auto mode を試してから本番運用に広げる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>コマンド置換を含む再帰的 `rm` が、確認なしで実行されていた不具合が直った（v2.1.281）</h2>
+      <p>危険な <code>rm</code> コマンドの実行前には通常確認が入る仕組みだが、<code>rm -rf $(...)</code> のようにコマンド置換の出力を対象に渡すパターンでは、この確認が働かず無確認で実行されてしまう不具合があった。v2.1.281 でこの抜け道が塞がれた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自動実行系（Auto mode や <code>acceptEdits</code>）を使っているプロジェクトは v2.1.281 以降にアップデートする</li><li><code>claude update</code> で更新し、<code>/status</code> でバージョンを確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>NUL バイトを含む権限ルールがワイルドカード扱いされていた不具合が直った（v2.1.281）</h2>
+      <p>許可・拒否ルールの文字列に NUL バイトが含まれていると、意図したパス指定ではなく実質的なワイルドカードとして展開されてしまう不具合があった。特定のパスだけを許可・拒否したつもりが、想定より広い範囲に効いていた可能性がある。あわせて、Read・Write・Edit・NotebookEdit が NUL バイトを含むパスを扱えるようにもなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>外部入力からパスや権限ルール文字列を組み立てている場合は v2.1.281 以降にアップデートする</li><li>重要な許可・拒否ルールを設定している人は、アップデート後に <code>/permissions</code> で意図どおりの範囲になっているか見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>`claude plugin validate` が MCP サーバー設定もチェックするようになった（v2.1.281）</h2>
+      <p>プラグインの整合性を確認する <code>claude plugin validate</code> に、プラグインが同梱する MCP サーバー設定のチェックが加わった。これまでは manifest の記述ミスなどは検出できても、MCP サーバー設定の不備は実際にインストールして動かすまで気づきにくかった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>MCP サーバーを同梱するプラグインを作っているなら、公開前に <code>claude plugin validate</code> を通す</li><li>既存プラグインも一度 <code>claude plugin validate</code> を再実行し、新しく検出されるようになった問題がないか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-23.html">Claude Opus 5.5 が登場、Pro/Team Standard のデフォルトも切り替わる</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
