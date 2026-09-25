@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Claude Docs/Slides がチャットに統合、Cloud Sessions はフォーク元リポジトリを後付け接続できるように｜Claude code の PowerUP info</title>
+<meta name="description" content="9月中旬、claude.ai 側では Cowork がチャットに統合されて Claude Docs・Slides が使えるようになった。Claude Code 本体も v2.1.281〜v2.1.282 で Cloud Sessions まわりが地味に強化されている。フォーク元リポジトリの後付け接続、ワイドターミナル向けの `maxProseWidth`、テレメトリ設定の可視化など、今日から効く5本。">
+<meta property="og:title" content="Claude Docs/Slides がチャットに統合、Cloud Sessions はフォーク元リポジトリを後付け接続できるように｜Claude code の PowerUP info">
+<meta property="og:description" content="9月中旬、claude.ai 側では Cowork がチャットに統合されて Claude Docs・Slides が使えるようになった。Claude Code 本体も v2.1.281〜v2.1.282 で Cloud Sessions まわりが地味に強化されている。フォーク元リポジトリの後付け接続、ワイドターミナル向けの `maxProseWidth`、テレメトリ設定の可視化など、今日から効く5本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.6</p>
+      <div class="article__head">
+        <span class="chip">2026.09.25</span>
+        <h1>Claude Docs/Slides がチャットに統合、Cloud Sessions はフォーク元リポジトリを後付け接続できるように</h1>
+        <div class="article__date">2026年9月25日(金)公開 ／ VOL.6</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.6</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.25</div>
+      </div></div>
+      <p class="lead">9月中旬、claude.ai 側では Cowork がチャットに統合されて Claude Docs・Slides が使えるようになった。Claude Code 本体も v2.1.281〜v2.1.282 で Cloud Sessions まわりが地味に強化されている。フォーク元リポジトリの後付け接続、ワイドターミナル向けの `maxProseWidth`、テレメトリ設定の可視化など、今日から効く5本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Claude Docs / Slides がチャットに統合、会話の延長でドキュメント作成・編集ができるように</a></li><li><a href="#item-2">Cloud Sessions、実行中セッションに別オーナーのリポジトリ（フォーク元など）をあとから接続できるように（v2.1.282）</a></li><li><a href="#item-3">`maxProseWidth` 設定で、ワイドターミナルでの本文の折り返し幅を制限できる（v2.1.282）</a></li><li><a href="#item-4">Cloud Sessions のモデルメニューに Fast mode の切り替えスイッチが追加された（v2.1.281）</a></li><li><a href="#item-5">起動時通知・`/status`・`claude doctor` に、無効化されたテレメトリ変数の一覧が出るようになった（v2.1.282）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">エコシステム</span>
+      <h2>Claude Docs / Slides がチャットに統合、会話の延長でドキュメント作成・編集ができるように</h2>
+      <p>Anthropic は Claude Cowork を通常のチャットに統合し、あわせて Claude Docs と Claude Slides をベータ公開した。チャットで「議事録をドキュメントにまとめて」のように頼むと、その場で見出しや表を備えた文書が生成され、直接編集できる。スライド作成を頼めば Claude Slides として会話内に展開される。</p>
+      <p>作成したドキュメントは共同編集リンクで共有でき、Google Docs や Microsoft Word 形式へのエクスポートにも対応する。スライドは PowerPoint または PDF でダウンロードできる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>claude.ai の通常チャットで「〜をドキュメントにして」と頼むと Claude Docs が生成され、その場で編集できる</li><li>「〜のスライドを作って」と頼むと Claude Slides が展開され、PowerPoint / PDF でダウンロードできる</li><li>現時点では Pro / Max プランに先行してベータ提供中。Team / Free プランは後日展開される</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://www.techno-edge.net/article/2026/09/17/5505.html" target="_blank" rel="noopener">「Claude Cowork」がClaudeチャットに統合、ドキュメント・スライド作成も可能に（TechnoEdge）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>Cloud Sessions、実行中セッションに別オーナーのリポジトリ（フォーク元など）をあとから接続できるように（v2.1.282）</h2>
+      <p>Cloud Sessions（旧 Claude Code on the web）で、すでに1つのリポジトリに紐づいて実行中のセッションに対し、フォーク元など別オーナーの GitHub リポジトリをあとから追加で接続できるようになった。Slack から始めたセッションでも同じ操作ができる。</p>
+      <p>あわせて Settings › Connectors › GitHub に、Claude GitHub App が自分のアカウントに対してインストール・接続済みかどうかのステータスと、未接続時の接続手順が表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>フォーク元リポジトリの Issue や PR を見ながら作業したいときは、実行中のクラウドセッションのリポジトリメニューから別オーナーのリポジトリを追加接続する</li><li>GitHub 連携が効いているか不安なときは Settings › Connectors › GitHub でアプリの接続状況を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.282" target="_blank" rel="noopener">Release v2.1.282 · anthropics/claude-code</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`maxProseWidth` 設定で、ワイドターミナルでの本文の折り返し幅を制限できる（v2.1.282）</h2>
+      <p>横に広いターミナルで Claude Code を使うと、応答の地の文が画面幅いっぱいに折り返されて読みにくくなることがあった。<code>maxProseWidth</code> 設定を追加すると、地の文だけ読みやすい幅に制限した状態で折り返される。表やコードブロックはこれまでどおり全幅で表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ワイドモニターでターミナルを大きく開いて使っているなら、<code>settings.json</code> に <code>&quot;maxProseWidth&quot;</code> を追加して文字数を指定する</li><li>表・コードブロックの見やすさはそのままに、地の文だけ読みやすくしたい場合に試す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>Cloud Sessions のモデルメニューに Fast mode の切り替えスイッチが追加された（v2.1.281）</h2>
+      <p>Cloud Sessions の入力欄にあるモデルメニューから、Fast mode の ON / OFF を直接切り替えられるようになった。これまでコマンドや設定経由でしか切り替えられなかった Fast mode に、クラウド側からもワンタップで手が届く。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Cloud Sessions で応答速度を優先したいときは、入力欄のモデルメニューを開いて Fast mode を有効にする</li><li>精度を優先したいターンに戻ったら、同じメニューから Fast mode を切る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>起動時通知・`/status`・`claude doctor` に、無効化されたテレメトリ変数の一覧が出るようになった（v2.1.282）</h2>
+      <p>プロジェクトの設定ファイルにテレメトリ関連の環境変数が書かれていても、他の設定と衝突して実際には無視されていたり、テレメトリ自体がオフになっていたりするケースがあった。v2.1.282 では、そうした「効いていない」テレメトリ変数の一覧が起動時の通知と <code>/status</code>・<code>claude doctor</code> に表示されるようになり、気づかないまま収集できていなかった状態を早期に発見できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>チームでテレメトリ収集の設定をしているなら、更新後に一度起動して通知が出ないか確認する</li><li>収集できていない疑いがあるときは <code>/status</code> か <code>claude doctor</code> を実行し、無効化されている変数がないか見る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-24.html">v2.1.281 で `attribution: false` が追加、コミット・PR の署名行を丸ごと消せる</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
