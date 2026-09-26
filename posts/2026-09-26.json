@@ -1,0 +1,83 @@
+{
+  "date": "2026-09-26",
+  "headline": "v2.1.283 で `/doctor prompt-audit` が追加、CLAUDE.md の古いプロンプトパターンを検出できる",
+  "lead": "v2.1.283 は修正・改善が100件近く入った大型リリース。目玉は CLAUDE.md やスキルの記述を棚卸しする `/doctor prompt-audit` と、`/context` が MCP サーバーの instructions を漏らさずカウントするようになった点。あわせて、権限モード未設定時の起動先が auto mode に変わった仕様変更や、v2.1.282 で予約されていた \"claude-ai\" という名前の制限が撤回された注意点も押さえておきたい5本。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`/doctor prompt-audit` — CLAUDE.md やスキルの「古いモデル向け」記述を検出（v2.1.283）",
+      "body": "`/doctor prompt-audit`（エイリアス `/checkup prompt-audit`）は、CLAUDE.md・スキル・エージェント・カスタムコマンドを走査し、古いモデル世代向けに書かれたプロンプトパターンを洗い出すコマンド。\n\n対象になるのは、long-lived なプロンプトの中でキャッシュトークンを無駄に消費し続けている few-shot の例示ブロックや、過剰な防御的指示など。レポートでは古いパス指定や、互いに矛盾する指示ファイルが優先的に表示される。Claude Code 自身が使うシンキングキーワードは検出対象から除外される。",
+      "howto": [
+        "`/doctor prompt-audit` を実行してレポートを確認する",
+        "指摘された古い few-shot ブロックや冗長な防御的指示を削る",
+        "CLAUDE.md やスキルを定期的に棚卸しする習慣として、月イチなどで流す"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog（公式）",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/context` が MCP サーバーの instructions もカウントするように（v2.1.283）",
+      "body": "これまで `/context` の集計から漏れていた MCP サーバーの instructions が、独立した行として表示され、合計トークン数にも算入されるようになった。\n\nMCP サーバーを複数接続していると、これまでの表示より合計が大きく見えることがある。",
+      "howto": [
+        "`/context` を実行し、MCP サーバー分の行が追加されているか確認する",
+        "合計が想定より大きければ、使用頻度の低い MCP サーバーを外す判断材料にする"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog（公式）",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "telemetry オフ・サードパーティ経由のセッションは、権限モード未設定だと auto mode で起動するように（v2.1.283）",
+      "body": "サードパーティプロバイダー経由、または telemetry を無効化した対話セッションで権限モードを何も設定していない場合、デフォルトの起動モードが auto mode に変わった。`permissions.defaultMode` を明示的に設定していれば、そちらが優先されて従来どおりの挙動になる。",
+      "howto": [
+        "意図せず auto mode で起動してほしくない環境では `permissions.defaultMode` を明示的に設定しておく",
+        "該当環境で `/status` や `/config` を開き、現在の権限モードを確認しておく"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog（公式）",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "バックグラウンドに回した MCP ツール呼び出しでも進捗が見えるように（v2.1.283）",
+      "body": "長時間実行中の MCP ツール呼び出しをバックグラウンドに回すと、それ以降の進捗通知が破棄されてしまい表示が止まって見える不具合があった。v2.1.283 で修正され、バックグラウンドに回したタスク側でも最新の進捗が表示され続けるようになった。",
+      "howto": [
+        "時間のかかる MCP ツール呼び出しは、安心してバックグラウンドに回してよい",
+        "進捗はバックグラウンドタスクの表示から追える"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog（公式）",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "\"claude-ai\" という名前のスキル・コマンド・MCPサーバーへの制限が撤回（v2.1.283）",
+      "body": "v2.1.282 で \"claude-ai\" という名前が予約され、この名前を使ったスキル・コマンド・ワークフロー・MCP サーバーが読み込まれなくなっていたが、v2.1.283 でこの制限が撤回された。`Skill(claude-ai:*)` という deny ルールも、通常の前方一致ルールとして扱われるようになっている。",
+      "howto": [
+        "自作のスキルやコマンドを \"claude-ai\" と名付けていて v2.1.282 以降読み込まれなくなっていた場合、v2.1.283 へのアップデートで復活する",
+        "`claude update` で更新し、`/status` でバージョンが v2.1.283 以降になっているか確認する"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog（公式）",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    }
+  ]
+}

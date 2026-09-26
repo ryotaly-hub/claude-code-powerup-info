@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.283 で `/doctor prompt-audit` が追加、CLAUDE.md の古いプロンプトパターンを検出できる｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.283 は修正・改善が100件近く入った大型リリース。目玉は CLAUDE.md やスキルの記述を棚卸しする `/doctor prompt-audit` と、`/context` が MCP サーバーの instructions を漏らさずカウントするようになった点。あわせて、権限モード未設定時の起動先が auto mode に変わった仕様変更や、v2.1.282 で予約されていた &quot;claude-ai&quot; という名前の制限が撤回された注意点も押さえておきたい5本。">
+<meta property="og:title" content="v2.1.283 で `/doctor prompt-audit` が追加、CLAUDE.md の古いプロンプトパターンを検出できる｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.283 は修正・改善が100件近く入った大型リリース。目玉は CLAUDE.md やスキルの記述を棚卸しする `/doctor prompt-audit` と、`/context` が MCP サーバーの instructions を漏らさずカウントするようになった点。あわせて、権限モード未設定時の起動先が auto mode に変わった仕様変更や、v2.1.282 で予約されていた &quot;claude-ai&quot; という名前の制限が撤回された注意点も押さえておきたい5本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.7</p>
+      <div class="article__head">
+        <span class="chip">2026.09.26</span>
+        <h1>v2.1.283 で `/doctor prompt-audit` が追加、CLAUDE.md の古いプロンプトパターンを検出できる</h1>
+        <div class="article__date">2026年9月26日(土)公開 ／ VOL.7</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.7</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.26</div>
+      </div></div>
+      <p class="lead">v2.1.283 は修正・改善が100件近く入った大型リリース。目玉は CLAUDE.md やスキルの記述を棚卸しする `/doctor prompt-audit` と、`/context` が MCP サーバーの instructions を漏らさずカウントするようになった点。あわせて、権限モード未設定時の起動先が auto mode に変わった仕様変更や、v2.1.282 で予約されていた &quot;claude-ai&quot; という名前の制限が撤回された注意点も押さえておきたい5本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`/doctor prompt-audit` — CLAUDE.md やスキルの「古いモデル向け」記述を検出（v2.1.283）</a></li><li><a href="#item-2">`/context` が MCP サーバーの instructions もカウントするように（v2.1.283）</a></li><li><a href="#item-3">telemetry オフ・サードパーティ経由のセッションは、権限モード未設定だと auto mode で起動するように（v2.1.283）</a></li><li><a href="#item-4">バックグラウンドに回した MCP ツール呼び出しでも進捗が見えるように（v2.1.283）</a></li><li><a href="#item-5">&quot;claude-ai&quot; という名前のスキル・コマンド・MCPサーバーへの制限が撤回（v2.1.283）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`/doctor prompt-audit` — CLAUDE.md やスキルの「古いモデル向け」記述を検出（v2.1.283）</h2>
+      <p><code>/doctor prompt-audit</code>（エイリアス <code>/checkup prompt-audit</code>）は、CLAUDE.md・スキル・エージェント・カスタムコマンドを走査し、古いモデル世代向けに書かれたプロンプトパターンを洗い出すコマンド。</p>
+      <p>対象になるのは、long-lived なプロンプトの中でキャッシュトークンを無駄に消費し続けている few-shot の例示ブロックや、過剰な防御的指示など。レポートでは古いパス指定や、互いに矛盾する指示ファイルが優先的に表示される。Claude Code 自身が使うシンキングキーワードは検出対象から除外される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/doctor prompt-audit</code> を実行してレポートを確認する</li><li>指摘された古い few-shot ブロックや冗長な防御的指示を削る</li><li>CLAUDE.md やスキルを定期的に棚卸しする習慣として、月イチなどで流す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/context` が MCP サーバーの instructions もカウントするように（v2.1.283）</h2>
+      <p>これまで <code>/context</code> の集計から漏れていた MCP サーバーの instructions が、独立した行として表示され、合計トークン数にも算入されるようになった。</p>
+      <p>MCP サーバーを複数接続していると、これまでの表示より合計が大きく見えることがある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/context</code> を実行し、MCP サーバー分の行が追加されているか確認する</li><li>合計が想定より大きければ、使用頻度の低い MCP サーバーを外す判断材料にする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>telemetry オフ・サードパーティ経由のセッションは、権限モード未設定だと auto mode で起動するように（v2.1.283）</h2>
+      <p>サードパーティプロバイダー経由、または telemetry を無効化した対話セッションで権限モードを何も設定していない場合、デフォルトの起動モードが auto mode に変わった。<code>permissions.defaultMode</code> を明示的に設定していれば、そちらが優先されて従来どおりの挙動になる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>意図せず auto mode で起動してほしくない環境では <code>permissions.defaultMode</code> を明示的に設定しておく</li><li>該当環境で <code>/status</code> や <code>/config</code> を開き、現在の権限モードを確認しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>バックグラウンドに回した MCP ツール呼び出しでも進捗が見えるように（v2.1.283）</h2>
+      <p>長時間実行中の MCP ツール呼び出しをバックグラウンドに回すと、それ以降の進捗通知が破棄されてしまい表示が止まって見える不具合があった。v2.1.283 で修正され、バックグラウンドに回したタスク側でも最新の進捗が表示され続けるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>時間のかかる MCP ツール呼び出しは、安心してバックグラウンドに回してよい</li><li>進捗はバックグラウンドタスクの表示から追える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>&quot;claude-ai&quot; という名前のスキル・コマンド・MCPサーバーへの制限が撤回（v2.1.283）</h2>
+      <p>v2.1.282 で &quot;claude-ai&quot; という名前が予約され、この名前を使ったスキル・コマンド・ワークフロー・MCP サーバーが読み込まれなくなっていたが、v2.1.283 でこの制限が撤回された。<code>Skill(claude-ai:*)</code> という deny ルールも、通常の前方一致ルールとして扱われるようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作のスキルやコマンドを &quot;claude-ai&quot; と名付けていて v2.1.282 以降読み込まれなくなっていた場合、v2.1.283 へのアップデートで復活する</li><li><code>claude update</code> で更新し、<code>/status</code> でバージョンが v2.1.283 以降になっているか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-25.html">Claude Docs/Slides がチャットに統合、Cloud Sessions はフォーク元リポジトリを後付け接続できるように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
