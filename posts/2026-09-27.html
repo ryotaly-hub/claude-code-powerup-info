@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.277 で `AGENTS.md` に対応、CLAUDE.md がなければ自動で読み込むように｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.277〜v2.1.278 では、CLAUDE.md を置いていないプロジェクトで `AGENTS.md` を自動的に読み込む対応と、Auto mode の安全確認をサーバー側で無課金実行するデフォルト化が入った。あわせて、プラグインをテストケースで採点する `claude plugin eval`、エフォートレベルの上限を一括設定できる `maxEffortLevel`、VS Code 拡張のエージェントマップなど、地味だが効く5本をまとめる。">
+<meta property="og:title" content="v2.1.277 で `AGENTS.md` に対応、CLAUDE.md がなければ自動で読み込むように｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.277〜v2.1.278 では、CLAUDE.md を置いていないプロジェクトで `AGENTS.md` を自動的に読み込む対応と、Auto mode の安全確認をサーバー側で無課金実行するデフォルト化が入った。あわせて、プラグインをテストケースで採点する `claude plugin eval`、エフォートレベルの上限を一括設定できる `maxEffortLevel`、VS Code 拡張のエージェントマップなど、地味だが効く5本をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.8</p>
+      <div class="article__head">
+        <span class="chip">2026.09.27</span>
+        <h1>v2.1.277 で `AGENTS.md` に対応、CLAUDE.md がなければ自動で読み込むように</h1>
+        <div class="article__date">2026年9月27日(日)公開 ／ VOL.8</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.8</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.27</div>
+      </div></div>
+      <p class="lead">v2.1.277〜v2.1.278 では、CLAUDE.md を置いていないプロジェクトで `AGENTS.md` を自動的に読み込む対応と、Auto mode の安全確認をサーバー側で無課金実行するデフォルト化が入った。あわせて、プラグインをテストケースで採点する `claude plugin eval`、エフォートレベルの上限を一括設定できる `maxEffortLevel`、VS Code 拡張のエージェントマップなど、地味だが効く5本をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">CLAUDE.md がないプロジェクトでは `AGENTS.md` を自動的に読むように（v2.1.277）</a></li><li><a href="#item-2">Auto mode の安全確認、Claude API・Enterprise ではサーバー側の分類器がデフォルトに（v2.1.278）</a></li><li><a href="#item-3">`claude plugin eval` でプラグインをテストケース一式に対して採点できる</a></li><li><a href="#item-4">`maxEffortLevel` でプロバイダー問わずエフォートレベルの上限を設定できる</a></li><li><a href="#item-5">VS Code 拡張、プロンプトボックスのエージェント数をクリックしてサブエージェントの様子を確認できる</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>CLAUDE.md がないプロジェクトでは `AGENTS.md` を自動的に読むように（v2.1.277）</h2>
+      <p>CLAUDE.md を置いていないプロジェクトで、代わりに <code>AGENTS.md</code> を読み込むようになった。AGENTS.md は Claude Code 以外のツールでも使われている共通形式のプロジェクト指示ファイルで、これまでは Claude Code 用に別途 CLAUDE.md を用意する必要があった。</p>
+      <p>読み込みの優先順位は <code>instructionFiles</code> 設定で切り替えられる。デフォルトの <code>claude-md-or-agents-md</code> は「CLAUDE.md があればそちらを優先、なければ AGENTS.md」という動作。両方を読ませたい場合は <code>claude-md-and-agents-md</code> に、AGENTS.md を無視して従来どおり CLAUDE.md だけにしたい場合は <code>claude-md</code> に変更できる。</p>
+      <p>なお <code>CLAUDE.local.md</code> も「CLAUDE.md がある」扱いになるため、個人用にこれだけ置いていると、チームの AGENTS.md が読まれなくなる点に注意。Amazon Bedrock・Google Vertex・Microsoft Foundry 経由ではまだ未対応。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>他ツール用に AGENTS.md をすでに書いているプロジェクトなら、CLAUDE.md を追加しなくてもそのまま Claude Code に読ませられる</li><li>CLAUDE.md と AGENTS.md を両方読ませたいなら <code>/config</code> の Project instructions（または settings.json の <code>instructionFiles</code>）を <code>claude-md-and-agents-md</code> に変更する</li><li>個人用の CLAUDE.local.md を置いていてチームの AGENTS.md が無視されている場合は、この設定を疑う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Auto mode の安全確認、Claude API・Enterprise ではサーバー側の分類器がデフォルトに（v2.1.278）</h2>
+      <p>Auto mode の安全確認（アクションを許可してよいかの分類器判定）が、Claude API アカウントと Enterprise プラン、および Amazon Bedrock・Google Cloud の Agent Platform・Microsoft Foundry・各種ゲートウェイ経由の利用で、サーバー側の分類器をデフォルトで使うようになった。サーバー側で実行される分類器のリクエストはモデル呼び出しに束ねられ、追加課金なしで処理される。</p>
+      <p>Bedrock・Vertex・Foundry・ゲートウェイ経由では <code>CLAUDE_CODE_AUTO_MODE_SERVER=0</code> を設定すると、従来どおりの課金対象の分類器パスに戻せる。未対応のゲートウェイを挟んでいてサーバー側処理が失敗した場合は、課金対象パスへのフォールバック時に警告が表示されるようになった。あわせて <code>/status</code> に、このセッションの Auto mode 分類器がサーバー側で動いているかどうかを示す行が追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Auto mode を Bedrock・Vertex・Foundry・自社ゲートウェイ経由で使っているなら、<code>/status</code> を開いて分類器がサーバー側で動いているか確認する</li><li>独自ゲートウェイが未対応のフィールドを弾いて警告が出る場合は、<code>CLAUDE_CODE_AUTO_MODE_SERVER=0</code> で従来の課金パスに切り替える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude plugin eval` でプラグインをテストケース一式に対して採点できる</h2>
+      <p>自作プラグインの効果を確認する <code>claude plugin eval</code> が追加された。テストケースのスイートに対してプラグインを実行して採点し、デフォルトでは同じスイートをプラグインなしでも流して比較する。両者のスコア差分（delta）を見れば、そのプラグインが実際にどれだけ効いているかが分かる。</p>
+      <p>プラグインのルートディレクトリで <code>claude plugin eval init</code> を実行すると、Claude が「良い結果とは何か」を聞いたうえでテストケースと採点基準（グレーダー）を提案し、一度スイートを試してファイルを書き出す。生成されたスイートは <code>claude plugin eval .</code> で実行でき、ターミナルにサマリー表、<code>evals/results/report.html</code> に実行ごとの詳細が出力される。評価の実行とグレーダーによる判定は実際のモデル呼び出しを伴うため、アカウントに課金される点は把握しておきたい。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作プラグインのルートで <code>claude plugin eval init</code> を実行し、Claude にテストケース案を出してもらう</li><li>スイートができたら <code>claude plugin eval .</code> を実行し、プラグインあり/なしのスコア差分を確認する</li><li>実行結果の詳細は <code>evals/results/report.html</code> を開いて見る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/plugin-evals" target="_blank" rel="noopener">Test plugins with evals（公式）</a></li><li><a href="https://code.claude.com/docs/en/whats-new/2026-w37" target="_blank" rel="noopener">Week 37 ダイジェスト（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`maxEffortLevel` でプロバイダー問わずエフォートレベルの上限を設定できる</h2>
+      <p><code>settings.json</code> のトップレベル、または <code>modelSettings</code> 配下でモデルごとに <code>maxEffortLevel</code> を設定すると、Claude Code が使うモデルのエフォートレベルに上限をかけられる。ユーザーが <code>/effort</code> でそれより高いレベルを選んでも、設定した上限で頭打ちになる。Amazon Bedrock・Google Cloud の Agent Platform・Microsoft Foundry を含む、すべてのプロバイダーで有効。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>コストを一定に抑えたいチームは共有の <code>.claude/settings.json</code> に <code>&quot;maxEffortLevel&quot;</code> を設定し、上限を明示する</li><li>モデルごとに上限を変えたい場合は <code>modelSettings.&lt;モデルID&gt;.maxEffortLevel</code> で個別に指定する（この値がグローバル設定より優先される）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/settings-reference#maxeffortlevel" target="_blank" rel="noopener">Settings reference: maxEffortLevel（公式）</a></li><li><a href="https://code.claude.com/docs/en/whats-new/2026-w37" target="_blank" rel="noopener">Week 37 ダイジェスト（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>VS Code 拡張、プロンプトボックスのエージェント数をクリックしてサブエージェントの様子を確認できる</h2>
+      <p>VS Code 拡張のプロンプトボックス下部に表示されるエージェント数をクリックすると「エージェントマップ」が開き、実行中のサブエージェントを一覧できる。各サブエージェントの読み取り専用トランスクリプトをその場で開いたり、不要なものを停止したりできる。</p>
+      <p>あわせて、コマンドメニューの Customize セクションから「Hooks」または「Permissions」を選ぶと、ユーザー・プロジェクト・ローカルの各設定にフックや権限ルールを GUI から追加・削除できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code でサブエージェントを並行して走らせているときは、プロンプトボックス下部のエージェント数をクリックして状況を確認する</li><li>手が離せないサブエージェントは、エージェントマップからその場で停止する</li><li>フックや権限ルールを手で JSON に書く代わりに、コマンドメニューの Customize &gt; Hooks / Permissions から編集する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/vs-code" target="_blank" rel="noopener">VS Code extension（公式）</a></li><li><a href="https://code.claude.com/docs/en/whats-new/2026-w37" target="_blank" rel="noopener">Week 37 ダイジェスト（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-26.html">v2.1.283 で `/doctor prompt-audit` が追加、CLAUDE.md の古いプロンプトパターンを検出できる</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
