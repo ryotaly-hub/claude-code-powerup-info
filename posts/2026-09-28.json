@@ -1,0 +1,65 @@
+{
+  "date": "2026-09-28",
+  "headline": "v2.1.282〜283、ディスク容量エラーの可視化から MCP 画像の自動保存まで運用まわりの改善が続く",
+  "lead": "今回は派手な新機能よりも、日々の運用で地味に効く改善が中心。ディスク容量不足が正体不明のエラーに化ける問題や、CI で system prompt を組み立てる際の制約が直っている。あわせて MCP・`/tasks` まわりの改善もまとめた。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "Bash / PowerShell がディスク容量不足を「Exit code 1」で隠さなくなった（v2.1.282）",
+      "body": "これまではディスクの空き容量が尽きても、原因がわからないまま「Exit code 1」とだけ表示されることがあった。v2.1.282 からはディスク容量不足がその旨わかるかたちで表示されるようになり、原因調査がしやすくなった。あわせて、失敗時に残っていた大きな一時出力ファイルの後始末も改善されている。",
+      "howto": [
+        "ビルドやテストが原因不明の Exit code 1 で落ちたら、まずディスク容量不足のメッセージに変わっていないか確認する",
+        "CI 環境で容量が厳しい場合は、この変更を機に一時ディレクトリの空き容量も定期的にチェックする"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.282)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`--system-prompt` / `--append-system-prompt` がテキストと `-file` 指定を同時に使えるように（v2.1.283）",
+      "body": "これまで `--system-prompt` と `--append-system-prompt` は、直接テキストを渡す形と `-file` でファイルを渡す形のどちらか一方しか指定できなかった。v2.1.283 からは両方を同時に渡せるようになり、ファイルの内容が先に、直接指定したテキストがその後に続く形で結合される。CI やスクリプトで共通の system prompt をファイル管理しつつ、実行時だけ追加指示を足すような使い方がしやすくなった。",
+      "howto": [
+        "共通のシステムプロンプトは `--append-system-prompt-file common.md` のようにファイルで管理する",
+        "実行ごとの追加指示は同時に `--append-system-prompt \"...\"` で渡す。ファイルの内容が先頭に来る"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.283)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "MCP ツールが返す画像が自動でファイル保存され、Bash / Read から開けるように（v2.1.283）",
+      "body": "これまで MCP ツールが返す画像はチャット上に表示されるだけだったが、v2.1.283 からは同時にファイルとしても保存されるようになった。Bash や Read など他のツールからそのファイルを直接読み込んで後続処理に使える。",
+      "howto": [
+        "MCP ツールがスクリーンショットや生成画像を返したら、保存先パスを確認して Read や Bash に渡して処理する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.283)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/tasks` の一覧がページング対応になり見やすく（v2.1.283）",
+      "body": "`/tasks` の各行に状態アイコンが付き、タイトルや主要な情報が途中で省略されず表示されるようになった。PgUp/PgDn・Home/End・マウスホイール・クリックでの操作にも対応し、バックグラウンドタスクが多い時でも一覧を追いやすくなっている。",
+      "howto": [
+        "バックグラウンドタスクが増えたら `/tasks` を開き、PgUp/PgDn かマウスホイールでスクロールして状態を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.283)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "組織向けマネージド設定に `availableModelsMatch: \"exact\"` と `deniedModels` が追加（v2.1.283）",
+      "body": "組織管理者向けのマネージド設定に、モデルのバージョンまで厳密に固定できる `availableModelsMatch: \"exact\"` と、`availableModels` が許可していても個別に締め出せる `deniedModels` が追加された。新しいモデルがリリースされても明示的にリストへ加えるまで使えないようにする、といった運用ができる。",
+      "howto": [
+        "組織でモデルバージョンを固定したい場合は managed settings に `availableModelsMatch: \"exact\"` を設定する",
+        "特定モデルだけを個別に禁止したい場合は `deniedModels` を使う"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.283)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
