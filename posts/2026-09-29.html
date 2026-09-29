@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.284 で Claude Sonnet 5.5 がデフォルトに、auto mode の確認プロンプトや `/mcp reconnect all` も追加｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.284（9/28 リリース）の目玉は、Anthropic API のデフォルト Sonnet モデルが `claude-sonnet-5-5` に切り替わったこと。あわせて、auto mode の作業ディレクトリ外読み取り確認に一時許可の選択肢が加わったほか、`/mcp reconnect all` での MCP 一括再接続、`/effort` スライダーのキーバインド再割り当て、Claude apps gateway の spend limit 金額表示など、日々の操作を少し楽にする変更をまとめた5本。">
+<meta property="og:title" content="v2.1.284 で Claude Sonnet 5.5 がデフォルトに、auto mode の確認プロンプトや `/mcp reconnect all` も追加｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.284（9/28 リリース）の目玉は、Anthropic API のデフォルト Sonnet モデルが `claude-sonnet-5-5` に切り替わったこと。あわせて、auto mode の作業ディレクトリ外読み取り確認に一時許可の選択肢が加わったほか、`/mcp reconnect all` での MCP 一括再接続、`/effort` スライダーのキーバインド再割り当て、Claude apps gateway の spend limit 金額表示など、日々の操作を少し楽にする変更をまとめた5本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.10</p>
+      <div class="article__head">
+        <span class="chip">2026.09.29</span>
+        <h1>v2.1.284 で Claude Sonnet 5.5 がデフォルトに、auto mode の確認プロンプトや `/mcp reconnect all` も追加</h1>
+        <div class="article__date">2026年9月29日(火)公開 ／ VOL.10</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.10</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.29</div>
+      </div></div>
+      <p class="lead">v2.1.284（9/28 リリース）の目玉は、Anthropic API のデフォルト Sonnet モデルが `claude-sonnet-5-5` に切り替わったこと。あわせて、auto mode の作業ディレクトリ外読み取り確認に一時許可の選択肢が加わったほか、`/mcp reconnect all` での MCP 一括再接続、`/effort` スライダーのキーバインド再割り当て、Claude apps gateway の spend limit 金額表示など、日々の操作を少し楽にする変更をまとめた5本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Claude Sonnet 5.5（`claude-sonnet-5-5`）が Anthropic API のデフォルト Sonnet モデルに（v2.1.284）</a></li><li><a href="#item-2">auto mode の作業ディレクトリ外読み取り確認に「今回だけ許可、次はまた聞く」が追加（v2.1.284）</a></li><li><a href="#item-3">`/mcp reconnect all` で接続失敗・要認証の MCP サーバーを一括再接続（v2.1.284）</a></li><li><a href="#item-4">`/effort` スライダーのキー操作を `keybindings.json` で再割り当て可能に（v2.1.284）</a></li><li><a href="#item-5">Claude apps gateway の spend limit、`/usage` とステータスラインに実際の金額で表示（v2.1.284）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Claude Sonnet 5.5（`claude-sonnet-5-5`）が Anthropic API のデフォルト Sonnet モデルに（v2.1.284）</h2>
+      <p>v2.1.284 で、Anthropic API 上のデフォルト Sonnet モデルが <code>claude-sonnet-5-5</code> に切り替わった。1M トークンのコンテキストウィンドウを持ち、価格は 1 Mtok あたり入力 $2 / 出力 $10、キャッシュ読み取りは $0.20 / Mtok。</p>
+      <p>Claude Code は内部でこの Anthropic API を呼び出しているため、モデル指定を固定していない環境では、次回起動時から Sonnet 系呼び出しの実体がこのモデルに切り替わることになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/status</code> を開き、使用中の Sonnet モデルが <code>claude-sonnet-5-5</code> になっているか確認する</li><li>コンテキスト長やキャッシュ戦略に依存した運用をしているチームは、新しい価格（$2/$10、キャッシュ読み取り $0.20）でコスト試算をやり直しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>auto mode の作業ディレクトリ外読み取り確認に「今回だけ許可、次はまた聞く」が追加（v2.1.284）</h2>
+      <p>auto mode で作業ディレクトリの外にあるファイルを読もうとすると確認プロンプトが出るが、これまでは許可すると以降も許可されたままになるか、毎回聞かれるかの二択だった。v2.1.284 で「Yes, but ask again next time」という選択肢が加わり、今回の読み取りだけを許可しつつ、次に別のファイルを読もうとしたときは改めて確認させることができるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto mode で作業ディレクトリ外のファイル読み取りを確認されたとき、恒久的に許可したくない場合は「Yes, but ask again next time」を選ぶ</li><li>一時的な調査で外部ファイルを何度も参照する場合でも、都度確認が入るので意図せず広い許可を出さずに済む</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`/mcp reconnect all` で接続失敗・要認証の MCP サーバーを一括再接続（v2.1.284）</h2>
+      <p>対話型ターミナルで <code>/mcp reconnect all</code> を実行すると、接続に失敗している、または認証が必要になっている MCP サーバーをまとめて再接続できるようになった。これまでは <code>/mcp</code> メニューからサーバーごとに個別に再接続する必要があった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数の MCP サーバーを使っていて、セッション開始時にいくつか接続エラーが出ているときは <code>/mcp reconnect all</code> を実行する</li><li>特定のサーバーだけ再接続したい場合は、従来どおり <code>/mcp</code> メニューから個別に操作する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`/effort` スライダーのキー操作を `keybindings.json` で再割り当て可能に（v2.1.284）</h2>
+      <p><code>/effort</code> スライダーを操作する矢印キーと Tab キーの挙動が、<code>effortSlider:decreaseEffort</code> / <code>effortSlider:increaseEffort</code> / <code>toggleUltracode</code> という3つのキーバインドアクションに分離され、<code>keybindings.json</code> から再割り当てできるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>矢印キーや Tab キーが他のショートカットと衝突している場合、<code>keybindings.json</code> で <code>effortSlider:decreaseEffort</code> などに別のキーを割り当てる</li><li>Ultracode の切り替えだけ別キーにしたい場合は <code>toggleUltracode</code> を個別に設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>Claude apps gateway の spend limit、`/usage` とステータスラインに実際の金額で表示（v2.1.284）</h2>
+      <p>組織の Claude apps gateway 経由で利用している場合、これまで <code>/usage</code> やステータスラインの支出上限表示は間接的な表示だったが、v2.1.284 以降のゲートウェイでは「$271.40 / $500.00 spent this month」のように実際の金額で表示されるようになった。ステータスライン向けの <code>rate_limits.spend_limit</code> にも <code>used_usd</code> / <code>limit_usd</code> / <code>period</code> が加わっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織で Claude apps gateway を運用している場合は、ゲートウェイ自体を v2.1.284 以降に更新して金額表示を有効にする</li><li>ステータスラインを自作している場合は <code>rate_limits.spend_limit.used_usd</code> / <code>limit_usd</code> / <code>period</code> を読んで表示に組み込める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-28.html">v2.1.282〜283、ディスク容量エラーの可視化から MCP 画像の自動保存まで運用まわりの改善が続く</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
