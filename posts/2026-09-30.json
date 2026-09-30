@@ -1,0 +1,79 @@
+{
+  "date": "2026-09-30",
+  "headline": "v2.1.285 で `claude --desktop` が追加、バックグラウンドセッションへの `/resume` 直接指示やサンドボックス誤検知修正も",
+  "lead": "v2.1.285（9/29 リリース）は目立つ新機能は少なめだが、日々の操作に効く改善が並ぶ号。CLI からセッションを Desktop アプリに引き継げる `claude --desktop`、バックグラウンド実行中のセッションに直接プロンプトを送れるようになった `/resume` 系コマンド、インラインスクリプト実行での確認プロンプトの誤検知修正、`claude plugin configure` によるプラグイン設定の確認・投入、バックグラウンドコマンドの時間制限、組織向け `allowedProviders` 設定の6本。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`claude --desktop` でカレントディレクトリやセッションを Desktop アプリで開ける（v2.1.285）",
+      "body": "v2.1.285 で `claude --desktop` コマンドが追加された。実行するとカレントディレクトリを対象に Claude Desktop アプリが開く。`--continue` や `--resume <id>` と組み合わせれば、CLI で進めていたセッションをそのまま Desktop アプリ側に引き継いで開ける。",
+      "howto": [
+        "ターミナルで作業中のディレクトリを Desktop アプリでも確認したいときは `claude --desktop` を実行する",
+        "CLI で進めていたセッションを Desktop アプリで続けたい場合は `claude --desktop --resume <id>` のように使う"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "バックグラウンド実行中のセッションに `/resume` / `claude --resume` で直接指示を送れるように（v2.1.285）",
+      "body": "これまで `/resume` や `claude --resume` でバックグラウンド実行中のセッションを指定すると拒否されていたが、v2.1.285 からはそのまま開けるようになった。さらに `claude --resume <id> \"prompt\"` のようにプロンプト付きで呼び出すと、そのプロンプトがセッションの次のターンとして送信される。",
+      "howto": [
+        "バックグラウンドで走らせている長時間タスクに追加の指示を出したいときは `claude --resume <id> \"追加の指示\"` を使う",
+        "様子を見るだけなら `claude --resume <id>` や `/resume` でそのセッションをそのまま開ける"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "サンドボックス自動許可、`python3 -c` / `node -e` 実行を `=` を含むだけで毎回確認していた誤検知を修正（v2.1.285）",
+      "body": "サンドボックスの auto-allow は、コマンド文字列に `=` が含まれているというだけで、`python3 -c \"...\"` や `node -e \"...\"` のようなインラインスクリプト実行の多くを毎回確認対象にしてしまっていた。v2.1.285 でこの誤検知が修正され、該当する実行のたびに許可を求められることが減った。",
+      "howto": [
+        "`python3 -c` や `node -e` を使った使い捨てスクリプトを日常的に実行しているなら、v2.1.285 以降に更新すると確認プロンプトの頻度が下がる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`claude plugin configure <plugin>` でプラグインの設定項目を確認・投入できる（v2.1.285）",
+      "body": "v2.1.285 で `claude plugin configure <plugin>` が追加された。実行するとそのプラグインが持つ設定オプションと未設定の項目が一覧表示される。`--values-stdin` を使えば標準入力から新しい値を読み込んで保存できる。あわせて `claude plugin install --config` に `<server>.<key>=<value>` 形式が使えるようになり、バンドルされた `.mcpb` MCP サーバーの設定をインストール時に指定できるため、インストール後に `/plugin` → Configure を開かなくても起動するようになった。",
+      "howto": [
+        "プラグインの設定状況を確認したいときは `claude plugin configure <plugin>` を実行する",
+        "非対話的に設定を投入したい場合は値を標準入力で渡し `claude plugin configure <plugin> --values-stdin` を使う",
+        "MCP サーバー同梱のプラグインをインストールする時点で設定を済ませたいなら `claude plugin install --config <server>.<key>=<value>` を使う"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "バックグラウンドの Bash / PowerShell 実行に時間制限（デフォルト30分、最大2時間）が入った（v2.1.285）",
+      "body": "`run_in_background` で動かす Bash / PowerShell コマンドに時間制限が設定されるようになった。コマンドごとの `timeout` がその上限になり、デフォルトは30分、指定できる最大値は2時間。制限に達すると該当コマンドは停止され、Claude にはその旨が通知される。無期限に動かし続けるつもりのロングランニングなバックグラウンドジョブには影響するので注意。",
+      "howto": [
+        "2時間を超えて動かし続けたい監視スクリプトなどは、Claude Code のバックグラウンド実行に頼らず `nohup` 等で外部プロセスとして起動する",
+        "30分より長くかかると分かっているタスクは `timeout` を明示的に指定しておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`allowedProviders` マネージド設定で、組織が使わせる API プロバイダーを制限できるように（v2.1.285）",
+      "body": "v2.1.285 で `allowedProviders` マネージド設定が追加された。管理者は組織のマシンが利用できる API プロバイダーを、Anthropic API・カスタムエンドポイント・Bedrock・Mantle・Vertex AI・Foundry・Claude Platform on AWS・Cloud gateway の中から限定できるようになった。",
+      "howto": [
+        "組織で特定のプロバイダー経由の利用だけを許可したい場合、マネージド設定ファイルに `allowedProviders` を追加する",
+        "個人利用では直接関係しないが、社内のマネージド設定が更新された際は `/status` で利用できるプロバイダーが変わっていないか確認するとよい"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（公式）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.285 で `claude --desktop` が追加、バックグラウンドセッションへの `/resume` 直接指示やサンドボックス誤検知修正も｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.285（9/29 リリース）は目立つ新機能は少なめだが、日々の操作に効く改善が並ぶ号。CLI からセッションを Desktop アプリに引き継げる `claude --desktop`、バックグラウンド実行中のセッションに直接プロンプトを送れるようになった `/resume` 系コマンド、インラインスクリプト実行での確認プロンプトの誤検知修正、`claude plugin configure` によるプラグイン設定の確認・投入、バックグラウンドコマンドの時間制限、組織向け `allowedProviders` 設定の6本。">
+<meta property="og:title" content="v2.1.285 で `claude --desktop` が追加、バックグラウンドセッションへの `/resume` 直接指示やサンドボックス誤検知修正も｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.285（9/29 リリース）は目立つ新機能は少なめだが、日々の操作に効く改善が並ぶ号。CLI からセッションを Desktop アプリに引き継げる `claude --desktop`、バックグラウンド実行中のセッションに直接プロンプトを送れるようになった `/resume` 系コマンド、インラインスクリプト実行での確認プロンプトの誤検知修正、`claude plugin configure` によるプラグイン設定の確認・投入、バックグラウンドコマンドの時間制限、組織向け `allowedProviders` 設定の6本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.11</p>
+      <div class="article__head">
+        <span class="chip">2026.09.30</span>
+        <h1>v2.1.285 で `claude --desktop` が追加、バックグラウンドセッションへの `/resume` 直接指示やサンドボックス誤検知修正も</h1>
+        <div class="article__date">2026年9月30日(水)公開 ／ VOL.11</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.11</div>
+        <div class="thumb__date" style="font-size:38px">2026.09.30</div>
+      </div></div>
+      <p class="lead">v2.1.285（9/29 リリース）は目立つ新機能は少なめだが、日々の操作に効く改善が並ぶ号。CLI からセッションを Desktop アプリに引き継げる `claude --desktop`、バックグラウンド実行中のセッションに直接プロンプトを送れるようになった `/resume` 系コマンド、インラインスクリプト実行での確認プロンプトの誤検知修正、`claude plugin configure` によるプラグイン設定の確認・投入、バックグラウンドコマンドの時間制限、組織向け `allowedProviders` 設定の6本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`claude --desktop` でカレントディレクトリやセッションを Desktop アプリで開ける（v2.1.285）</a></li><li><a href="#item-2">バックグラウンド実行中のセッションに `/resume` / `claude --resume` で直接指示を送れるように（v2.1.285）</a></li><li><a href="#item-3">サンドボックス自動許可、`python3 -c` / `node -e` 実行を `=` を含むだけで毎回確認していた誤検知を修正（v2.1.285）</a></li><li><a href="#item-4">`claude plugin configure &lt;plugin&gt;` でプラグインの設定項目を確認・投入できる（v2.1.285）</a></li><li><a href="#item-5">バックグラウンドの Bash / PowerShell 実行に時間制限（デフォルト30分、最大2時間）が入った（v2.1.285）</a></li><li><a href="#item-6">`allowedProviders` マネージド設定で、組織が使わせる API プロバイダーを制限できるように（v2.1.285）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`claude --desktop` でカレントディレクトリやセッションを Desktop アプリで開ける（v2.1.285）</h2>
+      <p>v2.1.285 で <code>claude --desktop</code> コマンドが追加された。実行するとカレントディレクトリを対象に Claude Desktop アプリが開く。<code>--continue</code> や <code>--resume &lt;id&gt;</code> と組み合わせれば、CLI で進めていたセッションをそのまま Desktop アプリ側に引き継いで開ける。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ターミナルで作業中のディレクトリを Desktop アプリでも確認したいときは <code>claude --desktop</code> を実行する</li><li>CLI で進めていたセッションを Desktop アプリで続けたい場合は <code>claude --desktop --resume &lt;id&gt;</code> のように使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>バックグラウンド実行中のセッションに `/resume` / `claude --resume` で直接指示を送れるように（v2.1.285）</h2>
+      <p>これまで <code>/resume</code> や <code>claude --resume</code> でバックグラウンド実行中のセッションを指定すると拒否されていたが、v2.1.285 からはそのまま開けるようになった。さらに <code>claude --resume &lt;id&gt; &quot;prompt&quot;</code> のようにプロンプト付きで呼び出すと、そのプロンプトがセッションの次のターンとして送信される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>バックグラウンドで走らせている長時間タスクに追加の指示を出したいときは <code>claude --resume &lt;id&gt; &quot;追加の指示&quot;</code> を使う</li><li>様子を見るだけなら <code>claude --resume &lt;id&gt;</code> や <code>/resume</code> でそのセッションをそのまま開ける</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>サンドボックス自動許可、`python3 -c` / `node -e` 実行を `=` を含むだけで毎回確認していた誤検知を修正（v2.1.285）</h2>
+      <p>サンドボックスの auto-allow は、コマンド文字列に <code>=</code> が含まれているというだけで、<code>python3 -c &quot;...&quot;</code> や <code>node -e &quot;...&quot;</code> のようなインラインスクリプト実行の多くを毎回確認対象にしてしまっていた。v2.1.285 でこの誤検知が修正され、該当する実行のたびに許可を求められることが減った。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>python3 -c</code> や <code>node -e</code> を使った使い捨てスクリプトを日常的に実行しているなら、v2.1.285 以降に更新すると確認プロンプトの頻度が下がる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`claude plugin configure &lt;plugin&gt;` でプラグインの設定項目を確認・投入できる（v2.1.285）</h2>
+      <p>v2.1.285 で <code>claude plugin configure &lt;plugin&gt;</code> が追加された。実行するとそのプラグインが持つ設定オプションと未設定の項目が一覧表示される。<code>--values-stdin</code> を使えば標準入力から新しい値を読み込んで保存できる。あわせて <code>claude plugin install --config</code> に <code>&lt;server&gt;.&lt;key&gt;=&lt;value&gt;</code> 形式が使えるようになり、バンドルされた <code>.mcpb</code> MCP サーバーの設定をインストール時に指定できるため、インストール後に <code>/plugin</code> → Configure を開かなくても起動するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>プラグインの設定状況を確認したいときは <code>claude plugin configure &lt;plugin&gt;</code> を実行する</li><li>非対話的に設定を投入したい場合は値を標準入力で渡し <code>claude plugin configure &lt;plugin&gt; --values-stdin</code> を使う</li><li>MCP サーバー同梱のプラグインをインストールする時点で設定を済ませたいなら <code>claude plugin install --config &lt;server&gt;.&lt;key&gt;=&lt;value&gt;</code> を使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>バックグラウンドの Bash / PowerShell 実行に時間制限（デフォルト30分、最大2時間）が入った（v2.1.285）</h2>
+      <p><code>run_in_background</code> で動かす Bash / PowerShell コマンドに時間制限が設定されるようになった。コマンドごとの <code>timeout</code> がその上限になり、デフォルトは30分、指定できる最大値は2時間。制限に達すると該当コマンドは停止され、Claude にはその旨が通知される。無期限に動かし続けるつもりのロングランニングなバックグラウンドジョブには影響するので注意。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>2時間を超えて動かし続けたい監視スクリプトなどは、Claude Code のバックグラウンド実行に頼らず <code>nohup</code> 等で外部プロセスとして起動する</li><li>30分より長くかかると分かっているタスクは <code>timeout</code> を明示的に指定しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>`allowedProviders` マネージド設定で、組織が使わせる API プロバイダーを制限できるように（v2.1.285）</h2>
+      <p>v2.1.285 で <code>allowedProviders</code> マネージド設定が追加された。管理者は組織のマシンが利用できる API プロバイダーを、Anthropic API・カスタムエンドポイント・Bedrock・Mantle・Vertex AI・Foundry・Claude Platform on AWS・Cloud gateway の中から限定できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織で特定のプロバイダー経由の利用だけを許可したい場合、マネージド設定ファイルに <code>allowedProviders</code> を追加する</li><li>個人利用では直接関係しないが、社内のマネージド設定が更新された際は <code>/status</code> で利用できるプロバイダーが変わっていないか確認するとよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog（公式）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-29.html">v2.1.284 で Claude Sonnet 5.5 がデフォルトに、auto mode の確認プロンプトや `/mcp reconnect all` も追加</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
