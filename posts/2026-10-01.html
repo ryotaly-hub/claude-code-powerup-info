@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.286 で `verify` という名前のスキルがあればコミット直前に自動実行されるように、`--bare` 起動も完全に「素」になった｜Claude code の PowerUP info</title>
+<meta name="description" content="今日の号は v2.1.286 のアップデートから。プロジェクトやユーザーのスキルに `verify` という名前のものを置いておくと、Claude がコミット直前に自動実行してくれるようになった。あわせて `--bare` 起動の仕様変更、権限プロンプトの件数表示、コンテキストウィンドウ縮小の通知、VS Code の Bookmarks を取り上げる。">
+<meta property="og:title" content="v2.1.286 で `verify` という名前のスキルがあればコミット直前に自動実行されるように、`--bare` 起動も完全に「素」になった｜Claude code の PowerUP info">
+<meta property="og:description" content="今日の号は v2.1.286 のアップデートから。プロジェクトやユーザーのスキルに `verify` という名前のものを置いておくと、Claude がコミット直前に自動実行してくれるようになった。あわせて `--bare` 起動の仕様変更、権限プロンプトの件数表示、コンテキストウィンドウ縮小の通知、VS Code の Bookmarks を取り上げる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.12</p>
+      <div class="article__head">
+        <span class="chip">2026.10.01</span>
+        <h1>v2.1.286 で `verify` という名前のスキルがあればコミット直前に自動実行されるように、`--bare` 起動も完全に「素」になった</h1>
+        <div class="article__date">2026年10月1日(木)公開 ／ VOL.12</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.12</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.01</div>
+      </div></div>
+      <p class="lead">今日の号は v2.1.286 のアップデートから。プロジェクトやユーザーのスキルに `verify` という名前のものを置いておくと、Claude がコミット直前に自動実行してくれるようになった。あわせて `--bare` 起動の仕様変更、権限プロンプトの件数表示、コンテキストウィンドウ縮小の通知、VS Code の Bookmarks を取り上げる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`verify` という名前のスキルがあれば、コミット直前に自動実行されるように（v2.1.286）</a></li><li><a href="#item-2">`--bare` 起動が名実ともに「素」になった（v2.1.286）</a></li><li><a href="#item-3">権限確認プロンプトが複数たまったとき「2 of 5」のように件数表示されるように（v2.1.286）</a></li><li><a href="#item-4">モデルフォールバックでコンテキストウィンドウが1M→200Kトークンに縮むとき、通知で明記されるように（v2.1.286）</a></li><li><a href="#item-5">VS Code 拡張に Bookmarks が追加、Claude の回答を保存してサイドパネルで参照できる（v2.1.286）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">ワークフロー</span>
+      <h2>`verify` という名前のスキルがあれば、コミット直前に自動実行されるように（v2.1.286）</h2>
+      <p>コミットガイダンスが改善され、プロジェクトまたはユーザーのスキルに <code>verify</code> という名前のものが登録されていると、Claude はコミットの直前にそれを実行するよう指示されるようになった。対象はコードの変更を伴うコミットで、ドキュメントのみ・テストのみのコミットは対象外。</p>
+      <p>テスト・lint・型チェックなど「コミット前に必ず確認したいこと」をスキルとしてまとめておけば、Claude 任せの場面でも検証漏れを防ぎやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>プロジェクトの <code>.claude/skills/verify/SKILL.md</code>（またはユーザースキル）に、テスト・lint・型チェックなど確認したいコマンドをまとめておく</li><li>以降、Claude が <code>git commit</code> する直前にこのスキルを自動実行する（docs-only・tests-only のコミットは対象外）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`--bare` 起動が名実ともに「素」になった（v2.1.286）</h2>
+      <p><code>--bare</code> フラグの挙動が変更され、コマンドラインで明示的に指定した MCP サーバーだけが接続されるようになった。モデルへのシステムリマインダー送信やバックグラウンドタスクの開始も一切行われない。あわせて <code>--bare</code> 下ではシェルコマンドがタイムアウトに達した場合、バックグラウンドに逃がさずそこで停止するようになった。</p>
+      <p>評価ハーネスやベンチマーク、再現性が重要なスクリプト実行で、余計なコンテキストや挙動に邪魔されたくない場面に向く。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>最小構成で再現性を取りたいスクリプトや CI では <code>claude --bare</code> を使う</li><li>必要な MCP サーバーだけをコマンドライン引数で明示的に指定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>権限確認プロンプトが複数たまったとき「2 of 5」のように件数表示されるように（v2.1.286）</h2>
+      <p>権限確認のリクエストが連続して積み上がった場合、プロンプトに「2 of 5」のような進捗表示が追加された。あと何件確認が残っているかが一目でわかるようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数ファイルへの一括編集などで確認プロンプトが連続するとき、画面の件数表示で残りの数を確認できる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>モデルフォールバックでコンテキストウィンドウが1M→200Kトークンに縮むとき、通知で明記されるように（v2.1.286）</h2>
+      <p>フォールバック先のモデルによってコンテキストウィンドウが 1M トークンから 200K トークンに縮小するケースで、そのことがフォールバック通知や autocompact のスラッシングエラーに明記されるようになった。フォールバックが発生したとき、何が起きているか気づきやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>フォールバック通知にコンテキストウィンドウの縮小が明記されていたら、長い会話では <code>/compact</code> や <code>/clear</code> を早めに検討する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>VS Code 拡張に Bookmarks が追加、Claude の回答を保存してサイドパネルで参照できる（v2.1.286）</h2>
+      <p>VS Code 拡張に Bookmarks 機能が追加された。Claude の回答を保存しておくと、専用の Bookmarks サイドパネルに一覧表示され、後から参照できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>残しておきたい回答やコード例が出てきたら Bookmark して、サイドパネルからいつでも呼び出す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-09-30.html">v2.1.285 で `claude --desktop` が追加、バックグラウンドセッションへの `/resume` 直接指示やサンドボックス誤検知修正も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
