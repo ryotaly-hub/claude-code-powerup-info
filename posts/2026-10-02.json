@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-02",
+  "headline": "v2.1.287 で Claude Mods と組み込み Mod『You should know』が追加、VS Code のバックグラウンド実行対応も",
+  "lead": "今日の号は v2.1.287 のアップデートから。プラグインがより深い挙動を変更できる Claude Mods と、見落としを拾う組み込み Mod『You should know』を中心に、VS Code 拡張のバックグラウンド実行、`claude agents` の検索フィルタ、MCP 関連の設定変更・注意点を取り上げる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "プラグインが Claude Code のより深い挙動を変更できる「Claude Mods」が追加（v2.1.287）",
+      "body": "プラグインの仕組みに Claude Mods が追加され、プラグインが Claude Code のより深いレベルの挙動を変更できるようになった。あわせて組み込みの Mod として「You should know」が用意され、サイドエージェントがセッション中に見落としがちな事項を拾ってフラグを立ててくれる。\n\n対象はファーストパーティのセッションで、テレメトリが有効になっている場合。",
+      "howto": [
+        "`/plugin enable cc-plugin-you-should-know@builtin` を実行して有効化する（ファーストパーティセッション・テレメトリ有効時のみ）",
+        "有効化後は、サイドエージェントが見落としがちな確認事項を自動でフラグ表示してくれる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "VS Code 拡張で実行中のコマンド・サブエージェントをその場でバックグラウンドに移動できるように（v2.1.287）",
+      "body": "VS Code 拡張に「Run in background」が追加され、実行中のコマンドやサブエージェントを途中からバックグラウンドに移して、手元の作業を止めずに進められるようになった。あわせてバックグラウンドのシェルや Monitor の出力が、エージェントマップ上のカードに表示されるようになった。",
+      "howto": [
+        "時間がかかりそうなコマンド・サブエージェントの実行中に気づいたら「Run in background」でバックグラウンドへ移す",
+        "エージェントマップのカードで、バックグラウンド実行中のシェルや Monitor の出力をそのまま確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`claude agents` の検索に `n:<text>` フィルタが追加、セッション名やタスクで絞り込める（v2.1.287）",
+      "body": "エージェントビューのフィルタに `n:<text>` が追加され、セッション名やタスクの文字列にマッチするセッションだけを絞り込めるようになった。絞り込み結果は折りたたまれたセクションの中でもマッチとして表示され、Enter で最初のマッチを開ける。",
+      "howto": [
+        "`claude agents` を開き、検索欄に `n:<text>` と入力してセッション名・タスクで絞り込む",
+        "絞り込んだ状態で Enter を押すと最初にマッチしたセッションを開ける"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "MCP サーバー設定の `alwaysLoad: false` で、そのサーバーのツールをすべてツールサーチの裏に隠せるように（v2.1.287）",
+      "body": "MCP サーバー設定の `alwaysLoad: false` の挙動が変更され、指定したサーバーのツールをすべて最初からツールサーチの裏に隠しておけるようになった。普段使わない・たまにしか使わない MCP サーバーのツール一覧をコンテキストから外しておき、必要になったときだけツールサーチ経由で呼び出す使い方に向く。",
+      "howto": [
+        "MCP サーバー設定に `\"alwaysLoad\": false` を追加する",
+        "そのサーバーのツールは常駐せず、必要なときに ToolSearch 経由で呼び出されるようになる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Windows: Bash ツールを拒否すると PowerShell ツールも無効になる点について、起動時に警告が出るように（v2.1.287）",
+      "body": "Windows 環境で Bash ツールを権限設定で拒否すると、連動して PowerShell ツールも無効になり、Claude がシェルを一切使えなくなるケースがある。この状態になったとき、起動時に警告が表示されるようになった。",
+      "howto": [
+        "Windows で Bash ツールを deny 設定にしている場合、起動時の警告が出たら PowerShell ツールの権限設定も合わせて見直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "MCP サーバーからの URL プロンプト（サインインなど）に対応、接続できなくなったら `bareElicitationCapability` を設定（v2.1.287）",
+      "body": "2025-11-25 版の MCP プロトコルに対応し、MCP サーバー側からサインインなどの URL プロンプトを出せるようになった。このアップデートの後に既存の MCP サーバーが接続できなくなった場合は、その MCP 設定のエントリに `\"bareElicitationCapability\": true` を追加すると回避できる。",
+      "howto": [
+        "アップデート後に接続できなくなった MCP サーバーがあれば、その設定に `\"bareElicitationCapability\": true` を追加して再接続を試す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
