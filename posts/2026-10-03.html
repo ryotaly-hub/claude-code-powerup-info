@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.288 で `/code-review --max-findings` が追加、クラウドセッション組み込みの `gh api` や &quot;Prompt is too long&quot; エラーの修正も｜Claude code の PowerUP info</title>
+<meta name="description" content="今日の号は v2.1.288 のアップデートから。`/code-review` のレポート件数を自分で決められる `--max-findings`、GitHub CLI なしで使えるクラウドセッション組み込みの `gh api`、エージェントビューの検索強化を中心に、MCP の再認証プロンプトと長い会話での &quot;Prompt is too long&quot; エラー修正を取り上げる。">
+<meta property="og:title" content="v2.1.288 で `/code-review --max-findings` が追加、クラウドセッション組み込みの `gh api` や &quot;Prompt is too long&quot; エラーの修正も｜Claude code の PowerUP info">
+<meta property="og:description" content="今日の号は v2.1.288 のアップデートから。`/code-review` のレポート件数を自分で決められる `--max-findings`、GitHub CLI なしで使えるクラウドセッション組み込みの `gh api`、エージェントビューの検索強化を中心に、MCP の再認証プロンプトと長い会話での &quot;Prompt is too long&quot; エラー修正を取り上げる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.14</p>
+      <div class="article__head">
+        <span class="chip">2026.10.03</span>
+        <h1>v2.1.288 で `/code-review --max-findings` が追加、クラウドセッション組み込みの `gh api` や &quot;Prompt is too long&quot; エラーの修正も</h1>
+        <div class="article__date">2026年10月3日(土)公開 ／ VOL.14</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.14</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.03</div>
+      </div></div>
+      <p class="lead">今日の号は v2.1.288 のアップデートから。`/code-review` のレポート件数を自分で決められる `--max-findings`、GitHub CLI なしで使えるクラウドセッション組み込みの `gh api`、エージェントビューの検索強化を中心に、MCP の再認証プロンプトと長い会話での &quot;Prompt is too long&quot; エラー修正を取り上げる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">クラウドセッションに GitHub CLI 不要で使える組み込みの `gh api` が追加（v2.1.288）</a></li><li><a href="#item-2">`claude agents` 画面の検索に Ctrl+F、グループ間の移動に Alt+↑/↓ が追加（v2.1.288）</a></li><li><a href="#item-3">`/code-review` に `--max-findings &lt;n&gt;|all` が追加、レポートする finding 数を指定できる（v2.1.288）</a></li><li><a href="#item-4">Ctrl+C でクリアしたプロンプトを ↑ キーで復元できるように（v2.1.288）</a></li><li><a href="#item-5">MCP サーバーが追加の OAuth スコープを要求したとき、再認証プロンプトが出るように（v2.1.288）</a></li><li><a href="#item-6">長い会話で出ていた &quot;Prompt is too long&quot; エラーが、自動圧縮の改善で解消（v2.1.288）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>クラウドセッションに GitHub CLI 不要で使える組み込みの `gh api` が追加（v2.1.288）</h2>
+      <p>クラウド上の Claude Code セッションで、<code>gh</code> CLI をインストールしなくても <code>gh api</code> が組み込みで使えるようになった。これまでセルフホスト環境以外のクラウドセッションでは GitHub API を直接叩く手段がなく、個別にセットアップが必要だった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>クラウドセッション内で <code>gh api repos/&lt;owner&gt;/&lt;repo&gt;/pulls/123</code> のように、インストール手順なしでそのまま叩ける</li><li><code>gh pr view</code> などのサブコマンドより、まずは <code>gh api</code> 経由での直接呼び出しを想定した機能</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude agents` 画面の検索に Ctrl+F、グループ間の移動に Alt+↑/↓ が追加（v2.1.288）</h2>
+      <p>エージェントビュー（<code>claude agents</code>）に、セッションを名前で絞り込む Ctrl+F と、グループ（実行中・完了などの分類）間をジャンプする Alt+↑/↓ が追加された。多数のセッションを並行して走らせているときに、目的のセッションを探す手間が減る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>claude agents</code> を開いた状態で Ctrl+F を押し、セッション名で絞り込む</li><li>Alt+↑ / Alt+↓ でグループ単位にジャンプし、カーソル移動の回数を減らす</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`/code-review` に `--max-findings &lt;n&gt;|all` が追加、レポートする finding 数を指定できる（v2.1.288）</h2>
+      <p><code>/code-review</code> コマンドに <code>--max-findings</code> オプションが追加され、レポートに出す finding の件数を自分で決められるようになった。<code>&lt;n&gt;</code> で件数を絞る、<code>all</code> で全件出す、の切り替えができる。一度指定した件数はその後の実行にも引き継がれ、<code>--max-findings default</code> で元の挙動に戻せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/code-review --max-findings 3</code> のように件数を指定すると、以降の実行もその件数でレポートされる</li><li>全件確認したいときは <code>/code-review --max-findings all</code>、元に戻すときは <code>/code-review --max-findings default</code> を使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>Ctrl+C でクリアしたプロンプトを ↑ キーで復元できるように（v2.1.288）</h2>
+      <p>入力中のプロンプトを Ctrl+C でクリアしてしまっても、直後に ↑ キーを押すと消した内容がドラフトとして戻ってくるようになった。長文を書いている途中に誤って Ctrl+C を押してしまうケースの救済策。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Ctrl+C でプロンプトを消してしまったら、すぐに ↑ キーを押して直前のドラフトを呼び戻す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>MCP サーバーが追加の OAuth スコープを要求したとき、再認証プロンプトが出るように（v2.1.288）</h2>
+      <p>接続済みの MCP サーバーが後から追加の OAuth スコープを要求してきた場合、黙って失敗するのではなく再認証を促すプロンプトが表示されるようになった。MCP サーバー側の権限要件が増えたときに気づきやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>MCP サーバーのツールが急に動かなくなったら、再認証プロンプトが出ていないか確認する</li><li>プロンプトが出たら案内に従って再認証し、追加されたスコープを許可する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">注意点</span>
+      <h2>長い会話で出ていた &quot;Prompt is too long&quot; エラーが、自動圧縮の改善で解消（v2.1.288）</h2>
+      <p>会話が長くなると &quot;Prompt is too long&quot; エラーで止まってしまう不具合が修正された。自動コンパクト（要約によるコンテキスト圧縮）の挙動が改善され、長時間のセッションでも継続しやすくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長時間セッションで同エラーに遭遇していた場合は、v2.1.288 への更新で解消しているか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-02.html">v2.1.287 で Claude Mods と組み込み Mod『You should know』が追加、VS Code のバックグラウンド実行対応も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>

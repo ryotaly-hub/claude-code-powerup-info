@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-03",
+  "headline": "v2.1.288 で `/code-review --max-findings` が追加、クラウドセッション組み込みの `gh api` や \"Prompt is too long\" エラーの修正も",
+  "lead": "今日の号は v2.1.288 のアップデートから。`/code-review` のレポート件数を自分で決められる `--max-findings`、GitHub CLI なしで使えるクラウドセッション組み込みの `gh api`、エージェントビューの検索強化を中心に、MCP の再認証プロンプトと長い会話での \"Prompt is too long\" エラー修正を取り上げる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "クラウドセッションに GitHub CLI 不要で使える組み込みの `gh api` が追加（v2.1.288）",
+      "body": "クラウド上の Claude Code セッションで、`gh` CLI をインストールしなくても `gh api` が組み込みで使えるようになった。これまでセルフホスト環境以外のクラウドセッションでは GitHub API を直接叩く手段がなく、個別にセットアップが必要だった。",
+      "howto": [
+        "クラウドセッション内で `gh api repos/<owner>/<repo>/pulls/123` のように、インストール手順なしでそのまま叩ける",
+        "`gh pr view` などのサブコマンドより、まずは `gh api` 経由での直接呼び出しを想定した機能"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude agents` 画面の検索に Ctrl+F、グループ間の移動に Alt+↑/↓ が追加（v2.1.288）",
+      "body": "エージェントビュー（`claude agents`）に、セッションを名前で絞り込む Ctrl+F と、グループ（実行中・完了などの分類）間をジャンプする Alt+↑/↓ が追加された。多数のセッションを並行して走らせているときに、目的のセッションを探す手間が減る。",
+      "howto": [
+        "`claude agents` を開いた状態で Ctrl+F を押し、セッション名で絞り込む",
+        "Alt+↑ / Alt+↓ でグループ単位にジャンプし、カーソル移動の回数を減らす"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/code-review` に `--max-findings <n>|all` が追加、レポートする finding 数を指定できる（v2.1.288）",
+      "body": "`/code-review` コマンドに `--max-findings` オプションが追加され、レポートに出す finding の件数を自分で決められるようになった。`<n>` で件数を絞る、`all` で全件出す、の切り替えができる。一度指定した件数はその後の実行にも引き継がれ、`--max-findings default` で元の挙動に戻せる。",
+      "howto": [
+        "`/code-review --max-findings 3` のように件数を指定すると、以降の実行もその件数でレポートされる",
+        "全件確認したいときは `/code-review --max-findings all`、元に戻すときは `/code-review --max-findings default` を使う"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Ctrl+C でクリアしたプロンプトを ↑ キーで復元できるように（v2.1.288）",
+      "body": "入力中のプロンプトを Ctrl+C でクリアしてしまっても、直後に ↑ キーを押すと消した内容がドラフトとして戻ってくるようになった。長文を書いている途中に誤って Ctrl+C を押してしまうケースの救済策。",
+      "howto": [
+        "Ctrl+C でプロンプトを消してしまったら、すぐに ↑ キーを押して直前のドラフトを呼び戻す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "MCP サーバーが追加の OAuth スコープを要求したとき、再認証プロンプトが出るように（v2.1.288）",
+      "body": "接続済みの MCP サーバーが後から追加の OAuth スコープを要求してきた場合、黙って失敗するのではなく再認証を促すプロンプトが表示されるようになった。MCP サーバー側の権限要件が増えたときに気づきやすくなる。",
+      "howto": [
+        "MCP サーバーのツールが急に動かなくなったら、再認証プロンプトが出ていないか確認する",
+        "プロンプトが出たら案内に従って再認証し、追加されたスコープを許可する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "長い会話で出ていた \"Prompt is too long\" エラーが、自動圧縮の改善で解消（v2.1.288）",
+      "body": "会話が長くなると \"Prompt is too long\" エラーで止まってしまう不具合が修正された。自動コンパクト（要約によるコンテキスト圧縮）の挙動が改善され、長時間のセッションでも継続しやすくなった。",
+      "howto": [
+        "長時間セッションで同エラーに遭遇していた場合は、v2.1.288 への更新で解消しているか確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
