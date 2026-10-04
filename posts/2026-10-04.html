@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.289 で権限ルールの抜け穴2件が修正、新設の Claude Mods も初回アップグレード後に読み込まれない不具合が解消｜Claude code の PowerUP info</title>
+<meta name="description" content="今日の号は v2.1.289 のアップデートから。Bash の deny/ask ルールが環境変数プレフィックス付きコマンドで素通りしていた問題、`Read` deny ルールがシンボリックリンク経由のファイルに効いていなかった問題という、権限設定に関わる2件の修正を中心に取り上げる。今週始まった Claude Mods のアップグレード後の読み込み不具合や、短いコード片でターミナルが固まる不具合の修正、チームエージェント向け API 追加もあわせて紹介する。">
+<meta property="og:title" content="v2.1.289 で権限ルールの抜け穴2件が修正、新設の Claude Mods も初回アップグレード後に読み込まれない不具合が解消｜Claude code の PowerUP info">
+<meta property="og:description" content="今日の号は v2.1.289 のアップデートから。Bash の deny/ask ルールが環境変数プレフィックス付きコマンドで素通りしていた問題、`Read` deny ルールがシンボリックリンク経由のファイルに効いていなかった問題という、権限設定に関わる2件の修正を中心に取り上げる。今週始まった Claude Mods のアップグレード後の読み込み不具合や、短いコード片でターミナルが固まる不具合の修正、チームエージェント向け API 追加もあわせて紹介する。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.15</p>
+      <div class="article__head">
+        <span class="chip">2026.10.04</span>
+        <h1>v2.1.289 で権限ルールの抜け穴2件が修正、新設の Claude Mods も初回アップグレード後に読み込まれない不具合が解消</h1>
+        <div class="article__date">2026年10月4日(日)公開 ／ VOL.15</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.15</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.04</div>
+      </div></div>
+      <p class="lead">今日の号は v2.1.289 のアップデートから。Bash の deny/ask ルールが環境変数プレフィックス付きコマンドで素通りしていた問題、`Read` deny ルールがシンボリックリンク経由のファイルに効いていなかった問題という、権限設定に関わる2件の修正を中心に取り上げる。今週始まった Claude Mods のアップグレード後の読み込み不具合や、短いコード片でターミナルが固まる不具合の修正、チームエージェント向け API 追加もあわせて紹介する。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Bash の deny/ask ルールが、環境変数プレフィックス付きコマンドで無視されていた不具合を修正（v2.1.289）</a></li><li><a href="#item-2">`Read` の deny ルールが、シンボリックリンク経由のファイルに効いていなかった不具合を修正（v2.1.289）</a></li><li><a href="#item-3">今週追加された Claude Mods が、アップグレード後の最初のセッションで読み込まれない不具合を修正（v2.1.289）</a></li><li><a href="#item-4">短いコード片で `&lt;script&gt;` タグの閉じ忘れや `${` の深いネストがあるとターミナルが固まる不具合を修正（v2.1.289）</a></li><li><a href="#item-5">チームエージェント向けに `agent.spawn` と `$.agent.list()` のアイドル/待機状態が追加（v2.1.289）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>Bash の deny/ask ルールが、環境変数プレフィックス付きコマンドで無視されていた不具合を修正（v2.1.289）</h2>
+      <p>サンドボックスの自動許可が効いている状態で、<code>TZ=&quot;$HOME&quot; rm -rf build</code> のように環境変数プレフィックスを前に付けたコマンドだと、本来かかるはずの Bash deny/ask ルールがそのコマンドを見逃していた。素のコマンド文字列に対するルール一致を前提にしていたチームの permission 設定では、この書き方で意図せず危険なコマンドが素通りしていた可能性がある。あわせて、裸の変数代入がコマンドの前に来るケースでも deny/ask ルールがスキップされる不具合も修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>settings.json</code> などで Bash の deny/ask ルールを運用しているなら、v2.1.289 に上げて「環境変数プレフィックス付きコマンドが素通りしていないか」を再確認する</li><li>特に <code>rm -rf</code> や <code>git push --force</code> など破壊的コマンドを deny している場合は、<code>VAR=val &lt;command&gt;</code> 形式での回避余地がなくなったことを押さえておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>`Read` の deny ルールが、シンボリックリンク経由のファイルに効いていなかった不具合を修正（v2.1.289）</h2>
+      <p><code>@</code> でメンションしたファイル、変更されたファイル、IDE で選択したファイルがシンボリックリンクだった場合、<code>Read</code> の deny ルールがリンク先の実体に対して適用されていなかった。機密ファイルへの直接パスは deny していても、そこへのシンボリックリンクを経由すると読めてしまう状態だったことになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>.env</code> や秘密情報を含むファイルへのアクセスを <code>Read</code> の deny ルールで止めているプロジェクトは、v2.1.289 への更新後に意図通り遮断されるか確認する</li><li>シンボリックリンクをリポジトリ内に置いている場合、リンク元・リンク先どちらのパスで deny ルールを書いていたかを見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">エコシステム</span>
+      <h2>今週追加された Claude Mods が、アップグレード後の最初のセッションで読み込まれない不具合を修正（v2.1.289）</h2>
+      <p>v2.1.287 で追加されたばかりの Claude Mods（プラグインがより深い挙動を変更できる仕組み）で、Claude Code をアップグレードした直後の最初のセッションではインストール済みの mod が読み込まれないという不具合があった。2回目以降のセッションでは正常に読み込まれていたが、アップグレード直後に mod が動かないように見えて戸惑うケースがあった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/plugin enable cc-plugin-you-should-know@builtin</code> などで mod を使っている場合、アップグレード直後に mod が動いていないように見えたら、v2.1.289 への更新とセッションの再起動を試す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>短いコード片で `&lt;script&gt;` タグの閉じ忘れや `${` の深いネストがあるとターミナルが固まる不具合を修正（v2.1.289）</h2>
+      <p>Claude の応答に含まれる短いコードブロックに、閉じていない <code>&lt;script&gt;</code> タグがいくつも入っていたり、<code>${</code> によるテンプレートリテラルのネストが深かったりすると、ターミナルの描画が固まることがあった。フロントエンドのコードやテンプレート文字列を多用するコードをレビューしてもらっているときに発生しやすかった不具合。公開済みアーティファクトのページが同じパターンで固まる・クラッシュする不具合も同時に修正されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>レビュー中にターミナルが固まったら、再現コードの <code>&lt;script&gt;</code> タグや <code>${</code> のネストを疑う前に、まず v2.1.289 に更新してから再実行してみる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">新機能</span>
+      <h2>チームエージェント向けに `agent.spawn` と `$.agent.list()` のアイドル/待機状態が追加（v2.1.289）</h2>
+      <p>プラグイン・mod 開発者向けに、teammate（チームエージェント）を生成する <code>agent.spawn</code> が追加された。あわせて、1つのエージェントに対して複数のプラグインフックイベントをまたいで同じ agent id が振られるようになり、<code>$.agent.list()</code> では idle（待機中）・waiting（応答待ち）の状態が取得できるようになった。複数エージェントの状態を監視・調整する mod を作る際に、どのエージェントが何をしているかを正確に追いやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数エージェントを束ねる mod や plugin を自作しているなら、<code>agent.spawn</code> でチームエージェントを立ち上げ、<code>$.agent.list()</code> の idle/waiting 状態でハンドオフのタイミングを判定する</li><li>フックイベント間でエージェントを追跡するコードを書いている場合、agent id が一貫して振られるようになった前提で実装を見直せる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-03.html">v2.1.288 で `/code-review --max-findings` が追加、クラウドセッション組み込みの `gh api` や &quot;Prompt is too long&quot; エラーの修正も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
