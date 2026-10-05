@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.288 で bypassPermissions 下の危険な `rm` が確認なしに実行される不具合が修正、ネストした CLAUDE.md の読み込み漏れやヒアドキュメントの誤確認も解消｜Claude code の PowerUP info</title>
+<meta name="description" content="今日の号は v2.1.288 のアップデートから、セキュリティと日常の使い勝手に関わる修正をまとめて取り上げる。`bypassPermissions` モードやシェルの allow ルール下で危険な `rm` が確認なしに実行されてしまう不具合、パス指定の `.claude/rules` やネストした CLAUDE.md が `Write`/`Edit` では読み込まれていなかった不具合、サンドボックス自動許可中のヒアドキュメントが毎回確認を求めていた不具合、LSP が応答しないサーバーで無限にハングしていた不具合を紹介する。あわせて v2.1.289 で直った、VS Code の意図しないサインアウトとプラグインによる MCP サインインツール説明書き換えの不具合にも触れる。">
+<meta property="og:title" content="v2.1.288 で bypassPermissions 下の危険な `rm` が確認なしに実行される不具合が修正、ネストした CLAUDE.md の読み込み漏れやヒアドキュメントの誤確認も解消｜Claude code の PowerUP info">
+<meta property="og:description" content="今日の号は v2.1.288 のアップデートから、セキュリティと日常の使い勝手に関わる修正をまとめて取り上げる。`bypassPermissions` モードやシェルの allow ルール下で危険な `rm` が確認なしに実行されてしまう不具合、パス指定の `.claude/rules` やネストした CLAUDE.md が `Write`/`Edit` では読み込まれていなかった不具合、サンドボックス自動許可中のヒアドキュメントが毎回確認を求めていた不具合、LSP が応答しないサーバーで無限にハングしていた不具合を紹介する。あわせて v2.1.289 で直った、VS Code の意図しないサインアウトとプラグインによる MCP サインインツール説明書き換えの不具合にも触れる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.16</p>
+      <div class="article__head">
+        <span class="chip">2026.10.05</span>
+        <h1>v2.1.288 で bypassPermissions 下の危険な `rm` が確認なしに実行される不具合が修正、ネストした CLAUDE.md の読み込み漏れやヒアドキュメントの誤確認も解消</h1>
+        <div class="article__date">2026年10月5日(月)公開 ／ VOL.16</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.16</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.05</div>
+      </div></div>
+      <p class="lead">今日の号は v2.1.288 のアップデートから、セキュリティと日常の使い勝手に関わる修正をまとめて取り上げる。`bypassPermissions` モードやシェルの allow ルール下で危険な `rm` が確認なしに実行されてしまう不具合、パス指定の `.claude/rules` やネストした CLAUDE.md が `Write`/`Edit` では読み込まれていなかった不具合、サンドボックス自動許可中のヒアドキュメントが毎回確認を求めていた不具合、LSP が応答しないサーバーで無限にハングしていた不具合を紹介する。あわせて v2.1.289 で直った、VS Code の意図しないサインアウトとプラグインによる MCP サインインツール説明書き換えの不具合にも触れる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`bypassPermissions` モードやシェル allow ルール下で、危険な `rm` が確認なしに実行されていた不具合を修正（v2.1.288）</a></li><li><a href="#item-2">パス指定の `.claude/rules` やネストした CLAUDE.md が、`Write`/`Edit` でファイルを作成・変更したときも読み込まれるように（v2.1.288）</a></li><li><a href="#item-3">サンドボックス自動許可中、クオートなしのヒアドキュメントが単純な内容なら毎回確認を求めなくなった（v2.1.288）</a></li><li><a href="#item-4">LSP ツール呼び出しが応答しないサーバーで無限にハングする不具合を修正、60秒でタイムアウトするように（`requestTimeout`、v2.1.288）</a></li><li><a href="#item-5">VS Code で頻発していた意図しないサインアウトの原因だった、2.1.288 の `claude auth status` への変更をロールバック（v2.1.289）</a></li><li><a href="#item-6">ユーザーインストールのプラグインが、組織管理 MCP サーバーのサインインツールの説明文を書き換えられる不具合を修正（v2.1.289）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>`bypassPermissions` モードやシェル allow ルール下で、危険な `rm` が確認なしに実行されていた不具合を修正（v2.1.288）</h2>
+      <p><code>bash -c</code> や <code>sh -c</code> に包んだスクリプトの中に <code>/</code> やホームディレクトリを対象にするような危険な <code>rm</code> があった場合、<code>bypassPermissions</code> モードや Bash のシェル allow ルールが効いている状態では、通常なら止まるはずの確認が素通りして実行されてしまう不具合があった。スクリプトの外側だけをルールで見ていて、<code>bash -c &quot;...&quot;</code> の中身まで見ていなかったことが原因。GitHub Issue #96300 として報告され、v2.1.288 で修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI や自動化スクリプトで <code>bypassPermissions</code> モードや Bash の allow ルールを使っている場合は、v2.1.288 以降に更新してから使う</li><li><code>bash -c</code> 経由で <code>rm</code> を含むスクリプトを実行させる構成になっていないか、既存の allow ルールを一度見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li><li><a href="https://github.com/anthropics/claude-code/issues/96300" target="_blank" rel="noopener">anthropics/claude-code#96300</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>パス指定の `.claude/rules` やネストした CLAUDE.md が、`Write`/`Edit` でファイルを作成・変更したときも読み込まれるように（v2.1.288）</h2>
+      <p>これまで、パスに応じて効く <code>.claude/rules</code> やサブディレクトリに置いたネストした CLAUDE.md は、そのパス配下のファイルを <code>Read</code> したときにしか読み込まれていなかった。<code>Write</code> や <code>Edit</code> で該当パスのファイルを新規作成・変更しても、読み込みが起きないまま編集だけが進むケースがあった。v2.1.288 で、<code>Write</code>/<code>Edit</code> でも同じように読み込まれるように修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特定ディレクトリ配下にだけ効かせたいルールを <code>.claude/rules</code> やネストした CLAUDE.md で運用しているなら、v2.1.288 以降では新規ファイル作成時からそのルールが効く前提で設計し直せる</li><li>「読んでいないファイルを書くときはルールが効かない」という前提で <code>Read</code> を挟んでいた回避策があれば、不要になったので外してよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>サンドボックス自動許可中、クオートなしのヒアドキュメントが単純な内容なら毎回確認を求めなくなった（v2.1.288）</h2>
+      <p><code>python3 &lt;&lt;EOF</code> のようにデリミタをクオートしないヒアドキュメントは、本文がプレーンテキストと単純な <code>$VAR</code> 参照だけであっても、サンドボックス自動許可の下で毎回確認を求められていた。v2.1.288 でこの誤判定が修正され、単純なヒアドキュメントは確認なしで実行できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>python3 &lt;&lt;EOF</code> や <code>cat &lt;&lt;EOF</code> のようなヒアドキュメントを使うスクリプトを自動許可配下で動かしていて確認が何度も出ていたなら、v2.1.288 に上げて挙動を確認する</li><li>複雑な式やコマンド置換を本文に含むヒアドキュメントは対象外なので、そういうケースでは引き続き確認が出る点は押さえておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>LSP ツール呼び出しが応答しないサーバーで無限にハングする不具合を修正、60秒でタイムアウトするように（`requestTimeout`、v2.1.288）</h2>
+      <p>言語サーバーが動的な capability registration を使っていたり応答を止めてしまったりすると、LSP ツール呼び出しが無限にハングすることがあった。v2.1.288 で、サーバーごとに設定できる <code>requestTimeout</code>（デフォルト60秒）でタイムアウトするようになり、ハングしたまま固まることがなくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>LSP を使っていてツール呼び出しが固まる場面に遭遇していたら、v2.1.288 に更新する</li><li>特定の言語サーバーの応答が遅く60秒では短い場合は、サーバー設定で <code>requestTimeout</code> を伸ばす</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>VS Code で頻発していた意図しないサインアウトの原因だった、2.1.288 の `claude auth status` への変更をロールバック（v2.1.289）</h2>
+      <p>v2.1.288 で <code>claude auth status</code> に入った変更が、VS Code 拡張でのサインアウトを以前より頻繁に発生させてしまう可能性があった。v2.1.289 でこの変更はロールバックされた。v2.1.288 を使っていた間にログインが急に切れる体験をしていたなら、この変更が原因だった可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code 拡張を使っていて最近サインアウトが増えたと感じていたら、v2.1.289 以降に更新する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>ユーザーインストールのプラグインが、組織管理 MCP サーバーのサインインツールの説明文を書き換えられる不具合を修正（v2.1.289）</h2>
+      <p>組織が管理している MCP サーバーのサインイン用ツールについて、ユーザーが個人でインストールしたプラグインがその説明文（description）を書き換えられる状態になっていた。組織側で統制しているはずの認証フローの見え方が、ユーザー側のプラグインによって変えられてしまう余地があったことになる。v2.1.289 で修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織管理の MCP サーバーを使っている Team / Enterprise 環境では、v2.1.289 以降に更新して、サインインツールの説明文がプラグインの影響を受けない状態になっているか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-04.html">v2.1.289 で権限ルールの抜け穴2件が修正、新設の Claude Mods も初回アップグレード後に読み込まれない不具合が解消</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
