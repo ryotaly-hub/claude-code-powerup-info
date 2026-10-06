@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.290 で `/code-review` の対象モデルが拡大、WebFetch の文字数制限撤廃や公式サンプル Mod 公開も｜Claude code の PowerUP info</title>
+<meta name="description" content="10月5日公開の v2.1.290 から、日常の作業に関わる変更をまとめる。`/code-review` の medium effort がチューニング未対応モデルでもクリーンアップ系の finding を報告するようになり、WebFetch は100,000文字での読み捨てをやめて `offset` で続きを読めるようになった。WebSearch の呼び出し上限が時間ごとの補充式に変わった点、`rg` や `git grep`、`pyright` の自動承認が絞られた点にも触れる。あわせて、Claude Mods のサンプルが公式リポジトリで公開されたことも紹介する。">
+<meta property="og:title" content="v2.1.290 で `/code-review` の対象モデルが拡大、WebFetch の文字数制限撤廃や公式サンプル Mod 公開も｜Claude code の PowerUP info">
+<meta property="og:description" content="10月5日公開の v2.1.290 から、日常の作業に関わる変更をまとめる。`/code-review` の medium effort がチューニング未対応モデルでもクリーンアップ系の finding を報告するようになり、WebFetch は100,000文字での読み捨てをやめて `offset` で続きを読めるようになった。WebSearch の呼び出し上限が時間ごとの補充式に変わった点、`rg` や `git grep`、`pyright` の自動承認が絞られた点にも触れる。あわせて、Claude Mods のサンプルが公式リポジトリで公開されたことも紹介する。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.17</p>
+      <div class="article__head">
+        <span class="chip">2026.10.06</span>
+        <h1>v2.1.290 で `/code-review` の対象モデルが拡大、WebFetch の文字数制限撤廃や公式サンプル Mod 公開も</h1>
+        <div class="article__date">2026年10月6日(火)公開 ／ VOL.17</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.17</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.06</div>
+      </div></div>
+      <p class="lead">10月5日公開の v2.1.290 から、日常の作業に関わる変更をまとめる。`/code-review` の medium effort がチューニング未対応モデルでもクリーンアップ系の finding を報告するようになり、WebFetch は100,000文字での読み捨てをやめて `offset` で続きを読めるようになった。WebSearch の呼び出し上限が時間ごとの補充式に変わった点、`rg` や `git grep`、`pyright` の自動承認が絞られた点にも触れる。あわせて、Claude Mods のサンプルが公式リポジトリで公開されたことも紹介する。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Anthropic 公式のサンプル Mod が `claude-code-playground` リポジトリで公開される</a></li><li><a href="#item-2">`/code-review` の medium effort が、未チューニングモデルでもクリーンアップと CLAUDE.md 規約の finding を報告するように（v2.1.290）</a></li><li><a href="#item-3">WebFetch の100,000文字での読み捨てが廃止、`offset` で続きを読めるように（v2.1.290）</a></li><li><a href="#item-4">インタラクティブセッションの WebSearch 呼び出し上限が、時間ごとの補充式に変更（v2.1.290）</a></li><li><a href="#item-5">`rg` / `git grep` のワイルドカード展開や zsh の変数解釈、`pyright` の実行が自動承認されなくなった（v2.1.290）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">エコシステム</span>
+      <h2>Anthropic 公式のサンプル Mod が `claude-code-playground` リポジトリで公開される</h2>
+      <p>Claude Mods の使用例として、Anthropic が <code>claude-code-playground</code> リポジトリの <code>claude-code/mods</code> ディレクトリでサンプルを3つ公開した。それぞれ完全なプラグインになっていて、README に作り方も書かれている。</p>
+      <p>公開されているのは次の3つ。<code>token-weather</code> はプロンプトの上にコンテキストウィンドウの残量予報を描画する。<code>blast-radius</code> は <code>rm -rf</code> や強制プッシュなど危険なシェルコマンドの実行をいったん保留し、それによって何が変わるかをボタンとともに表示する。<code>replay-theater</code> は直前のターンで Claude が行ったファイル編集を順番に確認できる <code>/replay</code> コマンドを追加する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>リポジトリをクローンし、<code>claude --plugin-dir ./claude-code-playground/claude-code/mods/blast-radius</code> のように1セッションだけロードして試す</li><li>読み込む前に動作を確認したいなら <code>claude plugin validate ./&lt;mod のディレクトリ&gt;</code> を実行する。出力の <code>hooks:</code> と <code>calls:</code> の行で、処理するイベントと要求する操作が分かる</li><li>継続して使うなら、クローンした <code>claude-code/mods</code> ディレクトリをマーケットプレイスとして追加してからインストールする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/ja/plugins/mods/overview" target="_blank" rel="noopener">Mods の概要 - Claude Code Docs</a></li><li><a href="https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods" target="_blank" rel="noopener">anthropics/claude-code-playground: claude-code/mods</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/code-review` の medium effort が、未チューニングモデルでもクリーンアップと CLAUDE.md 規約の finding を報告するように（v2.1.290）</h2>
+      <p><code>/code-review</code> の medium effort レベルは、レビュー設定がチューニングされているモデルでのみ、正確性バグに加えて重複コードの削除などのクリーンアップ系 finding や CLAUDE.md の規約違反を報告していた。v2.1.290 で、Opus 5.5 や Sonnet 5.5 を含むチューニング未対応のモデルでも同じように報告するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/code-review</code>（デフォルトの medium effort）を実行すると、正確性バグだけでなく reuse / simplification / efficiency の指摘や CLAUDE.md 違反も出てくるようになった。これらを見るためだけに effort を上げる必要はない</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>WebFetch の100,000文字での読み捨てが廃止、`offset` で続きを読めるように（v2.1.290）</h2>
+      <p>これまで WebFetch は、取得したページのテキストが100,000文字を超えると、何も知らせずにそれ以降を読み捨てていた。v2.1.290 でこの挙動が修正され、読めなかった文字数を明示したうえで、<code>offset</code> を指定すれば続きを読み進められるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長いドキュメントページを WebFetch で読んでいて「ここまでしか読んでいない」という案内が出たら、同じ URL に <code>offset</code> を指定して WebFetch をもう一度呼び、続きを読む</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>インタラクティブセッションの WebSearch 呼び出し上限が、時間ごとの補充式に変更（v2.1.290）</h2>
+      <p>インタラクティブセッションの WebSearch は、これまで200回呼び出すとそのセッションでは使えなくなっていた。v2.1.290 から、1時間あたり100回のペースで呼び出し回数が補充される方式に変わった。補充ペースは <code>CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR</code> で変更でき、<code>0</code> に設定すると補充を止められる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長時間の調査タスクで WebSearch を多用していても、時間を置けば呼び出し回数が回復するので、セッションを再起動せずに調べ続けられる</li><li>補充ペースを変えたい場合は環境変数 <code>CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR</code> を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`rg` / `git grep` のワイルドカード展開や zsh の変数解釈、`pyright` の実行が自動承認されなくなった（v2.1.290）</h2>
+      <p>v2.1.290 で Bash の権限チェックに修正が入った。<code>rg</code> や <code>git grep</code> のような読み取り専用コマンドでも、シェルがワイルドカードとして展開してしまう引数を渡していた場合は、自動承認されず確認を求めるようになった。zsh と bash で変数名の解釈が異なるコマンドも同様に確認が必要になった。また <code>pyright</code> の実行は読み取り専用コマンドの扱いから外れ、実行前に確認を求めるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>rg</code> / <code>git grep</code> をワイルドカード付き引数で自動承認に頼っていた運用があれば、v2.1.290 以降は確認プロンプトが出るようになる点に注意する</li><li><code>pyright</code> を自動承認したいなら、許可ルールに <code>Bash(pyright:*)</code> のような行を追加しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-05.html">v2.1.288 で bypassPermissions 下の危険な `rm` が確認なしに実行される不具合が修正、ネストした CLAUDE.md の読み込み漏れやヒアドキュメントの誤確認も解消</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>

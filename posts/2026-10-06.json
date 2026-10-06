@@ -1,0 +1,85 @@
+{
+  "date": "2026-10-06",
+  "headline": "v2.1.290 で `/code-review` の対象モデルが拡大、WebFetch の文字数制限撤廃や公式サンプル Mod 公開も",
+  "lead": "10月5日公開の v2.1.290 から、日常の作業に関わる変更をまとめる。`/code-review` の medium effort がチューニング未対応モデルでもクリーンアップ系の finding を報告するようになり、WebFetch は100,000文字での読み捨てをやめて `offset` で続きを読めるようになった。WebSearch の呼び出し上限が時間ごとの補充式に変わった点、`rg` や `git grep`、`pyright` の自動承認が絞られた点にも触れる。あわせて、Claude Mods のサンプルが公式リポジトリで公開されたことも紹介する。",
+  "items": [
+    {
+      "category": "エコシステム",
+      "title": "Anthropic 公式のサンプル Mod が `claude-code-playground` リポジトリで公開される",
+      "body": "Claude Mods の使用例として、Anthropic が `claude-code-playground` リポジトリの `claude-code/mods` ディレクトリでサンプルを3つ公開した。それぞれ完全なプラグインになっていて、README に作り方も書かれている。\n\n公開されているのは次の3つ。`token-weather` はプロンプトの上にコンテキストウィンドウの残量予報を描画する。`blast-radius` は `rm -rf` や強制プッシュなど危険なシェルコマンドの実行をいったん保留し、それによって何が変わるかをボタンとともに表示する。`replay-theater` は直前のターンで Claude が行ったファイル編集を順番に確認できる `/replay` コマンドを追加する。",
+      "howto": [
+        "リポジトリをクローンし、`claude --plugin-dir ./claude-code-playground/claude-code/mods/blast-radius` のように1セッションだけロードして試す",
+        "読み込む前に動作を確認したいなら `claude plugin validate ./<mod のディレクトリ>` を実行する。出力の `hooks:` と `calls:` の行で、処理するイベントと要求する操作が分かる",
+        "継続して使うなら、クローンした `claude-code/mods` ディレクトリをマーケットプレイスとして追加してからインストールする"
+      ],
+      "links": [
+        {
+          "label": "Mods の概要 - Claude Code Docs",
+          "url": "https://code.claude.com/docs/ja/plugins/mods/overview"
+        },
+        {
+          "label": "anthropics/claude-code-playground: claude-code/mods",
+          "url": "https://github.com/anthropics/claude-code-playground/tree/main/claude-code/mods"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/code-review` の medium effort が、未チューニングモデルでもクリーンアップと CLAUDE.md 規約の finding を報告するように（v2.1.290）",
+      "body": "`/code-review` の medium effort レベルは、レビュー設定がチューニングされているモデルでのみ、正確性バグに加えて重複コードの削除などのクリーンアップ系 finding や CLAUDE.md の規約違反を報告していた。v2.1.290 で、Opus 5.5 や Sonnet 5.5 を含むチューニング未対応のモデルでも同じように報告するようになった。",
+      "howto": [
+        "`/code-review`（デフォルトの medium effort）を実行すると、正確性バグだけでなく reuse / simplification / efficiency の指摘や CLAUDE.md 違反も出てくるようになった。これらを見るためだけに effort を上げる必要はない"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "WebFetch の100,000文字での読み捨てが廃止、`offset` で続きを読めるように（v2.1.290）",
+      "body": "これまで WebFetch は、取得したページのテキストが100,000文字を超えると、何も知らせずにそれ以降を読み捨てていた。v2.1.290 でこの挙動が修正され、読めなかった文字数を明示したうえで、`offset` を指定すれば続きを読み進められるようになった。",
+      "howto": [
+        "長いドキュメントページを WebFetch で読んでいて「ここまでしか読んでいない」という案内が出たら、同じ URL に `offset` を指定して WebFetch をもう一度呼び、続きを読む"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "インタラクティブセッションの WebSearch 呼び出し上限が、時間ごとの補充式に変更（v2.1.290）",
+      "body": "インタラクティブセッションの WebSearch は、これまで200回呼び出すとそのセッションでは使えなくなっていた。v2.1.290 から、1時間あたり100回のペースで呼び出し回数が補充される方式に変わった。補充ペースは `CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR` で変更でき、`0` に設定すると補充を止められる。",
+      "howto": [
+        "長時間の調査タスクで WebSearch を多用していても、時間を置けば呼び出し回数が回復するので、セッションを再起動せずに調べ続けられる",
+        "補充ペースを変えたい場合は環境変数 `CLAUDE_CODE_WEB_SEARCH_REFILLS_PER_HOUR` を設定する"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`rg` / `git grep` のワイルドカード展開や zsh の変数解釈、`pyright` の実行が自動承認されなくなった（v2.1.290）",
+      "body": "v2.1.290 で Bash の権限チェックに修正が入った。`rg` や `git grep` のような読み取り専用コマンドでも、シェルがワイルドカードとして展開してしまう引数を渡していた場合は、自動承認されず確認を求めるようになった。zsh と bash で変数名の解釈が異なるコマンドも同様に確認が必要になった。また `pyright` の実行は読み取り専用コマンドの扱いから外れ、実行前に確認を求めるようになった。",
+      "howto": [
+        "`rg` / `git grep` をワイルドカード付き引数で自動承認に頼っていた運用があれば、v2.1.290 以降は確認プロンプトが出るようになる点に注意する",
+        "`pyright` を自動承認したいなら、許可ルールに `Bash(pyright:*)` のような行を追加しておく"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    }
+  ]
+}
