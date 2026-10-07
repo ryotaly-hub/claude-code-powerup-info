@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.292 で Agent tool に `effort` パラメータが追加、UNC パス経由の許可プロンプト回避もセキュリティ修正｜Claude code の PowerUP info</title>
+<meta name="description" content="10月6日公開の v2.1.292 から、日常の開発に関わる変更をまとめる。サブエージェントを起動する Agent tool に effort パラメータが加わり、タスクに応じて実行コストを調整できるようになった。プラグイン導入は `--marketplace` で1コマンドに短縮され、厳格サンドボックスモードでは環境変数プレフィックス付きコマンドの確認が減る。あわせて、ネットワークパス経由のファイル読み取りで許可プロンプトが回避されていたセキュリティ上の不具合の修正にも触れる。">
+<meta property="og:title" content="v2.1.292 で Agent tool に `effort` パラメータが追加、UNC パス経由の許可プロンプト回避もセキュリティ修正｜Claude code の PowerUP info">
+<meta property="og:description" content="10月6日公開の v2.1.292 から、日常の開発に関わる変更をまとめる。サブエージェントを起動する Agent tool に effort パラメータが加わり、タスクに応じて実行コストを調整できるようになった。プラグイン導入は `--marketplace` で1コマンドに短縮され、厳格サンドボックスモードでは環境変数プレフィックス付きコマンドの確認が減る。あわせて、ネットワークパス経由のファイル読み取りで許可プロンプトが回避されていたセキュリティ上の不具合の修正にも触れる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.18</p>
+      <div class="article__head">
+        <span class="chip">2026.10.07</span>
+        <h1>v2.1.292 で Agent tool に `effort` パラメータが追加、UNC パス経由の許可プロンプト回避もセキュリティ修正</h1>
+        <div class="article__date">2026年10月7日(水)公開 ／ VOL.18</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.18</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.07</div>
+      </div></div>
+      <p class="lead">10月6日公開の v2.1.292 から、日常の開発に関わる変更をまとめる。サブエージェントを起動する Agent tool に effort パラメータが加わり、タスクに応じて実行コストを調整できるようになった。プラグイン導入は `--marketplace` で1コマンドに短縮され、厳格サンドボックスモードでは環境変数プレフィックス付きコマンドの確認が減る。あわせて、ネットワークパス経由のファイル読み取りで許可プロンプトが回避されていたセキュリティ上の不具合の修正にも触れる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Agent tool に `effort` パラメータが追加、サブエージェントを指定したエフォートレベルで起動できるように（v2.1.292）</a></li><li><a href="#item-2">`claude plugin install --marketplace &lt;source&gt;` で未登録マーケットプレイスのプラグインも1コマンドで導入できるように（v2.1.292）</a></li><li><a href="#item-3">厳格サンドボックスモードで、環境変数プレフィックス付きのインタプリタコマンドが自動承認されるように（v2.1.292）</a></li><li><a href="#item-4">529エラー時のリトライ基本待機時間を `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS` で設定できるように（v2.1.292）</a></li><li><a href="#item-5">PreToolUse フックの承認と auto mode が、ネットワーク（UNC）パス経由のファイル読み取りで許可プロンプトを回避していた不具合を修正（v2.1.292）</a></li><li><a href="#item-6">ローカル MCP サーバーの接続が既定でプロトコルバージョン 2026-07-28 を使うように変更、`MCP_PROTOCOL_NEGOTIATION=legacy` でオプトアウト可能（v2.1.292）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Agent tool に `effort` パラメータが追加、サブエージェントを指定したエフォートレベルで起動できるように（v2.1.292）</h2>
+      <p>サブエージェントを起動する Agent tool の呼び出しに <code>effort</code> パラメータが加わり、low / medium / high / xhigh / max といったエフォートレベルを指定してサブエージェントを動かせるようになった。これまではサブエージェント単位でエフォートを個別に指定する手段がなく、親セッションの設定に委ねるしかなかった。</p>
+      <p>単純なファイル検索や定型作業を任せるサブエージェントは低いエフォートで済ませてコストを抑え、アーキテクチャ判断や複雑なデバッグを任せるサブエージェントには高いエフォートを割くといった使い分けができる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数のサブエージェントを並行起動するとき、調査系には <code>effort: &quot;low&quot;</code>、設計判断が絡むものには <code>effort: &quot;high&quot;</code> のように役割ごとに指定を分ける</li><li>ルーティンなワークフローで同じサブエージェントを繰り返し呼ぶ場合、過剰なエフォートで時間とトークンを使っていないか見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude plugin install --marketplace &lt;source&gt;` で未登録マーケットプレイスのプラグインも1コマンドで導入できるように（v2.1.292）</h2>
+      <p>これまで未登録のマーケットプレイスからプラグインを入れるには、<code>claude plugin marketplace add</code> でマーケットプレイスを追加してから <code>claude plugin install</code> する、という2段階の手順が必要だった。<code>claude plugin install &lt;plugin&gt; --marketplace &lt;source&gt;</code> を使うと、必要な場合は同じポリシーチェックの下でマーケットプレイスを追加しつつ、インストールまでを一度に済ませられる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>新しいプラグインを試すときは <code>claude plugin install &lt;plugin名&gt; --marketplace &lt;マーケットプレイスのURLやリポジトリ&gt;</code> を1回実行するだけで導入まで完了する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>厳格サンドボックスモードで、環境変数プレフィックス付きのインタプリタコマンドが自動承認されるように（v2.1.292）</h2>
+      <p>user / managed / <code>--settings</code> のいずれかで厳格サンドボックスモードを設定している場合、<code>FOO=bar python3 app.py</code> のように環境変数をプレフィックスしたインタプリタ実行コマンドは、これまで毎回確認プロンプトが出ていた。v2.1.292 からはこの形のコマンドが自動承認の対象になった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>DEBUG=1 pytest</code> や <code>NODE_ENV=production node server.js</code> のように環境変数を付けてスクリプトを動かす手順が多いプロジェクトでは、厳格サンドボックスモード下での確認待ちが減る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>529エラー時のリトライ基本待機時間を `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS` で設定できるように（v2.1.292）</h2>
+      <p>API が混雑時に返す529（overloaded）エラーに対して、Claude Code は自動でバックオフ再試行を行うが、その基本待機時間を指定する環境変数 <code>CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS</code> が追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>混雑する時間帯に529エラーで作業が止まりやすい場合、この環境変数に大きめの値（例: 5000）を設定してリトライ間隔を広げておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>PreToolUse フックの承認と auto mode が、ネットワーク（UNC）パス経由のファイル読み取りで許可プロンプトを回避していた不具合を修正（v2.1.292）</h2>
+      <p>PreToolUse フックでの承認や auto mode が、UNC パス（<code>\\server\share\...</code> 形式のネットワーク共有パス）経由のファイル読み取りに対して、本来表示されるべき許可プロンプトをバイパスしてしまうセキュリティ上の不具合があった。v2.1.292 で修正済み。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ネットワーク共有上のファイルを扱う環境や、PreToolUse フック・auto mode を有効にしている環境では、v2.1.292 以降へのアップデートを確認しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>ローカル MCP サーバーの接続が既定でプロトコルバージョン 2026-07-28 を使うように変更、`MCP_PROTOCOL_NEGOTIATION=legacy` でオプトアウト可能（v2.1.292）</h2>
+      <p>stdio 接続のローカル MCP サーバーは、Bedrock・Vertex・Foundry 経由のものも含め、新規インストール時に既定でプロトコルバージョン 2026-07-28 を交渉するようになった。古いプロトコルにしか対応していない自作・サードパーティの MCP サーバーを使っている場合は、環境変数 <code>MCP_PROTOCOL_NEGOTIATION=legacy</code> で従来の交渉方式に戻せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>更新後に自作や古い MCP サーバーへの接続が失敗するようになったら、<code>MCP_PROTOCOL_NEGOTIATION=legacy</code> を設定して旧挙動に戻してみる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-06.html">v2.1.290 で `/code-review` の対象モデルが拡大、WebFetch の文字数制限撤廃や公式サンプル Mod 公開も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>

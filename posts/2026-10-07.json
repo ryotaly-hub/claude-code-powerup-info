@@ -1,0 +1,74 @@
+{
+  "date": "2026-10-07",
+  "headline": "v2.1.292 で Agent tool に `effort` パラメータが追加、UNC パス経由の許可プロンプト回避もセキュリティ修正",
+  "lead": "10月6日公開の v2.1.292 から、日常の開発に関わる変更をまとめる。サブエージェントを起動する Agent tool に effort パラメータが加わり、タスクに応じて実行コストを調整できるようになった。プラグイン導入は `--marketplace` で1コマンドに短縮され、厳格サンドボックスモードでは環境変数プレフィックス付きコマンドの確認が減る。あわせて、ネットワークパス経由のファイル読み取りで許可プロンプトが回避されていたセキュリティ上の不具合の修正にも触れる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Agent tool に `effort` パラメータが追加、サブエージェントを指定したエフォートレベルで起動できるように（v2.1.292）",
+      "body": "サブエージェントを起動する Agent tool の呼び出しに `effort` パラメータが加わり、low / medium / high / xhigh / max といったエフォートレベルを指定してサブエージェントを動かせるようになった。これまではサブエージェント単位でエフォートを個別に指定する手段がなく、親セッションの設定に委ねるしかなかった。\n\n単純なファイル検索や定型作業を任せるサブエージェントは低いエフォートで済ませてコストを抑え、アーキテクチャ判断や複雑なデバッグを任せるサブエージェントには高いエフォートを割くといった使い分けができる。",
+      "howto": [
+        "複数のサブエージェントを並行起動するとき、調査系には `effort: \"low\"`、設計判断が絡むものには `effort: \"high\"` のように役割ごとに指定を分ける",
+        "ルーティンなワークフローで同じサブエージェントを繰り返し呼ぶ場合、過剰なエフォートで時間とトークンを使っていないか見直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude plugin install --marketplace <source>` で未登録マーケットプレイスのプラグインも1コマンドで導入できるように（v2.1.292）",
+      "body": "これまで未登録のマーケットプレイスからプラグインを入れるには、`claude plugin marketplace add` でマーケットプレイスを追加してから `claude plugin install` する、という2段階の手順が必要だった。`claude plugin install <plugin> --marketplace <source>` を使うと、必要な場合は同じポリシーチェックの下でマーケットプレイスを追加しつつ、インストールまでを一度に済ませられる。",
+      "howto": [
+        "新しいプラグインを試すときは `claude plugin install <plugin名> --marketplace <マーケットプレイスのURLやリポジトリ>` を1回実行するだけで導入まで完了する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "厳格サンドボックスモードで、環境変数プレフィックス付きのインタプリタコマンドが自動承認されるように（v2.1.292）",
+      "body": "user / managed / `--settings` のいずれかで厳格サンドボックスモードを設定している場合、`FOO=bar python3 app.py` のように環境変数をプレフィックスしたインタプリタ実行コマンドは、これまで毎回確認プロンプトが出ていた。v2.1.292 からはこの形のコマンドが自動承認の対象になった。",
+      "howto": [
+        "`DEBUG=1 pytest` や `NODE_ENV=production node server.js` のように環境変数を付けてスクリプトを動かす手順が多いプロジェクトでは、厳格サンドボックスモード下での確認待ちが減る"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "529エラー時のリトライ基本待機時間を `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS` で設定できるように（v2.1.292）",
+      "body": "API が混雑時に返す529（overloaded）エラーに対して、Claude Code は自動でバックオフ再試行を行うが、その基本待機時間を指定する環境変数 `CLAUDE_CODE_OVERLOADED_RETRY_BASE_DELAY_MS` が追加された。",
+      "howto": [
+        "混雑する時間帯に529エラーで作業が止まりやすい場合、この環境変数に大きめの値（例: 5000）を設定してリトライ間隔を広げておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "PreToolUse フックの承認と auto mode が、ネットワーク（UNC）パス経由のファイル読み取りで許可プロンプトを回避していた不具合を修正（v2.1.292）",
+      "body": "PreToolUse フックでの承認や auto mode が、UNC パス（`\\\\server\\share\\...` 形式のネットワーク共有パス）経由のファイル読み取りに対して、本来表示されるべき許可プロンプトをバイパスしてしまうセキュリティ上の不具合があった。v2.1.292 で修正済み。",
+      "howto": [
+        "ネットワーク共有上のファイルを扱う環境や、PreToolUse フック・auto mode を有効にしている環境では、v2.1.292 以降へのアップデートを確認しておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "ローカル MCP サーバーの接続が既定でプロトコルバージョン 2026-07-28 を使うように変更、`MCP_PROTOCOL_NEGOTIATION=legacy` でオプトアウト可能（v2.1.292）",
+      "body": "stdio 接続のローカル MCP サーバーは、Bedrock・Vertex・Foundry 経由のものも含め、新規インストール時に既定でプロトコルバージョン 2026-07-28 を交渉するようになった。古いプロトコルにしか対応していない自作・サードパーティの MCP サーバーを使っている場合は、環境変数 `MCP_PROTOCOL_NEGOTIATION=legacy` で従来の交渉方式に戻せる。",
+      "howto": [
+        "更新後に自作や古い MCP サーバーへの接続が失敗するようになったら、`MCP_PROTOCOL_NEGOTIATION=legacy` を設定して旧挙動に戻してみる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
