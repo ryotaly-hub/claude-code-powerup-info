@@ -1,0 +1,80 @@
+{
+  "date": "2026-10-08",
+  "headline": "v2.1.293 で Claude Haiku 5.5 がデフォルトに、Bash 経由のファイル参照でネストした CLAUDE.md が読み込まれない不具合も修正",
+  "lead": "Claude Code v2.1.293 がリリースされた。新しい Haiku 5.5 がデフォルトの Haiku モデルになったほか、`cat` / `grep` などの Bash コマンドで単一ファイルを見たときにネストした CLAUDE.md やパス指定ルールが読み込まれない不具合が修正された。`/model` のエフォート切り替えや Mods 開発者向けの変更も入っている。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Claude Haiku 5.5 が Anthropic API のデフォルト Haiku モデルに（v2.1.293）",
+      "body": "`claude-haiku-5-5` が追加され、Anthropic API のデフォルト Haiku モデルになった。コンテキストウィンドウは1Mトークン、価格は $0.10/$0.50 per Mtok（プロンプトが100Kトークンを超える場合は $0.50/$2.50）。",
+      "howto": [
+        "Haiku モデルを明示指定していない構成なら、追加設定なしで自動的に Haiku 5.5 に切り替わる",
+        "要約・分類・簡単な整形など軽量タスクを Haiku に振る運用をしている場合、性能向上の恩恵をそのまま受けられる",
+        "100Kトークンを超える長いプロンプトを投げる構成では単価が上がる点に注意する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Bash で `cat`/`head`/`tail`/`sed -n`/`grep` でファイルを見たとき、ネストした CLAUDE.md が読み込まれない不具合を修正（v2.1.293）",
+      "body": "これまで、Claude が Read ツールではなく Bash ツールの `cat` / `head` / `tail` / `sed -n` / `grep` で単一ファイルを見た場合、そのパスに対応するパス指定の `.claude/rules` やネストした CLAUDE.md が読み込まれないことがあった。v2.1.293 で修正された。",
+      "howto": [
+        "特定ディレクトリ配下だけに効かせたい CLAUDE.md や rules を置いている場合、Claude が Bash 経由でファイルを覗いても今後はそのルールが正しく適用される",
+        "過去にディレクトリ限定のルールが無視されたように見えた場面があれば、v2.1.293 以降で再確認するとよい"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`/model` のエフォート切り替えで、意図せず Low がデフォルト保存される不具合を修正（v2.1.293）",
+      "body": "`/model` でエフォートレベルを ←/→ キーで切り替える際、最高値・最低値を超えて循環してしまい、意図せず Low をそのモデルのデフォルトエフォートとして保存してしまう不具合があった。v2.1.293 で修正された。",
+      "howto": [
+        "`/model` でエフォートを変更したあとは、意図したレベル（medium/high/xhigh など）になっているか一度確認する",
+        "過去にエフォートが急に下がって応答が雑になったと感じたことがあれば、この不具合が原因だった可能性がある"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`keybindings.json` のチェックが改善、スペースキー単体の誤エラーが解消（v2.1.293）",
+      "body": "`keybindings.json` の設定チェックが改善され、スペースキー（`\" \"`）単体の割り当てが誤ってエラー扱いされる不具合が解消した。一方で `\"ctrl+ k\"` のように余分な空白を含むキー表記には新たに警告が出るようになった。",
+      "howto": [
+        "スペースキーだけにキーバインドを割り当てている場合、これまで出ていた誤ったエラー表示は出なくなる",
+        "`claude` 起動時や `/doctor` で警告が出たら、キー表記に余分なスペースが混ざっていないか見直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Mods の `$.tool.register` に `isDeferred` が追加、ツールスキーマを最初から見せられる（v2.1.293）",
+      "body": "プラグイン（Mods）がツールを登録する `$.tool.register` に `isDeferred` が追加された。`false` を指定すると、そのツールのスキーマを最初からプロンプトに載せられる。これまでは常にツール検索の背後に隠れていた。",
+      "howto": [
+        "Mod でよく呼ばれる重要なツールを作る場合、`$.tool.register` に `isDeferred: false` を付けると、Claude が最初からスキーマを認識した状態で使い始められる",
+        "使用頻度の低いツールは `isDeferred` を省略し、プロンプトを圧迫しないようにする"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Artifacts が読み込む外部ライブラリを「2週間以上前のバージョン」に固定するよう改善（v2.1.293）",
+      "body": "Artifacts 機能で、Claude が参照する外部ライブラリは今後、リリースから2週間以上経過したバージョンに固定されるよう改善された。出たばかりの不安定なバージョンを誤って使うリスクが減る。",
+      "howto": [
+        "Artifact を作らせる際、ライブラリのバージョン指定を細かく指示しなくても、最新すぎる（枯れていない）バージョンは避けてくれる",
+        "最新バージョンをどうしても使いたい場合は、プロンプトでバージョンを明示的に指定する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog（v2.1.293）", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
