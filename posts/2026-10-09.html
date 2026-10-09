@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.295 で hooks に `onFailure: &quot;block&quot;` が追加、MCP ツール説明の文字数上限拡大やサブエージェントの skills 32件プリロード制限も｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.295（10月8日）では、フック自体が落ちたときの挙動を選べる `onFailure` や、MCP ツール説明の切り捨て緩和など、地味だが安全性・実用性に直結する変更が多い。前日の v2.1.294 ではフックの抜け穴修正も入った。">
+<meta property="og:title" content="v2.1.295 で hooks に `onFailure: &quot;block&quot;` が追加、MCP ツール説明の文字数上限拡大やサブエージェントの skills 32件プリロード制限も｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.295（10月8日）では、フック自体が落ちたときの挙動を選べる `onFailure` や、MCP ツール説明の切り捨て緩和など、地味だが安全性・実用性に直結する変更が多い。前日の v2.1.294 ではフックの抜け穴修正も入った。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.20</p>
+      <div class="article__head">
+        <span class="chip">2026.10.09</span>
+        <h1>v2.1.295 で hooks に `onFailure: &quot;block&quot;` が追加、MCP ツール説明の文字数上限拡大やサブエージェントの skills 32件プリロード制限も</h1>
+        <div class="article__date">2026年10月9日(金)公開 ／ VOL.20</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.20</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.09</div>
+      </div></div>
+      <p class="lead">v2.1.295（10月8日）では、フック自体が落ちたときの挙動を選べる `onFailure` や、MCP ツール説明の切り捨て緩和など、地味だが安全性・実用性に直結する変更が多い。前日の v2.1.294 ではフックの抜け穴修正も入った。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">command/HTTP フックに `onFailure: &quot;block&quot;` が追加、起動失敗・タイムアウト時にアクションを止められるように（v2.1.295）</a></li><li><a href="#item-2">自然言語で書いた `prompt`/`agent` フックが、ブロックすべき操作を素通りさせていた不具合が修正（v2.1.294）</a></li><li><a href="#item-3">tool search 経由でモデルが読む MCP ツール説明の切り捨てが 2,048 文字から 16,384 文字に拡大（v2.1.295）</a></li><li><a href="#item-4">サブエージェントが `skills` フィールドから一度にプリロードするスキルが最大32件に制限（v2.1.295）</a></li><li><a href="#item-5">Grep ツールへの `-l` / `-c` / `-r` フラグ付き検索が失敗せず実行されるように（v2.1.295）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>command/HTTP フックに `onFailure: &quot;block&quot;` が追加、起動失敗・タイムアウト時にアクションを止められるように（v2.1.295）</h2>
+      <p>従来、command フックや HTTP フックが起動に失敗したりタイムアウトしたりすると、そのフックは素通りになり、本来チェックするはずだったツール呼び出し等のアクションがそのまま実行されてしまっていた。</p>
+      <p>v2.1.295 では、フック設定に <code>onFailure: &quot;block&quot;</code> を指定できるようになった。これを付けたフックは、起動できない・タイムアウトする・想定外の終了コードを返す、のいずれの場合もアクションをブロックする側に倒れる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>危険なコマンドのブロックなどセキュリティ目的で使っている command/HTTP フックの設定に <code>&quot;onFailure&quot;: &quot;block&quot;</code> を追加する</li><li>これにより、フック側の不調（ネットワーク断やタイムアウト）が原因でガードが無効化される事故を防げる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.295</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>自然言語で書いた `prompt`/`agent` フックが、ブロックすべき操作を素通りさせていた不具合が修正（v2.1.294）</h2>
+      <p>「Block commands that...」のような自然言語の指示文で書いた prompt フック・agent フックが、本来止めるべき操作を通してしまうケースがあった。v2.1.294 でこの抜け穴が修正された。</p>
+      <p>合わせて、Stop / SubagentStop に付けた「Carry on if the build is broken」のような指示文フックの判定も改善され、Claude が意図せず早期に止まりにくくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自然言語の指示文でセキュリティ目的の hook を書いている場合は、v2.1.294 以降に更新してから想定どおりブロックされるか再確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.294</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">エコシステム</span>
+      <h2>tool search 経由でモデルが読む MCP ツール説明の切り捨てが 2,048 文字から 16,384 文字に拡大（v2.1.295）</h2>
+      <p>tool search を使って遅延読み込みされる MCP ツールの説明文は、従来 2,048 文字で切り捨てられていた。v2.1.295 でこの上限が 16,384 文字に拡大され、長めの説明を書いている MCP サーバーでも途中で切れにくくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作・導入済みの MCP サーバーで説明文が長くツール説明が途中で切れていた場合、更新後に改めて挙動を確認する（起動時から常時読み込まれるサーバーには影響しない）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.295</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>サブエージェントが `skills` フィールドから一度にプリロードするスキルが最大32件に制限（v2.1.295）</h2>
+      <p>サブエージェント定義の <code>skills</code> フィールドに33件以上のスキルを指定していても、v2.1.295 以降はプリロードされるのは最大32件・各1回のみになる。Skill ツールを持つサブエージェントであれば、プリロードされなかった残りのスキルも自分で呼び出すことは可能。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>多数のスキルを割り当てているサブエージェント定義があれば、重要なスキルが32件の枠に収まっているか確認する</li><li>収まらない場合は、そのサブエージェントに Skill ツールを持たせて必要時に明示的に呼び出す設計にする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.295</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>Grep ツールへの `-l` / `-c` / `-r` フラグ付き検索が失敗せず実行されるように（v2.1.295）</h2>
+      <p>従来、Grep ツールの呼び出しに grep の <code>-l</code>（ファイル名のみ表示）・<code>-c</code>（件数表示）・<code>-r</code>（再帰）といったフラグを含めると、呼び出し自体が失敗していた。v2.1.295 でこれらのフラグを含む呼び出しも正しく実行されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude に <code>grep -rl パターン</code> のような grep 由来のフラグ付き検索を指示しても、以前のような失敗は起きなくなった</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.295</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-08.html">v2.1.293 で Claude Haiku 5.5 がデフォルトに、Bash 経由のファイル参照でネストした CLAUDE.md が読み込まれない不具合も修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
