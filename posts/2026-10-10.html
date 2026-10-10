@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.296 で Read ツールに `allow_large` が追加、Sonnet 5.5 のキャッシュ読み取り価格も半額に｜Claude code の PowerUP info</title>
+<meta name="description" content="10月9日公開の v2.1.296 から、日常の作業に関わる変更をまとめる。Read ツールが大きなテキストファイルを一括で読めるようになり、Sonnet 5.5 のキャッシュ読み取り価格が半額になった。Shift-JIS など UTF-8 以外のファイルへの編集が拒否されるようになった変更は、日本語の古いファイルを扱う人は要注意。">
+<meta property="og:title" content="v2.1.296 で Read ツールに `allow_large` が追加、Sonnet 5.5 のキャッシュ読み取り価格も半額に｜Claude code の PowerUP info">
+<meta property="og:description" content="10月9日公開の v2.1.296 から、日常の作業に関わる変更をまとめる。Read ツールが大きなテキストファイルを一括で読めるようになり、Sonnet 5.5 のキャッシュ読み取り価格が半額になった。Shift-JIS など UTF-8 以外のファイルへの編集が拒否されるようになった変更は、日本語の古いファイルを扱う人は要注意。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.21</p>
+      <div class="article__head">
+        <span class="chip">2026.10.10</span>
+        <h1>v2.1.296 で Read ツールに `allow_large` が追加、Sonnet 5.5 のキャッシュ読み取り価格も半額に</h1>
+        <div class="article__date">2026年10月10日(土)公開 ／ VOL.21</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.21</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.10</div>
+      </div></div>
+      <p class="lead">10月9日公開の v2.1.296 から、日常の作業に関わる変更をまとめる。Read ツールが大きなテキストファイルを一括で読めるようになり、Sonnet 5.5 のキャッシュ読み取り価格が半額になった。Shift-JIS など UTF-8 以外のファイルへの編集が拒否されるようになった変更は、日本語の古いファイルを扱う人は要注意。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Read ツールに `allow_large` オプションが追加、通常のサイズ上限を超えるテキストファイルも一括で読めるように（v2.1.296）</a></li><li><a href="#item-2">Edit / NotebookEdit が、UTF-8 として不正なファイル（Shift-JIS・Windows-1252・GBK 等）への編集を拒否するように（v2.1.296）</a></li><li><a href="#item-3">Sonnet 5.5 のキャッシュ読み取り価格が 1Mトークンあたり $0.20 から $0.10 に引き下げ（v2.1.296）</a></li><li><a href="#item-4">サブエージェントの frontmatter に `autoCompactWindow` が追加、親より早く自動コンパクションさせられる（v2.1.296）</a></li><li><a href="#item-5">`--debug` のフックログに command/plugin/outcome/duration が出るようになり、遅いフックを特定しやすく（v2.1.296）</a></li><li><a href="#item-6">`/code-review` がクラウドセッション・Agent SDK・IDE 統合で生の JSON 配列のまま終わる不具合を修正、番号付きリストで表示に（v2.1.296）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Read ツールに `allow_large` オプションが追加、通常のサイズ上限を超えるテキストファイルも一括で読めるように（v2.1.296）</h2>
+      <p>これまで Read ツールには読み取りサイズの上限があり、大きなテキストファイルは offset/limit で分割して読む必要があった。v2.1.296 で <code>allow_large</code> オプションが追加され、ファイル全体が必要でコンテキストに余裕がある場合は、通常の上限を超えて一度に読み込めるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>大きな設定ファイルやログファイルをまるごと読ませたいとき、「allow_large を使って全部読んで」のように指示すると、分割読み込みの手間が減る</li><li>コンテキストを圧迫したくない場合は、これまで通り offset/limit で部分的に読む指示をすればよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Edit / NotebookEdit が、UTF-8 として不正なファイル（Shift-JIS・Windows-1252・GBK 等）への編集を拒否するように（v2.1.296）</h2>
+      <p>従来、Edit や NotebookEdit で Shift-JIS や GBK など UTF-8 以外のエンコーディングのファイルを編集すると、非 ASCII 文字がすべて別の文字に置き換わってしまう不具合があった。v2.1.296 からは、こうした不正な UTF-8 のファイルへの編集そのものが拒否されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>古い Windows 環境由来の Shift-JIS ファイルなど、文字コードが UTF-8 でないファイルをまだ使っている場合、Claude に直接編集させる前に UTF-8 へ変換しておく</li><li>編集が拒否された場合はエンコーディングを疑い、<code>iconv</code> 等で変換してから再度編集を依頼する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>Sonnet 5.5 のキャッシュ読み取り価格が 1Mトークンあたり $0.20 から $0.10 に引き下げ（v2.1.296）</h2>
+      <p><code>/cost</code>・ステータスライン・<code>--max-budget-usd</code>・SDK のコスト表示すべてで、Sonnet 5.5 のプロンプトキャッシュ読み取りの単価が $0.20/Mtok から $0.10/Mtok に下がった。キャッシュを多用する長時間セッションほど、見かけ上のコストがこれまでより下がって表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>--max-budget-usd</code> でセッションの予算を固定している場合、同じ作業でも消費が多少減るので、必要なら上限を見直す</li><li><code>/cost</code> の表示が以前より下がったときは、単価変更が理由であり挙動が変わったわけではない点を把握しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>サブエージェントの frontmatter に `autoCompactWindow` が追加、親より早く自動コンパクションさせられる（v2.1.296）</h2>
+      <p>サブエージェント定義（frontmatter）や <code>--agents</code> の定義に <code>autoCompactWindow</code> を指定できるようになった。これを設定すると、そのサブエージェントは親の会話全体のコンテキストウィンドウを使い切るより前に、自分だけ早めに自動コンパクションを行う。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>大量のファイルを読み込んで調査するサブエージェントを定義する場合、<code>autoCompactWindow</code> を小さめに設定して、親の会話を圧迫する前にそのサブエージェント内で要約させる</li><li>既存のサブエージェント定義（<code>.claude/agents/*.md</code> 等）の frontmatter に追記するだけで有効になる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>`--debug` のフックログに command/plugin/outcome/duration が出るようになり、遅いフックを特定しやすく（v2.1.296）</h2>
+      <p>ツール呼び出し・プロンプト送信・SessionStart・Stop に付けた command フックについて、<code>--debug</code> 実行時のログに、実行したコマンド・プラグイン名・結果・実行時間が完了時に出力されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude Code の起動や応答が遅いと感じたら <code>claude --debug</code> で起動し、どの hook が時間を食っているかをログの duration で特定する</li><li>複数の hook を設定しているプロジェクトでは、この情報を使って不要な hook や重い処理を見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>`/code-review` がクラウドセッション・Agent SDK・IDE 統合で生の JSON 配列のまま終わる不具合を修正、番号付きリストで表示に（v2.1.296）</h2>
+      <p><code>/code-review</code> の結果が、クラウドセッション・Agent SDK・IDE 統合（VS Code 拡張など）では整形されずに生の JSON 配列として表示されてしまう不具合があった。v2.1.296 で修正され、見つかった指摘事項は番号付きリストとして読みやすく表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>これらの環境で <code>/code-review</code> を使っている場合、更新後は指摘事項が番号付きリストで出るようになり、結果をそのまま読みやすくなる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-09.html">v2.1.295 で hooks に `onFailure: &quot;block&quot;` が追加、MCP ツール説明の文字数上限拡大やサブエージェントの skills 32件プリロード制限も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-10",
+  "headline": "v2.1.296 で Read ツールに `allow_large` が追加、Sonnet 5.5 のキャッシュ読み取り価格も半額に",
+  "lead": "10月9日公開の v2.1.296 から、日常の作業に関わる変更をまとめる。Read ツールが大きなテキストファイルを一括で読めるようになり、Sonnet 5.5 のキャッシュ読み取り価格が半額になった。Shift-JIS など UTF-8 以外のファイルへの編集が拒否されるようになった変更は、日本語の古いファイルを扱う人は要注意。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Read ツールに `allow_large` オプションが追加、通常のサイズ上限を超えるテキストファイルも一括で読めるように（v2.1.296）",
+      "body": "これまで Read ツールには読み取りサイズの上限があり、大きなテキストファイルは offset/limit で分割して読む必要があった。v2.1.296 で `allow_large` オプションが追加され、ファイル全体が必要でコンテキストに余裕がある場合は、通常の上限を超えて一度に読み込めるようになった。",
+      "howto": [
+        "大きな設定ファイルやログファイルをまるごと読ませたいとき、「allow_large を使って全部読んで」のように指示すると、分割読み込みの手間が減る",
+        "コンテキストを圧迫したくない場合は、これまで通り offset/limit で部分的に読む指示をすればよい"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Edit / NotebookEdit が、UTF-8 として不正なファイル（Shift-JIS・Windows-1252・GBK 等）への編集を拒否するように（v2.1.296）",
+      "body": "従来、Edit や NotebookEdit で Shift-JIS や GBK など UTF-8 以外のエンコーディングのファイルを編集すると、非 ASCII 文字がすべて別の文字に置き換わってしまう不具合があった。v2.1.296 からは、こうした不正な UTF-8 のファイルへの編集そのものが拒否されるようになった。",
+      "howto": [
+        "古い Windows 環境由来の Shift-JIS ファイルなど、文字コードが UTF-8 でないファイルをまだ使っている場合、Claude に直接編集させる前に UTF-8 へ変換しておく",
+        "編集が拒否された場合はエンコーディングを疑い、`iconv` 等で変換してから再度編集を依頼する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Sonnet 5.5 のキャッシュ読み取り価格が 1Mトークンあたり $0.20 から $0.10 に引き下げ（v2.1.296）",
+      "body": "`/cost`・ステータスライン・`--max-budget-usd`・SDK のコスト表示すべてで、Sonnet 5.5 のプロンプトキャッシュ読み取りの単価が $0.20/Mtok から $0.10/Mtok に下がった。キャッシュを多用する長時間セッションほど、見かけ上のコストがこれまでより下がって表示される。",
+      "howto": [
+        "`--max-budget-usd` でセッションの予算を固定している場合、同じ作業でも消費が多少減るので、必要なら上限を見直す",
+        "`/cost` の表示が以前より下がったときは、単価変更が理由であり挙動が変わったわけではない点を把握しておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "サブエージェントの frontmatter に `autoCompactWindow` が追加、親より早く自動コンパクションさせられる（v2.1.296）",
+      "body": "サブエージェント定義（frontmatter）や `--agents` の定義に `autoCompactWindow` を指定できるようになった。これを設定すると、そのサブエージェントは親の会話全体のコンテキストウィンドウを使い切るより前に、自分だけ早めに自動コンパクションを行う。",
+      "howto": [
+        "大量のファイルを読み込んで調査するサブエージェントを定義する場合、`autoCompactWindow` を小さめに設定して、親の会話を圧迫する前にそのサブエージェント内で要約させる",
+        "既存のサブエージェント定義（`.claude/agents/*.md` 等）の frontmatter に追記するだけで有効になる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`--debug` のフックログに command/plugin/outcome/duration が出るようになり、遅いフックを特定しやすく（v2.1.296）",
+      "body": "ツール呼び出し・プロンプト送信・SessionStart・Stop に付けた command フックについて、`--debug` 実行時のログに、実行したコマンド・プラグイン名・結果・実行時間が完了時に出力されるようになった。",
+      "howto": [
+        "Claude Code の起動や応答が遅いと感じたら `claude --debug` で起動し、どの hook が時間を食っているかをログの duration で特定する",
+        "複数の hook を設定しているプロジェクトでは、この情報を使って不要な hook や重い処理を見直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`/code-review` がクラウドセッション・Agent SDK・IDE 統合で生の JSON 配列のまま終わる不具合を修正、番号付きリストで表示に（v2.1.296）",
+      "body": "`/code-review` の結果が、クラウドセッション・Agent SDK・IDE 統合（VS Code 拡張など）では整形されずに生の JSON 配列として表示されてしまう不具合があった。v2.1.296 で修正され、見つかった指摘事項は番号付きリストとして読みやすく表示されるようになった。",
+      "howto": [
+        "これらの環境で `/code-review` を使っている場合、更新後は指摘事項が番号付きリストで出るようになり、結果をそのまま読みやすくなる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
