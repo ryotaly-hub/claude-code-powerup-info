@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-11",
+  "headline": "Ctrl+C で消したプロンプトが ↑ キーで復元可能に、Slack の Claude Tag には `!fast` も追加——直近リリースの見落とし分をまとめて紹介",
+  "lead": "直近の号では v2.1.288〜v2.1.296 の主要な変更を順に紹介してきたが、実用的でありながらまだ取り上げていなかった変更がいくつか残っていた。今日の号はその見落とし分から、入力のやり直しを楽にする復元機能、コマンド名の変更、Slack 連携の新機能などをまとめる。",
+  "items": [
+    {
+      "category": "Tips",
+      "title": "プロンプトを Ctrl+C で消しても ↑ キーで復元できるように（v2.1.288）",
+      "body": "これまで、入力中のプロンプトを Ctrl+C でクリアすると、その内容はそのまま失われていた。v2.1.288 から、空になった入力欄で ↑ キーを押すと、消したプロンプトが貼り付けた画像を含めて復元されるようになった。",
+      "howto": [
+        "誤って Ctrl+C でプロンプトを消してしまったときは、打ち直す前に ↑ キーを押せば復元できるか確認する",
+        "長文の指示や画像添付を含むプロンプトを書いている途中でも、消去を怖がらず Ctrl+C で一旦止められる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.288", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude attach` と `claude logs` がセッション名の一部指定で動くように（v2.1.290）",
+      "body": "`claude attach <name>` と `claude logs <name>` は、これまでセッション ID を正確に渡す必要があった。v2.1.290 からは、セッション名の一部を渡すだけで対象のセッションを指定できるようになった。",
+      "howto": [
+        "バックグラウンドの複数セッションに再接続・ログ確認したいとき、長いセッション ID をコピーせず `claude attach <名前の一部>` や `claude logs <名前の一部>` と打てば済む"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.290", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`claude project purge` が `claude purge` に改名（v2.1.288）",
+      "body": "プロジェクトの Claude Code 状態（トランスクリプト・タスク・ファイル履歴・設定エントリ）を削除するコマンドが、`claude project purge` から `claude purge` に改名された。旧名の `claude project purge` も引き続き使えるが、実行すると改名された旨の通知が出る。",
+      "howto": [
+        "これまで `claude project purge` と打っていた場合、今後は `claude purge` で同じ動作になる。スクリプトやメモに残っているなら書き換えておくと通知が出なくなる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.288", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Claude Tag（Claude in Slack）にスレッド限定の fast mode `!fast` が追加（v2.1.290）",
+      "body": "Slack で Claude にメンションする本文に `!fast` を含めると、そのスレッドだけ fast mode に切り替わる。必要なら Opus に切り替わった上で動作し、有効な間は返信に (fast) と表示される。元に戻すには `!fast off` と送る。",
+      "howto": [
+        "Slack で急いで簡単な確認をしたいスレッドでは、メンションの本文に `!fast` を加えると応答が速くなる",
+        "切り替えはそのスレッドだけに効くので、チャンネルのデフォルトモデル設定には影響しない"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.290", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/autocompact` の自動コンパクション設定がモデルごとに保存されるように（v2.1.288）",
+      "body": "`/autocompact` で設定する自動コンパクションのウィンドウ値は、これまでセッション全体で一つだけ保存されていた。v2.1.288 からモデルごとに保存されるようになり、`/model` でモデルを切り替えても、そのモデルに設定した値がそのまま使われる。",
+      "howto": [
+        "Opus と Sonnet など複数モデルを使い分けている場合、モデルごとに違うタイミングでコンパクションさせたいなら、それぞれのモデルに切り替えた状態で `/autocompact` を設定しておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.288", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`←` でバックグラウンド化した直後に始まったターンは、見えないまま完了させず停止するように（v2.1.296）",
+      "body": "`←` キーでセッションをバックグラウンドに移す際、ちょうどそのタイミングで始まったターンや `!` コマンドは、従来は画面に出ないまま最後まで実行されていた。v2.1.296 からは、そうしたターンは完了まで走らせず停止するようになった。",
+      "howto": [
+        "`←` を押した直後に新しいプロンプトや `!` コマンドを送った場合、裏で処理が進んでいると思い込まず、ターンが停止している可能性を踏まえて状態を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog — v2.1.296", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
