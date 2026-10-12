@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.296 で Workflow の全エージェントを1モデルに固定可能に、Windows の rm -rf 確認漏れと長文 PowerShell コマンドの権限判定も修正｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の号で v2.1.288〜v2.1.296 の主要な変更は紹介済みだが、v2.1.296 の changelog にはまだ取り上げていない変更が残っている。今日の号は、Workflow 実行時のモデル統一、Windows 環境での権限確認の不具合修正、auto mode の表示改善など、実務で地味に効く変更をまとめる。">
+<meta property="og:title" content="v2.1.296 で Workflow の全エージェントを1モデルに固定可能に、Windows の rm -rf 確認漏れと長文 PowerShell コマンドの権限判定も修正｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の号で v2.1.288〜v2.1.296 の主要な変更は紹介済みだが、v2.1.296 の changelog にはまだ取り上げていない変更が残っている。今日の号は、Workflow 実行時のモデル統一、Windows 環境での権限確認の不具合修正、auto mode の表示改善など、実務で地味に効く変更をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.23</p>
+      <div class="article__head">
+        <span class="chip">2026.10.12</span>
+        <h1>v2.1.296 で Workflow の全エージェントを1モデルに固定可能に、Windows の rm -rf 確認漏れと長文 PowerShell コマンドの権限判定も修正</h1>
+        <div class="article__date">2026年10月12日(月)公開 ／ VOL.23</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.23</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.12</div>
+      </div></div>
+      <p class="lead">直近の号で v2.1.288〜v2.1.296 の主要な変更は紹介済みだが、v2.1.296 の changelog にはまだ取り上げていない変更が残っている。今日の号は、Workflow 実行時のモデル統一、Windows 環境での権限確認の不具合修正、auto mode の表示改善など、実務で地味に効く変更をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL` が追加、Workflow tool のエージェントだけ全部同じモデルで動かせるように（v2.1.296）</a></li><li><a href="#item-2">Windows: Git Bash の `rm -rf /c/Users/&lt;name&gt;` が bypass permissions モードでも確認なしに実行されていた不具合を修正（v2.1.296）</a></li><li><a href="#item-3">Windows: PowerShell の長文コマンドが約1KBを超えると常に権限確認を求められていた不具合を修正、許可ルールが32KBまで効くように（v2.1.296）</a></li><li><a href="#item-4">VS Code: Claude in Chrome が `@browser` 接続時も含め、セッションごとにブラウザ操作の確認を求めるように（v2.1.296）</a></li><li><a href="#item-5">コードの多い会話での transcript 切替（Ctrl+O）のレスポンスが改善、構文ハイライト済みコードブロックをキャッシュ（v2.1.296）</a></li><li><a href="#item-6">auto mode で判定不能だったツール呼び出しが、赤いエラーではなくグレーの「Not run」表示になるように（v2.1.296）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL` が追加、Workflow tool のエージェントだけ全部同じモデルで動かせるように（v2.1.296）</h2>
+      <p>Workflow tool（<code>/workflows</code> などで複数のサブエージェントを動かす仕組み）が起動するエージェントは、これまで各エージェントの個別設定どおりのモデルで動いていた。v2.1.296 からは環境変数 <code>CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL</code> にモデル名を設定すると、その Workflow 内の全エージェントが指定したモデルで統一して動くようになる。Workflow の外で動く通常のサブエージェント（Agent tool 経由など）は、この設定の影響を受けず従来どおり個別のモデルを使う。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>コストやレイテンシを揃えたい検証時は、<code>CLAUDE_CODE_WORKFLOW_SUBAGENT_MODEL=claude-sonnet-5-5</code> のように設定してから Workflow を実行すると、途中のエージェントごとのモデル差異を気にせず結果を比較できる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Windows: Git Bash の `rm -rf /c/Users/&lt;name&gt;` が bypass permissions モードでも確認なしに実行されていた不具合を修正（v2.1.296）</h2>
+      <p>Windows の Git Bash 環境で <code>rm -rf /c/Users/&lt;name&gt;</code> のような危険なコマンドを実行すると、<code>bypassPermissions</code> モード下では確認を求めずそのまま実行されてしまう不具合があった。v2.1.296 でこの不具合が修正され、bypass permissions モードでもこの種のコマンドには確認が入るようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows で <code>bypassPermissions</code> モードや <code>--dangerously-skip-permissions</code> を使っている場合、更新後は危険な <code>rm -rf</code> 系コマンドで確認プロンプトが出ることを前提にしておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>Windows: PowerShell の長文コマンドが約1KBを超えると常に権限確認を求められていた不具合を修正、許可ルールが32KBまで効くように（v2.1.296）</h2>
+      <p>Windows で PowerShell コマンドを実行する際、コマンド文字列が約1KBを超えると、許可ルールや読み取り専用判定が機能せず毎回確認を求められていた。v2.1.296 からはこの上限が32KBまで拡大され、長いコマンドでも許可ルールや読み取り専用判定が正しく適用されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows で長めの PowerShell コマンドを許可ルール（<code>allow</code>）に登録している場合、今後はコマンドが長くても確認プロンプトなしで実行されるようになったはずか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>VS Code: Claude in Chrome が `@browser` 接続時も含め、セッションごとにブラウザ操作の確認を求めるように（v2.1.296）</h2>
+      <p>VS Code 拡張の Claude in Chrome は、これまで <code>@browser</code> で接続したセッションではブラウザ操作の確認を求めないことがあった。v2.1.296 からは、ターミナルと同様にどのセッションでも最初のブラウザ操作時に確認を求めるよう統一された。一度そのセッションでサイトを許可すれば、以降は同じセッション内で再度聞かれることはない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code で Claude in Chrome を使っている場合、更新後は新しいセッションごとに最初のブラウザ操作で確認が入ることを想定しておく。繰り返し同じサイトを使うなら最初の確認で許可しておけばそのセッション中は聞かれない</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>コードの多い会話での transcript 切替（Ctrl+O）のレスポンスが改善、構文ハイライト済みコードブロックをキャッシュ（v2.1.296）</h2>
+      <p>Ctrl+O で表示を切り替えるトランスクリプト表示は、コードブロックの多い長い会話で切替時に重くなることがあった。v2.1.296 で構文ハイライト済みのコードブロックをキャッシュするようになり、同じ会話内での切替が速くなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特別な設定は不要。コード中心の長い会話で Ctrl+O の切替が以前より速くなっているはずなので、重さを感じていた場合は更新後の挙動を確認するとよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>auto mode で判定不能だったツール呼び出しが、赤いエラーではなくグレーの「Not run」表示になるように（v2.1.296）</h2>
+      <p>auto mode で許可判定（安全チェック）が答えを出せなかったために実行されなかったツール呼び出しは、これまで赤いエラー行として表示され、本物の失敗と見分けにくかった。v2.1.296 からは、こうしたケースはグレーの「Not run」行として表示され、エラーと区別できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto mode 使用中にグレーの「Not run」表示を見かけたら、ツールの実行自体が失敗したわけではなく、安全チェックが判定できずスキップされたことを意味すると理解しておけば、無駄な原因調査をしなくて済む</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog — v2.1.296</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-11.html">Ctrl+C で消したプロンプトが ↑ キーで復元可能に、Slack の Claude Tag には `!fast` も追加——直近リリースの見落とし分をまとめて紹介</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
