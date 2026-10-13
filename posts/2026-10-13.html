@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.295〜296 の見落とし分をまとめて紹介。MCP ツール説明の上限拡大、Bash 権限判定のすり抜け2件、`-p` 実行でのスキル権限バグも修正｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.288〜v2.1.296 の主要な変更はここまでの号で紹介済みだが、changelog にはまだ取り上げていない項目が残っている。今日の号は、MCP サーバーを使う人向けの changelog 上の変更、Bash の権限判定をすり抜けていた2つの不具合、`-p` 実行でスキルの Bash 権限が落ちていた不具合など、見落としがちな修正をまとめる。">
+<meta property="og:title" content="v2.1.295〜296 の見落とし分をまとめて紹介。MCP ツール説明の上限拡大、Bash 権限判定のすり抜け2件、`-p` 実行でのスキル権限バグも修正｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.288〜v2.1.296 の主要な変更はここまでの号で紹介済みだが、changelog にはまだ取り上げていない項目が残っている。今日の号は、MCP サーバーを使う人向けの changelog 上の変更、Bash の権限判定をすり抜けていた2つの不具合、`-p` 実行でスキルの Bash 権限が落ちていた不具合など、見落としがちな修正をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.24</p>
+      <div class="article__head">
+        <span class="chip">2026.10.13</span>
+        <h1>v2.1.295〜296 の見落とし分をまとめて紹介。MCP ツール説明の上限拡大、Bash 権限判定のすり抜け2件、`-p` 実行でのスキル権限バグも修正</h1>
+        <div class="article__date">2026年10月13日(火)公開 ／ VOL.24</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.24</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.13</div>
+      </div></div>
+      <p class="lead">v2.1.288〜v2.1.296 の主要な変更はここまでの号で紹介済みだが、changelog にはまだ取り上げていない項目が残っている。今日の号は、MCP サーバーを使う人向けの changelog 上の変更、Bash の権限判定をすり抜けていた2つの不具合、`-p` 実行でスキルの Bash 権限が落ちていた不具合など、見落としがちな修正をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">MCP ツール説明・サーバー指示文の既定の文字数上限が2,048文字から4,096文字に拡大（v2.1.296）</a></li><li><a href="#item-2">Bash 権限チェックが `BASH_ARGV0` を使ったコマンドを自動承認していた不具合を修正、確認が入るように（v2.1.296）</a></li><li><a href="#item-3">Bash の for ループで glob パターンを展開するコマンドの権限判定精度が改善（v2.1.295）</a></li><li><a href="#item-4">`claude -p` 実行で、応答のストリーミング完了前に Skill tool が終わるとスキルの `allowed-tools`/`effort` が失われ、Bash コマンドが拒否される不具合を修正（v2.1.295）</a></li><li><a href="#item-5">ヘッドレス・SDK セッションで、15秒以上切れたリモート MCP サーバーへの再接続が改善、過度な再試行に自動でバックオフ（v2.1.295）</a></li><li><a href="#item-6">Windows: hooks が `CLAUDE_ENV_FILE` に書き込んだ環境変数が PowerShell から見えない不具合を修正（v2.1.296）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">エコシステム</span>
+      <h2>MCP ツール説明・サーバー指示文の既定の文字数上限が2,048文字から4,096文字に拡大（v2.1.296）</h2>
+      <p>Claude Code が起動時にプロンプトへそのまま載せる MCP ツールの説明文や、MCP サーバーの指示文（instructions）には文字数上限があり、これまでは既定で2,048文字で切り捨てられていた。v2.1.296 からこの既定値が4,096文字に拡大された。</p>
+      <p>これは tool search 経由でモデルが読む説明文の上限（v2.1.295 で2,048文字から16,384文字に拡大済み）とは別の設定で、起動時に最初からプロンプトに載る分の上限にあたる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作 MCP サーバーのツール説明文やサーバー指示文が2,048文字制限を想定して短く削っていた場合、4,096文字まで書けるようになったので説明を見直す余地がある</li><li><code>isDeferred: false</code>（v2.1.293〜）でツールを最初からプロンプトに載せている場合は、こちらの上限が効く点に注意する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Bash 権限チェックが `BASH_ARGV0` を使ったコマンドを自動承認していた不具合を修正、確認が入るように（v2.1.296）</h2>
+      <p>シェル変数 <code>BASH_ARGV0</code> を代入してから使うタイプの Bash コマンドは、実質的に別のコマンド名で実行しているのと同じ効果を持つことがあるが、これまでの権限チェックはこれを見抜けずに自動承認していた。v2.1.296 でこの不具合が修正され、このパターンのコマンドには確認プロンプトが入るようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>allow ルールで特定コマンドだけを自動承認する運用をしている場合、<code>BASH_ARGV0</code> を使った迂回が今後は確認を求められることを前提にしておく（既存の allow ルール自体への影響はない）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>Bash の for ループで glob パターンを展開するコマンドの権限判定精度が改善（v2.1.295）</h2>
+      <p><code>for f in *.txt; do ...; done</code> のように glob パターンを for ループで展開する Bash コマンドは、これまで権限チェックが対象ファイルを正しく認識できず、判定が不正確になることがあった。v2.1.295 でこの判定精度が改善された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数ファイルをまとめて処理する for ループを許可ルールやサンドボックス自動許可に頼っている場合、以前より判定が正確になっている点を前提に、必要なら許可ルールを見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>`claude -p` 実行で、応答のストリーミング完了前に Skill tool が終わるとスキルの `allowed-tools`/`effort` が失われ、Bash コマンドが拒否される不具合を修正（v2.1.295）</h2>
+      <p><code>claude -p</code>（ヘッドレス実行）でスキルを呼び出した際、Skill tool の処理が応答のストリーミング完了より先に終わると、そのスキルに設定した <code>allowed-tools</code> や <code>effort</code> が反映されず、スキル内の Bash コマンドが権限拒否されることがあった。v2.1.295 でこの不具合が修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI などで <code>claude -p</code> からスキルを呼び、スキル内の Bash コマンドが原因不明で拒否されていた場合は、この不具合が原因だった可能性がある。更新後に同じスキルを再実行して解消を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">ワークフロー</span>
+      <h2>ヘッドレス・SDK セッションで、15秒以上切れたリモート MCP サーバーへの再接続が改善、過度な再試行に自動でバックオフ（v2.1.295）</h2>
+      <p>ヘッドレスセッションや Agent SDK セッションでは、リモート MCP サーバーが15秒を超えて切断されるとそのまま再接続されずに切れたままになったり、逆に接続直後に切断するサーバーに対してタイトループで再接続を繰り返したりする不具合があった。v2.1.295 でこれが修正され、繰り返し切断されるサーバーへの再接続は最大30秒まで自動的にバックオフするようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>SDK や <code>-p</code> でリモート MCP サーバーを使う構成で、一時的な切断後にツールが使えなくなる事象が起きていた場合、更新後は自動で再接続されるようになっているはずか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>Windows: hooks が `CLAUDE_ENV_FILE` に書き込んだ環境変数が PowerShell から見えない不具合を修正（v2.1.296）</h2>
+      <p>hooks が <code>CLAUDE_ENV_FILE</code> に単純な代入文だけを書き込んだ場合、Windows の PowerShell ツールからその環境変数が見えないことがあった。v2.1.296 でこの不具合が修正され、PowerShell でも hooks が設定した環境変数を参照できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows で SessionStart などの hooks から <code>CLAUDE_ENV_FILE</code> 経由で環境変数をセットし、以降の PowerShell コマンドで使う運用をしている場合、更新後に正しく読めているか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-12.html">v2.1.296 で Workflow の全エージェントを1モデルに固定可能に、Windows の rm -rf 確認漏れと長文 PowerShell コマンドの権限判定も修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
