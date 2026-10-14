@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.295〜296 の見落とし分、OSC 7501 対応でターミナルから作業状態が見えるように。PreToolUse hook の誤動作修正や claude -p のハング対策も｜Claude code の PowerUP info</title>
+<meta name="description" content="直近リリースのうち、まだ紹介していない項目をまとめた。複数セッションの状態をターミナル側から把握できる OSC 7501 対応、`PreToolUse` hook の拒否が意図せずターン全体を止めていた不具合の修正、`claude -p` や headless 実行を安定させる地味な追加など。">
+<meta property="og:title" content="v2.1.295〜296 の見落とし分、OSC 7501 対応でターミナルから作業状態が見えるように。PreToolUse hook の誤動作修正や claude -p のハング対策も｜Claude code の PowerUP info">
+<meta property="og:description" content="直近リリースのうち、まだ紹介していない項目をまとめた。複数セッションの状態をターミナル側から把握できる OSC 7501 対応、`PreToolUse` hook の拒否が意図せずターン全体を止めていた不具合の修正、`claude -p` や headless 実行を安定させる地味な追加など。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.25</p>
+      <div class="article__head">
+        <span class="chip">2026.10.14</span>
+        <h1>v2.1.295〜296 の見落とし分、OSC 7501 対応でターミナルから作業状態が見えるように。PreToolUse hook の誤動作修正や claude -p のハング対策も</h1>
+        <div class="article__date">2026年10月14日(水)公開 ／ VOL.25</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.25</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.14</div>
+      </div></div>
+      <p class="lead">直近リリースのうち、まだ紹介していない項目をまとめた。複数セッションの状態をターミナル側から把握できる OSC 7501 対応、`PreToolUse` hook の拒否が意図せずターン全体を止めていた不具合の修正、`claude -p` や headless 実行を安定させる地味な追加など。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">ターミナルが Claude Code の作業状態を表示できる OSC 7501（Program Status Protocol）に対応（v2.1.295）</a></li><li><a href="#item-2">managed `PreToolUse` hook の `&quot;continue&quot;: false` による拒否が、ターン全体を終了させてしまっていた不具合を修正（v2.1.296）</a></li><li><a href="#item-3">`claude -p` がターン終了後も居残るとき、何を待っているかを stderr に出すように（v2.1.295）</a></li><li><a href="#item-4">`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS` で、無人実行時の 429/529 リトライ待機に上限を設定できるように（v2.1.295）</a></li><li><a href="#item-5">Claude Tag（Claude in Slack）、ワークスペース/チャンネルの memory ファイルを Activity ページの Memory タブから編集できるように（v2.1.296）</a></li><li><a href="#item-6">VS Code 拡張、Claude が送ってきたファイルがクリック可能なファイル名付きの行で表示されるように（v2.1.295）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>ターミナルが Claude Code の作業状態を表示できる OSC 7501（Program Status Protocol）に対応（v2.1.295）</h2>
+      <p>Claude Code が <strong>OSC 7501（Program Status Protocol）</strong> に対応した。これはターミナル側に「作業中」「入力待ち」「完了」といった状態をエスケープシーケンスで知らせる仕組みで、対応するターミナルエミュレータや tmux のステータスバーなら、どのペイン・タブが入力待ちで止まっているかを色やアイコンで見分けられるようになる。</p>
+      <p>複数の Claude Code セッションを並行して走らせている場合、どれが応答を待っているかをいちいち画面を切り替えて確認する必要が減る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>対応ターミナル（OSC 7501 を解釈できるもの）を使っていれば、特別な設定なしで自動的に状態表示が有効になる。</li><li>tmux などで複数ペインに Claude Code を並べて使っているなら、ステータスバー側の対応状況を確認しておくと「どのペインが止まっているか」が一目で分かるようになる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>managed `PreToolUse` hook の `&quot;continue&quot;: false` による拒否が、ターン全体を終了させてしまっていた不具合を修正（v2.1.296）</h2>
+      <p>組織管理（managed）の <code>PreToolUse</code> hook が <code>&quot;continue&quot;: false</code> を返してツール呼び出しを拒否したとき、その1回の呼び出しだけでなく会話のターン全体が終了してしまう不具合があった。v2.1.296 で修正され、拒否された呼び出しだけが止まり、ターンはそのまま継続するようになった。</p>
+      <p>組織のガードレール用 hook を書いている場合、これまで「拒否したら会話も止まる」という前提で動いていた箇所があれば、挙動が変わる点に注意したい。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>managed hook で危険な操作を <code>&quot;continue&quot;: false</code> で拒否する設計をしている場合、v2.1.296 以降では拒否後も会話が続く前提で hook やその後の指示文を見直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude -p` がターン終了後も居残るとき、何を待っているかを stderr に出すように（v2.1.295）</h2>
+      <p><code>claude -p</code> をスクリプトや CI から呼んだとき、最後のターンが終わったのにプロセスが終了せず「ハングしているように見える」ケースがあった。v2.1.295 では、そうした場合に何を待っているか（バックグラウンドのサブエージェントなど）を stderr に1行出すようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI や自動化スクリプトで <code>claude -p</code> を使っていて終了が遅い・止まって見えるときは、stderr を確認すれば原因が分かる。</li><li>ログを残す運用なら、stderr を標準出力と分けて記録しておくとデバッグが速くなる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS` で、無人実行時の 429/529 リトライ待機に上限を設定できるように（v2.1.295）</h2>
+      <p>CI・<code>-p</code>・SDK などの無人（unattended）実行では、429（レート制限）や529（過負荷）エラーに対して自動でリトライ待機するが、これまで待機時間の上限を設定する手段がなかった。<code>CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS</code> を設定すると、その待機を一定時間で打ち切れるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI パイプラインなど実行時間に上限があるジョブでは、<code>CLAUDE_CODE_RETRY_WATCHDOG_MAX_WAIT_MS</code> を設定して、過負荷リトライで想定外に長時間居残らないようにする。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>Claude Tag（Claude in Slack）、ワークスペース/チャンネルの memory ファイルを Activity ページの Memory タブから編集できるように（v2.1.296）</h2>
+      <p>Claude Tag Admin 権限を持つメンバーは、ワークスペースやチャンネルの memory ファイル（Claude がそのチャンネル・ワークスペースについて覚えている内容）を、Slack の会話内だけでなく Activity ページの Memory タブから直接作成・編集・削除できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>チャンネルごとの振る舞いを Slack 上のやり取りではなく管理画面でまとめて整理したいときに、Memory タブを使う。</li><li>誤って記録された memory の削除も、該当チャンネルでの会話を探さずに Memory タブから直接行える。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>VS Code 拡張、Claude が送ってきたファイルがクリック可能なファイル名付きの行で表示されるように（v2.1.295）</h2>
+      <p>VS Code 拡張のチャットで Claude がファイルを送ってきたとき、専用の行としてファイル名が表示され、クリックするとそのまま開けるようになった。これまではテキストの中からパスを探して開く必要があった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude が生成・送付したファイルを確認するときは、チャット内のファイル名をそのままクリックして開く。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-13.html">v2.1.295〜296 の見落とし分をまとめて紹介。MCP ツール説明の上限拡大、Bash 権限判定のすり抜け2件、`-p` 実行でのスキル権限バグも修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
