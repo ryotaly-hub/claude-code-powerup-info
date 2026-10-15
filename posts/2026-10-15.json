@@ -1,0 +1,77 @@
+{
+  "date": "2026-10-15",
+  "headline": "v2.1.299 でアイドル時の自動コンパクションが追加、1時間キャッシュが切れる前に長時間放置した会話を圧縮。Haiku 5.5 の追加と MCP allow ルールの仕様変更にも注意",
+  "lead": "v2.1.292〜300 の見落とし分をまとめて紹介する。200K トークンを超える会話を54分ほど放置すると自動で圧縮されるアイドルコンパクションが追加された一方、MCP の allow ルールの一致条件が厳密化され、既存の許可設定が効かなくなるケースがある。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "ターミナルにアイドル時の自動コンパクションが追加。200K トークン超の会話を54分放置すると、1時間のプロンプトキャッシュが切れる前に圧縮される",
+      "body": "200K トークンを超える会話を約54分アイドル状態にすると、1時間のプロンプトキャッシュが失効する前に自動でコンパクションがかかるようになった。次にメッセージを送ったときに巨大な会話全体を再処理せずに済む。\n\n圧縮をかけるしきい値のトークン数は `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` で変更できる。`settings.json` に `\"idleCompaction\": false` を書けば無効化もできる。",
+      "howto": [
+        "離席が多く会話を長時間開けっぱなしにする人は、何もしなくても次に戻ったときの再処理コストが減る",
+        "コンパクションのタイミングを自分で制御したい場合は `idleCompaction: false` を設定するか、しきい値を `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS` で調整する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "Claude Haiku 5.5（`claude-haiku-5-5`）が追加され、Anthropic API の既定の Haiku モデルに",
+      "body": "1M トークンのコンテキストウィンドウを持つ Claude Haiku 5.5 が追加され、Anthropic API 上での既定の Haiku モデルになった。価格は 1Mトークンあたり入力 $0.10 / 出力 $0.50（プロンプトが10万トークンを超える場合は $0.50 / $2.50）。",
+      "howto": [
+        "`/model` でモデルを明示的に Haiku に切り替えている場合、既定が `claude-haiku-5-5` になったことを確認する",
+        "大量の軽いサブタスク（要約・分類・簡単な検索）を Haiku に投げている構成では、コスト・速度の両方が変わるので一度動作を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "MCP の allow ルールが、名前が指すサーバーだけにしか一致しなくなった。`mcp__a` は `a__b` という名前のサーバーにもう一致しない",
+      "body": "これまで `mcp__a` のような allow ルールは、`a__b` や `a_` のように前方一致するサーバー名にも効いていた。この挙動が変更され、ルールが名前で指すサーバーにしか一致しなくなった。\n\nサーバー名にアンダースコアを含む MCP サーバーを使っている場合、settings.json の permissions の allow/deny/ask ルールが意図通り効かなくなる可能性がある。正規化後のサーバー名をフルで書いた `mcp__<server>__*` の形にする必要がある。",
+      "howto": [
+        "`mcp__` で始まる allow/deny/ask ルールを settings.json に書いている場合は、対象サーバー名にアンダースコアが含まれていないか確認する",
+        "含まれている場合は、ルールをサーバーの正規化後のフルネームを使った `mcp__<server>__*` の形に書き直す"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`CLAUDE_CODE_DISABLE_FILE_MENTIONS` が追加。`@` でのファイル言及を、内容そのまま流し込まずツールで読ませられる",
+      "body": "この環境変数を設定すると、プロンプト中で `@` を使ってファイルに言及したとき、Claude はファイルの中身をそのままコンテキストに受け取るのではなく、パスだけを受け取って自前のファイル読み込みツールで読むようになる。",
+      "howto": [
+        "大きなファイルを `@` で何度も言及するとコンテキストを圧迫する、という問題がある場合に `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1` を設定する",
+        "設定後は `@file.ts` と書いても自動で全文が貼られず、Claude が必要な範囲だけ Read ツールで読む動きになる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "api.anthropic.com への大きなリクエストが gzip 圧縮されるように。`CLAUDE_CODE_GZIP_REQUEST_BODIES=0` で無効化できる",
+      "body": "テレメトリが無効な環境でも、大きなリクエストボディは gzip で圧縮して送られるようになった。通信量が減るため、特に大きなファイルや長い会話を送るときの送信が速くなる。\n\n挙動を変えたくない場合は `CLAUDE_CODE_GZIP_REQUEST_BODIES=0` で元に戻せる。",
+      "howto": [
+        "社内プロキシなどでリクエストボディの中身を検査している場合、gzip 化で挙動が変わる可能性があるので `CLAUDE_CODE_GZIP_REQUEST_BODIES=0` で無効化できることを覚えておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`claude plugin install --marketplace <source>` が追加。マーケットプレイス追加とプラグインインストールを1コマンドで",
+      "body": "`claude plugin install` に `--marketplace <source>` オプションが追加された。必要であれば `claude plugin marketplace add` と同じポリシーチェックのもとでマーケットプレイスを追加したうえで、そこからプラグインをインストールする。",
+      "howto": [
+        "未追加のマーケットプレイスからプラグインを入れるとき、`claude plugin marketplace add` → `claude plugin install` の2手順を踏まずに `claude plugin install --marketplace <source> <plugin>` の1コマンドで済ませられる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
