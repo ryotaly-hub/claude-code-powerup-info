@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-16",
+  "headline": "Sonnet 5.5 のキャッシュ読み取りが半額に、UserPromptSubmit hook はスキル展開前に実行されるように——v2.1.296〜301の見落とし分をまとめて紹介",
+  "lead": "v2.1.296〜301 の見落とし分をまとめて紹介する。Sonnet 5.5 のプロンプトキャッシュ読み取り価格が下がった一方、バックグラウンドコマンドは停止依頼後1.5秒で強制終了されるようになり、長時間ジョブを動かしたまま exit する人は影響を受ける。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Sonnet 5.5 のキャッシュ読み取り価格が1Mトークンあたり$0.20から$0.10に半減",
+      "body": "`/cost`、ステータスライン、`--max-budget-usd`、SDK のコスト計算のいずれにおいても、Sonnet 5.5 のプロンプトキャッシュ読み取り価格が1メガトークンあたり$0.10になった（これまでは$0.20）。",
+      "howto": [
+        "特別な設定変更は不要で、次回の API 呼び出しから自動的に新価格が適用される",
+        "長い会話やキャッシュを多用するワークフロー（同じコンテキストを繰り返し参照するタスクなど）ほどコスト削減効果が大きい"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "exit 時、バックグラウンドコマンドが停止依頼後1.5秒で強制終了されるように",
+      "body": "exit 実行時、停止を依頼してもまだ動いているバックグラウンドコマンドは1.5秒後に強制終了されるようになった。これまではフルスクリーンモードだと動き続けたまま残ることがあった。",
+      "howto": [
+        "ビルドやサーバー起動など時間のかかるバックグラウンドコマンドを動かしたまま exit すると、1.5秒以内に終了しなければ強制停止される点に注意する",
+        "後処理が必要なコマンドは、exit する前に完了を待つか、ターミナルの別タブ・別プロセスで動かす運用に切り替える"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "UserPromptSubmit hook が、スキルやスラッシュコマンドの展開前に実行されるように",
+      "body": "`UserPromptSubmit` hook が、スキルやカスタムスラッシュコマンドが展開される前に実行されるようになった。これにより、プロンプトをブロックする hook は、そのスキルに埋め込まれたシェルコマンドの実行も合わせて止められる。",
+      "howto": [
+        "`UserPromptSubmit` hook でプロンプト内容をチェックして拒否する仕組みを使っている場合、スキル実行前に確実にブロックされることを前提に設計し直せる",
+        "既存の hook がスキル展開後の挙動を前提に書かれていた場合は、動作が変わっていないか一度確認する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/usage` に max effort・Workflow・大きいツール結果などの使用量警告が追加",
+      "body": "`/usage` に、max effort の使用、Workflow の実行、常時有効なコンテキスト、大きいツール結果について、それぞれ警告が表示されるようになった。",
+      "howto": [
+        "使用量が急に増えたと感じたら `/usage` を見る。どの要因が消費を押し上げているかが分かるので、そこから絞り込んで節約できる",
+        "Workflow tool を多用している場合は特に影響が出やすいので、定期的に `/usage` で確認する習慣をつける"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Claude Tag（Claude in Slack）が Slack Connect に対応、コネクタ承認用のプライベートカードも追加",
+      "body": "Claude Tag が、他組織と共有された Slack Connect チャンネルでの応答に対応した（デフォルトはオフで、Owner または Claude Tag 管理者が有効化する）。また、コネクタのアクションが承認を必要とするとき、スレッドに自分専用の「Allow once / Deny」カードが届くようになり、その場で許可できる。これまでは拒否されるだけだった。他の人からは、あなたの承認待ちであることだけが見える。",
+      "howto": [
+        "Slack Connect のチャンネルで Claude Tag を使いたい場合は、Owner か Claude Tag 管理者の権限で設定を有効にする",
+        "コネクタ操作で承認待ちになったら、スレッドに届く自分専用のカードから Allow once か Deny を選ぶ"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "VS Code / JetBrains の使用量制限バナーに「Get more usage」リンクが追加",
+      "body": "Pro・Max プランの VS Code 拡張と JetBrains パネルで、使用量制限バナーに「Get more usage」リンクが追加された。",
+      "howto": [
+        "作業中に使用量制限に達したら、エディタのバナーからそのままプラン変更・追加購入のページに移動できる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
