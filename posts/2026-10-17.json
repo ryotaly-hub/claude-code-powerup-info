@@ -1,0 +1,82 @@
+{
+  "date": "2026-10-17",
+  "headline": "fork subagent が claude -p・SDK・デスクトップ・VS Code 拡張でもデフォルト有効に。サードパーティプロバイダーでの権限モード既定値の変更にも注意",
+  "lead": "v2.1.295〜302 の見落とし分を中心に紹介する。fork subagent がターミナル以外でも標準で有効になった一方、claude -p や Agent SDK をサードパーティプロバイダー上で権限モード未指定のまま動かしている場合は、起動時の既定モードが変わる点に注意したい。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "fork subagent が claude -p・Agent SDK・デスクトップアプリ・VS Code 拡張でデフォルト有効に",
+      "body": "会話全体のコンテキストを引き継ぐ `fork` タイプのサブエージェント（`subagent_type: \"fork\"`）が、ターミナルではすでにデフォルトだったのに対し、`claude -p`・Agent SDK・デスクトップアプリ・VS Code 拡張ではこれまで明示的な有効化が必要だった。v2.1.302 でこれらすべてでもデフォルト有効になった。\n\n`CLAUDE_CODE_FORK_SUBAGENT=0` で無効化できる。`claude mcp serve` では提供されない。",
+      "howto": [
+        "`-p` 実行や SDK 経由、エディタ拡張からサブタスクを委任するとき、何も設定しなくても会話の完全なコンテキストを引き継ぐ fork subagent を使えるようになった",
+        "挙動を変えたくない・無効化したい場合は環境変数 `CLAUDE_CODE_FORK_SUBAGENT=0` をセットする"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`claude -p` / Agent SDK、サードパーティプロバイダーでの権限モード未指定時の既定値が変更",
+      "body": "権限モードを指定せずに `claude -p` や Agent SDK のセッションを起動した場合、サードパーティプロバイダー上では（テレメトリがオフか新規インストールの場合）`default` モードで起動するよう変更された。`--permission-mode auto` を指定すれば従来どおり auto モードになる。",
+      "howto": [
+        "CI やバッチ処理で `claude -p` を権限モード未指定のまま、サードパーティプロバイダー経由で動かしている場合、想定していたモードと違う挙動になる可能性がある。意図したモードがあるなら `--permission-mode auto` のように明示する",
+        "Agent SDK を使うコードでも、permission mode を明示的に渡しておくと挙動が安定する"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/config` にアイドル時自動コンパクションのオン/オフ切り替えが追加",
+      "body": "ターミナルのアイドル時自動コンパクション（200K トークン超の会話を54分放置すると、1時間のプロンプトキャッシュが切れる前に圧縮する機能）について、`/config` に「Idle compaction」の行が追加され、オン/オフを切り替えられるようになった。コンパクションが発生した際の通知にも、オフにする方法が表示されるようになっている。",
+      "howto": [
+        "アイドル時の自動圧縮を止めたい場合は `/config` を開き、Idle compaction の行をオフにする",
+        "圧縮が起きた旨の通知が出たときも、そこに表示される案内からそのままオフにできる"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "MCP ツールの説明文に使える文字数上限が拡大",
+      "body": "MCP サーバーのツール説明・サーバー指示文の上限が引き上げられた。起動時にまとめて読み込まれる分は2,048字から4,096字に（v2.1.296）、ツール検索（deferred tools）経由で読み込む分は2,048字から16,384字に（v2.1.295）、それぞれ拡大されている。",
+      "howto": [
+        "自作・運用している MCP サーバーのツール説明が長すぎて途中で削られていた場合、今回の上限拡大で全文が渡るようになっているか見直す",
+        "ツール検索経由で読み込ませる deferred tool の説明は16,384字まで使えるので、パラメータの使い方や注意点を詳しく書き込める"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "vim モードに `%` motion が追加、対応する括弧へジャンプできる",
+      "body": "vim モードに `%` motion が追加された。カーソル位置の括弧から対応する括弧へジャンプできるほか、`d`・`c`・`y` と組み合わせて使うこともできる。",
+      "howto": [
+        "vim モードでコードを編集中、括弧の上にカーソルを置いて `%` を押すと対応する括弧にジャンプする",
+        "`d%`・`c%`・`y%` のように組み合わせれば、対応する括弧までの範囲をまとめて削除・変更・コピーできる"
+      ],
+      "links": [
+        {
+          "label": "Claude Code Changelog",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    }
+  ]
+}
