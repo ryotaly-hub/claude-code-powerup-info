@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>モデルをコンテキストの小さいモデルに切り替えるとき、要約生成で無断にクレジットを使っていた不具合を修正。agent view での /effort・/fast 設定、Read tool の allow_large、VS Code の LaTeX 数式表示にも対応（v2.1.296〜301の見落とし分）｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の更新から、見落としがちだが知っておくと作業が速くなる項目をまとめた。モデルを切り替えるときの挙動、Read ツールの新オプション、VS Code の数式表示、AWS 版での新コマンドの4本。">
+<meta property="og:title" content="モデルをコンテキストの小さいモデルに切り替えるとき、要約生成で無断にクレジットを使っていた不具合を修正。agent view での /effort・/fast 設定、Read tool の allow_large、VS Code の LaTeX 数式表示にも対応（v2.1.296〜301の見落とし分）｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の更新から、見落としがちだが知っておくと作業が速くなる項目をまとめた。モデルを切り替えるときの挙動、Read ツールの新オプション、VS Code の数式表示、AWS 版での新コマンドの4本。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.30</p>
+      <div class="article__head">
+        <span class="chip">2026.10.19</span>
+        <h1>モデルをコンテキストの小さいモデルに切り替えるとき、要約生成で無断にクレジットを使っていた不具合を修正。agent view での /effort・/fast 設定、Read tool の allow_large、VS Code の LaTeX 数式表示にも対応（v2.1.296〜301の見落とし分）</h1>
+        <div class="article__date">2026年10月19日(月)公開 ／ VOL.30</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.30</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.19</div>
+      </div></div>
+      <p class="lead">直近の更新から、見落としがちだが知っておくと作業が速くなる項目をまとめた。モデルを切り替えるときの挙動、Read ツールの新オプション、VS Code の数式表示、AWS 版での新コマンドの4本。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">コンテキストの小さいモデルへ切り替える際、要約生成の前に確認を求めるように（v2.1.301）</a></li><li><a href="#item-2">`claude agents`（agent view）で `/effort` と `/fast` を使って、新しいセッションの初期設定を指定できるように（v2.1.299）</a></li><li><a href="#item-3">Read ツールに `allow_large` オプションが追加、通常の上限を超えるテキストファイルを一度に読めるように（v2.1.296）</a></li><li><a href="#item-4">VS Code 拡張、Claude の返答内の LaTeX 数式（`$$` や複数行の `\[ … \]`）がレンダリングされるように（v2.1.301）</a></li><li><a href="#item-5">Claude Platform on AWS に `/advisor` が追加（v2.1.300）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>コンテキストの小さいモデルへ切り替える際、要約生成の前に確認を求めるように（v2.1.301）</h2>
+      <p>会話が新しいモデルのコンテキストウィンドウに収まらないとき、切り替え前の（元の）モデルが会話を要約してから切り替える。これまではその要約生成に使用量クレジットが無断で消費されていたが、今回の修正で切り替え前に確認が入るようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>例えば 1M トークンのモデルから短いコンテキストのモデルへ <code>/model</code> で切り替えるとき、長い会話だと要約が走る場合がある。クレジットを使う操作として、切り替え前に確認ダイアログが出ることを覚えておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Claude Code Changelog (GitHub)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude agents`（agent view）で `/effort` と `/fast` を使って、新しいセッションの初期設定を指定できるように（v2.1.299）</h2>
+      <p>agent view の画面から <code>/effort</code> でエフォートレベル、<code>/fast</code> で fast mode を指定すると、そこから新規に起動するセッションがその設定で始まる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>claude agents</code> を開き、新しいセッションを作る前に <code>/effort xhigh</code> や <code>/fast</code> を打っておくと、起動するセッションに毎回設定し直す手間がなくなる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Claude Code Changelog (GitHub)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>Read ツールに `allow_large` オプションが追加、通常の上限を超えるテキストファイルを一度に読めるように（v2.1.296）</h2>
+      <p>Claude がファイル全体をどうしても必要とし、会話にそれを収める余地が残っている場合に向けたオプション。これを指定すると、通常のサイズ上限を超えるテキストファイルも1回の呼び出しで読み切れる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>SDK や自作ツールから Read を呼ぶ構成で、大きな設定ファイルやログを丸ごと読ませたい場合に <code>allow_large: true</code> を渡す。会話のコンテキストを大量に消費するので、本当に全体が必要なときだけ使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Claude Code Changelog (GitHub)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>VS Code 拡張、Claude の返答内の LaTeX 数式（`$$` や複数行の `\[ … \]`）がレンダリングされるように（v2.1.301）</h2>
+      <p>これまで Claude の返答に含まれる数式はプレーンテキストのまま表示されていたが、VS Code 拡張のチャットパネルで数式として描画されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>数式を含む説明や導出を Claude に書かせるとき、VS Code 拡張のチャット欄で確認すれば、<code>$$...$$</code> や <code>\[...\]</code> がそのまま数式として読める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Claude Code Changelog (GitHub)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>Claude Platform on AWS に `/advisor` が追加（v2.1.300）</h2>
+      <p><code>/advisor</code>、設定の <code>advisorModel</code>、または <code>--advisor</code> フラグでアドバイザーを選ぶまでは何も動かない。不要な場合は <code>CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1</code> で機能自体を無効化できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude Platform on AWS を使っている場合、<code>/advisor</code> でアドバイザーを選んでから使い始める。使わない方針なら環境変数 <code>CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1</code> を設定しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" target="_blank" rel="noopener">Claude Code Changelog (GitHub)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-18.html">v2.1.302 の見落とし分。デスクトップ/VS Code のサブエージェント実行方式が変更、ToolSearch 経由ツールのプロンプトキャッシュミス修正、Claude Design のスタンドアロン版終了予告も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>

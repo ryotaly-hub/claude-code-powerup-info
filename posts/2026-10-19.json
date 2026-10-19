@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-19",
+  "headline": "モデルをコンテキストの小さいモデルに切り替えるとき、要約生成で無断にクレジットを使っていた不具合を修正。agent view での /effort・/fast 設定、Read tool の allow_large、VS Code の LaTeX 数式表示にも対応（v2.1.296〜301の見落とし分）",
+  "lead": "直近の更新から、見落としがちだが知っておくと作業が速くなる項目をまとめた。モデルを切り替えるときの挙動、Read ツールの新オプション、VS Code の数式表示、AWS 版での新コマンドの4本。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "コンテキストの小さいモデルへ切り替える際、要約生成の前に確認を求めるように（v2.1.301）",
+      "body": "会話が新しいモデルのコンテキストウィンドウに収まらないとき、切り替え前の（元の）モデルが会話を要約してから切り替える。これまではその要約生成に使用量クレジットが無断で消費されていたが、今回の修正で切り替え前に確認が入るようになった。",
+      "howto": [
+        "例えば 1M トークンのモデルから短いコンテキストのモデルへ `/model` で切り替えるとき、長い会話だと要約が走る場合がある。クレジットを使う操作として、切り替え前に確認ダイアログが出ることを覚えておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (GitHub)", "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude agents`（agent view）で `/effort` と `/fast` を使って、新しいセッションの初期設定を指定できるように（v2.1.299）",
+      "body": "agent view の画面から `/effort` でエフォートレベル、`/fast` で fast mode を指定すると、そこから新規に起動するセッションがその設定で始まる。",
+      "howto": [
+        "`claude agents` を開き、新しいセッションを作る前に `/effort xhigh` や `/fast` を打っておくと、起動するセッションに毎回設定し直す手間がなくなる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (GitHub)", "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Read ツールに `allow_large` オプションが追加、通常の上限を超えるテキストファイルを一度に読めるように（v2.1.296）",
+      "body": "Claude がファイル全体をどうしても必要とし、会話にそれを収める余地が残っている場合に向けたオプション。これを指定すると、通常のサイズ上限を超えるテキストファイルも1回の呼び出しで読み切れる。",
+      "howto": [
+        "SDK や自作ツールから Read を呼ぶ構成で、大きな設定ファイルやログを丸ごと読ませたい場合に `allow_large: true` を渡す。会話のコンテキストを大量に消費するので、本当に全体が必要なときだけ使う"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (GitHub)", "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "VS Code 拡張、Claude の返答内の LaTeX 数式（`$$` や複数行の `\\[ … \\]`）がレンダリングされるように（v2.1.301）",
+      "body": "これまで Claude の返答に含まれる数式はプレーンテキストのまま表示されていたが、VS Code 拡張のチャットパネルで数式として描画されるようになった。",
+      "howto": [
+        "数式を含む説明や導出を Claude に書かせるとき、VS Code 拡張のチャット欄で確認すれば、`$$...$$` や `\\[...\\]` がそのまま数式として読める"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (GitHub)", "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Claude Platform on AWS に `/advisor` が追加（v2.1.300）",
+      "body": "`/advisor`、設定の `advisorModel`、または `--advisor` フラグでアドバイザーを選ぶまでは何も動かない。不要な場合は `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` で機能自体を無効化できる。",
+      "howto": [
+        "Claude Platform on AWS を使っている場合、`/advisor` でアドバイザーを選んでから使い始める。使わない方針なら環境変数 `CLAUDE_CODE_DISABLE_ADVISOR_TOOL=1` を設定しておく"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (GitHub)", "url": "https://github.com/anthropics/claude-code/blob/main/CHANGELOG.md" }
+      ]
+    }
+  ]
+}
