@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-20",
+  "headline": "v2.1.304。管理者向け Code Review にレビューレベル Quick/Standard/Deep と GitHub 組織まるごとカバーが追加。Pro/Max の5時間制限警告、/auto-mode-setup、rm -r のマウントドライブ安全確認も",
+  "lead": "GitHub PR を自動レビューする Code Review 機能が、組織・リポジトリ単位でレビューの深さを選べるようになった。ほかにも、長時間放置した会話を再開するときの使用量警告や、auto mode のガイド付きセットアップなど、v2.1.304 で入った変更をまとめる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Code Review にレビューレベル Quick / Standard / Deep が追加",
+      "body": "GitHub の PR に自動でレビューコメントを付ける管理者向け機能「Code Review」（claude.ai の Admin settings から設定するもので、ターミナルの `/code-review` コマンドとは別物）に、レビューの深さを選ぶ仕組みが入った。\n\nOwner は組織全体のデフォルトレベルを Quick・Standard（既定）・Deep の3段階から選べる。Quick はもっとも軽く速く安く、Deep はもっとも時間とコストがかかる代わりに丁寧。個々のリポジトリには組織の既定と別のレベルを設定することもできる。変更は Admin settings > Claude Code の Code review セクションで、変更後に開始するレビューから反映される。",
+      "howto": [
+        "claude.ai の Admin settings > Claude Code > Code review で組織のデフォルトレベルを選ぶ（迷ったら Standard のまま）",
+        "本番決済やアクセス制御まわりのリポジトリだけ、行の Edit から Review level を Deep に個別設定する",
+        "ドキュメントやプロトタイプ用のリポジトリは Quick にしてコストを抑える"
+      ],
+      "links": [
+        { "label": "Set up Code Review – Claude Docs", "url": "https://code.claude.com/docs/en/code-review-setup" },
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Code Review で GitHub 組織を丸ごとカバーする設定が可能に",
+      "body": "これまで Code Review はリポジトリを1件ずつ選んで追加する必要があったが、GitHub 組織の行で Review runs を設定すると、Claude GitHub App がアクセスできるその組織の全リポジトリ（あとから追加されたものも含む）が自動でカバーされるようになった。GitHub 組織の Owner であること、対象が github.com 上の組織であること、月間の支出上限が設定されていることが条件。個別に設定を変えたリポジトリはテーブル上で Custom と表示される。",
+      "howto": [
+        "Admin settings > Claude Code > Code review のリポジトリ一覧で、GitHub 組織の行の Edit から Review runs を選ぶ",
+        "導入前に Code Review の月間支出上限を必ず設定しておく（支出が大きく増える可能性があるため）"
+      ],
+      "links": [
+        { "label": "Set up Code Review – Claude Docs", "url": "https://code.claude.com/docs/en/code-review-setup" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Pro / Max プランで、放置した会話の再開が5時間制限を大きく食う場合に警告",
+      "body": "Pro・Max プランで、しばらく操作していなかった会話を `/resume` 等で再開しようとすると、それが5時間の使用量制限のかなりの割合を消費すると見込まれる場合に警告が出るようになった（v2.1.304）。そのまま再開するか、新しい会話を始めて必要なときに以前の会話を参照させるかを選べる。長い会話を日をまたいで再開する前に、残り使用量を確認する判断材料になる。",
+      "howto": [
+        "警告が出たら、本当に続きが必要な作業かをまず考える",
+        "過去のやり取りを参照したいだけなら、新しい会話で「前の会話の〇〇について」と触れさせた方が使用量を節約できる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/auto-mode-setup` が追加、auto mode に自分の環境を学習させられる",
+      "body": "`/auto-mode-setup` コマンドが追加された（v2.1.304）。実行するとプロジェクトの内容と直近のセッション履歴を読み込み、auto mode（許可プロンプトの代わりにバックグラウンドの安全チェックで判断するモード）にその環境特有の事情を教え込むガイド付きセットアップが進む。これまで Bedrock・Vertex・Foundry・Claude apps gateway やテレメトリを無効にしたセッションでは使えなかったが、今回からそれらでも利用できるようになった。",
+      "howto": [
+        "auto mode を使っているプロジェクトで `/auto-mode-setup` を実行し、案内に沿って環境固有のルールを教える",
+        "社内ゲートウェイ（Claude apps gateway）経由や Bedrock/Vertex/Foundry 環境でも同じコマンドが使える"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`rm -r` でマウントドライブを丸ごと消そうとしたときの安全確認が修正",
+      "body": "`rm -rf /Applications` のようなトップレベルの危険な削除には従来から確認プロンプトが出ていたが、マウントされたドライブやその直下のフォルダ（`/Volumes`、`/media`、WSL の `/mnt/c` など）に対する `rm -r` では、この安全確認が効いていなかった不具合が v2.1.304 で修正された。外付けディスクやマウントポイントに対する一括削除でも、同様に確認が入るようになる。",
+      "howto": [
+        "外付けドライブや WSL のマウントポイントに対して `rm -r` を実行する前に、確認プロンプトの内容をよく読む",
+        "自動実行（acceptEdits や auto mode）の設定でも、この種の破壊的コマンドは引き続き確認対象になる点を踏まえておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "コンパクション後にスキル一覧が再送、`/reload-skills` は差分だけ送るように",
+      "body": "会話がコンパクション（圧縮）された直後、Claude に使えるスキルの一覧が再送されるようになった（v2.1.304）。コンパクションでスキルの存在を Claude が見失い、使うべきスキルを使わなくなる事態を防ぐ変更。あわせて `/reload-skills` も、全スキルを送り直すのではなく新規・変更分だけを送るようになり、再読み込みのコストが下がった。",
+      "howto": [
+        "長い会話がコンパクションされた後も、スキルが使われなくなったように見えたら、まず動作が変わったか様子を見る（再送が効くはず）",
+        "スキルを編集した直後は `/reload-skills` を実行すれば、変更分だけが軽量に反映される"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
