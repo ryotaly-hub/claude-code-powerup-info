@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-21",
+  "headline": "v2.1.304。Opus 5.5 で `/fast` が正式版に、Managed Agents の設定をセキュリティガイドと自動チェックする `/claude-api managed-agents-secure` も追加。フックの同時実行数・登録数の上限にも注意",
+  "lead": "直近の changelog から、Opus 5.5 での `/fast` 正式化、Managed Agents 向けのセキュリティ自動チェック、auto mode のクライアント側分類モデル指定、フックの同時実行数・登録数の上限まわりをまとめた。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Opus 5.5 で `/fast` が正式版に（「research preview」表記が外れる）",
+      "body": "v2.1.304 で、`/fast` ダイアログのタイトルから Opus 5.5 向けの「(research preview)」表記が外れた。Sonnet 5.5 では以前から正式機能だったが、Opus 5.5 でも研究プレビュー扱いが終わり、通常機能として使える状態になったことを意味する。",
+      "howto": [
+        "Opus 5.5 を使っているプロジェクトで `/fast` を実行し、応答速度を優先したいセッションに切り替える",
+        "以前の研究プレビュー表記を見て避けていた場合は、v2.1.304 以降で改めて試す価値がある"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`/claude-api managed-agents-secure` が追加、Managed Agents の設定をセキュリティガイドと自動チェック",
+      "body": "v2.1.304 で `/claude-api managed-agents-secure` コマンドが追加された。Managed Agents で動かしているエージェントの設定を、Anthropic が公開しているセキュリティガイドと比較し、差分を報告する。設定を書き換えることはなく、読み取り専用のチェックにとどまる。",
+      "howto": [
+        "Managed Agents でエージェントを運用している場合、`/claude-api managed-agents-secure` を実行してガイドとの差分を確認する",
+        "指摘された項目は自分で設定を直す。コマンド自体は何も変更しない"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`CLAUDE_CODE_AUTO_MODE_MODEL` で auto mode のクライアント側分類モデルを指定できるように",
+      "body": "v2.1.302 で環境変数 `CLAUDE_CODE_AUTO_MODE_MODEL` が追加された。auto mode がツール呼び出しの許可・拒否を判断する際、クライアント側の分類処理に使うモデルを指定できる。サーバー側の auto mode 判定には影響しない。",
+      "howto": [
+        "auto mode を使っていて分類の速度やコストを調整したい場合、`CLAUDE_CODE_AUTO_MODE_MODEL` にモデル名を設定して起動する",
+        "サーバー側の安全チェックの挙動自体は変わらない点を踏まえておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.302)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "フック（hook）の同時実行数が1イベントあたり最大12件に制限",
+      "body": "v2.1.302 で、同じイベントに対するフックの同時実行数に上限が設けられた。1つのイベントタイプにつき最大12件までが同時に実行され、それを超える分はキューに入って順に処理される。",
+      "howto": [
+        "多数のプラグイン・フックを有効にしている場合、同じイベントで13件目以降のフックは待たされる可能性がある点を踏まえておく",
+        "フックの実行が遅いと感じたら、同一イベントに登録しているフックの数を一度見直す"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.302)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "プラグイン提供のスキルフックに上限、1プラグインソースあたり最大1,024個・マッチャー文字数16,384字まで",
+      "body": "v2.1.304 で、1つのプラグインソースが1セッションで登録できるスキルフックの数に上限が設けられた。最大1,024個、かつマッチャー文字数の合計で16,384字までという制限になる。",
+      "howto": [
+        "スキルやプラグインを自作している場合、1つのソースで大量のフックを動的生成する設計は避ける",
+        "上限に達すると登録が止まる可能性があるため、フック数の多いプラグインを使う場合は挙動を確認しておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "コンパクション後のトランスクリプトのサマリーに、要約前に呼んだツール名の一覧が表示されるように",
+      "body": "v2.1.304 で、会話がコンパクション（要約）された際に `Ctrl+O` のトランスクリプト表示に出るサマリーに、要約される前に呼び出していたツールの名前の一覧が追加された。何をしていた途中だったかを、コンパクション後でも把握しやすくなる。",
+      "howto": [
+        "長い会話がコンパクションされた後、`Ctrl+O` でトランスクリプトを開き、サマリー内のツール名一覧で作業の文脈を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.304)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.304。Opus 5.5 で `/fast` が正式版に、Managed Agents の設定をセキュリティガイドと自動チェックする `/claude-api managed-agents-secure` も追加。フックの同時実行数・登録数の上限にも注意｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の changelog から、Opus 5.5 での `/fast` 正式化、Managed Agents 向けのセキュリティ自動チェック、auto mode のクライアント側分類モデル指定、フックの同時実行数・登録数の上限まわりをまとめた。">
+<meta property="og:title" content="v2.1.304。Opus 5.5 で `/fast` が正式版に、Managed Agents の設定をセキュリティガイドと自動チェックする `/claude-api managed-agents-secure` も追加。フックの同時実行数・登録数の上限にも注意｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の changelog から、Opus 5.5 での `/fast` 正式化、Managed Agents 向けのセキュリティ自動チェック、auto mode のクライアント側分類モデル指定、フックの同時実行数・登録数の上限まわりをまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.32</p>
+      <div class="article__head">
+        <span class="chip">2026.10.21</span>
+        <h1>v2.1.304。Opus 5.5 で `/fast` が正式版に、Managed Agents の設定をセキュリティガイドと自動チェックする `/claude-api managed-agents-secure` も追加。フックの同時実行数・登録数の上限にも注意</h1>
+        <div class="article__date">2026年10月21日(水)公開 ／ VOL.32</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.32</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.21</div>
+      </div></div>
+      <p class="lead">直近の changelog から、Opus 5.5 での `/fast` 正式化、Managed Agents 向けのセキュリティ自動チェック、auto mode のクライアント側分類モデル指定、フックの同時実行数・登録数の上限まわりをまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Opus 5.5 で `/fast` が正式版に（「research preview」表記が外れる）</a></li><li><a href="#item-2">`/claude-api managed-agents-secure` が追加、Managed Agents の設定をセキュリティガイドと自動チェック</a></li><li><a href="#item-3">`CLAUDE_CODE_AUTO_MODE_MODEL` で auto mode のクライアント側分類モデルを指定できるように</a></li><li><a href="#item-4">フック（hook）の同時実行数が1イベントあたり最大12件に制限</a></li><li><a href="#item-5">プラグイン提供のスキルフックに上限、1プラグインソースあたり最大1,024個・マッチャー文字数16,384字まで</a></li><li><a href="#item-6">コンパクション後のトランスクリプトのサマリーに、要約前に呼んだツール名の一覧が表示されるように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Opus 5.5 で `/fast` が正式版に（「research preview」表記が外れる）</h2>
+      <p>v2.1.304 で、<code>/fast</code> ダイアログのタイトルから Opus 5.5 向けの「(research preview)」表記が外れた。Sonnet 5.5 では以前から正式機能だったが、Opus 5.5 でも研究プレビュー扱いが終わり、通常機能として使える状態になったことを意味する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Opus 5.5 を使っているプロジェクトで <code>/fast</code> を実行し、応答速度を優先したいセッションに切り替える</li><li>以前の研究プレビュー表記を見て避けていた場合は、v2.1.304 以降で改めて試す価値がある</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.304)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">エコシステム</span>
+      <h2>`/claude-api managed-agents-secure` が追加、Managed Agents の設定をセキュリティガイドと自動チェック</h2>
+      <p>v2.1.304 で <code>/claude-api managed-agents-secure</code> コマンドが追加された。Managed Agents で動かしているエージェントの設定を、Anthropic が公開しているセキュリティガイドと比較し、差分を報告する。設定を書き換えることはなく、読み取り専用のチェックにとどまる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Managed Agents でエージェントを運用している場合、<code>/claude-api managed-agents-secure</code> を実行してガイドとの差分を確認する</li><li>指摘された項目は自分で設定を直す。コマンド自体は何も変更しない</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.304)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`CLAUDE_CODE_AUTO_MODE_MODEL` で auto mode のクライアント側分類モデルを指定できるように</h2>
+      <p>v2.1.302 で環境変数 <code>CLAUDE_CODE_AUTO_MODE_MODEL</code> が追加された。auto mode がツール呼び出しの許可・拒否を判断する際、クライアント側の分類処理に使うモデルを指定できる。サーバー側の auto mode 判定には影響しない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto mode を使っていて分類の速度やコストを調整したい場合、<code>CLAUDE_CODE_AUTO_MODE_MODEL</code> にモデル名を設定して起動する</li><li>サーバー側の安全チェックの挙動自体は変わらない点を踏まえておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.302)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>フック（hook）の同時実行数が1イベントあたり最大12件に制限</h2>
+      <p>v2.1.302 で、同じイベントに対するフックの同時実行数に上限が設けられた。1つのイベントタイプにつき最大12件までが同時に実行され、それを超える分はキューに入って順に処理される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>多数のプラグイン・フックを有効にしている場合、同じイベントで13件目以降のフックは待たされる可能性がある点を踏まえておく</li><li>フックの実行が遅いと感じたら、同一イベントに登録しているフックの数を一度見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.302)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>プラグイン提供のスキルフックに上限、1プラグインソースあたり最大1,024個・マッチャー文字数16,384字まで</h2>
+      <p>v2.1.304 で、1つのプラグインソースが1セッションで登録できるスキルフックの数に上限が設けられた。最大1,024個、かつマッチャー文字数の合計で16,384字までという制限になる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>スキルやプラグインを自作している場合、1つのソースで大量のフックを動的生成する設計は避ける</li><li>上限に達すると登録が止まる可能性があるため、フック数の多いプラグインを使う場合は挙動を確認しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.304)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>コンパクション後のトランスクリプトのサマリーに、要約前に呼んだツール名の一覧が表示されるように</h2>
+      <p>v2.1.304 で、会話がコンパクション（要約）された際に <code>Ctrl+O</code> のトランスクリプト表示に出るサマリーに、要約される前に呼び出していたツールの名前の一覧が追加された。何をしていた途中だったかを、コンパクション後でも把握しやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長い会話がコンパクションされた後、<code>Ctrl+O</code> でトランスクリプトを開き、サマリー内のツール名一覧で作業の文脈を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.304)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-20.html">v2.1.304。管理者向け Code Review にレビューレベル Quick/Standard/Deep と GitHub 組織まるごとカバーが追加。Pro/Max の5時間制限警告、/auto-mode-setup、rm -r のマウントドライブ安全確認も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+</body>
+</html>
