@@ -8,6 +8,7 @@
   if (!form) return;
   const input = form.querySelector('.search__input');
   const box = form.querySelector('.search__results');
+  const toggle = form.querySelector('.search__toggle');
   const base = form.dataset.base || '';
   const MAX = 20;
 
@@ -68,12 +69,23 @@
     box.hidden = false;
   }
 
+  /* スマホ幅ではアイコンだけを出し、押したら入力欄をヘッダの上に開く。 */
+  function setOpen(open) {
+    form.classList.toggle('is-open', open);
+    toggle.setAttribute('aria-expanded', String(open));
+    if (open) input.focus();
+    else { input.value = ''; render(); }
+  }
+  toggle.addEventListener('click', () => setOpen(!form.classList.contains('is-open')));
+
   input.addEventListener('focus', () => { loadIndex().then(render, () => {}); });
   input.addEventListener('input', () => { loadIndex().then(render, () => {}); });
   input.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') { input.value = ''; render(); input.blur(); }
+    if (ev.key === 'Escape') { setOpen(false); input.blur(); }
   });
   document.addEventListener('click', (ev) => {
-    if (!form.contains(ev.target)) box.hidden = true;
+    if (form.contains(ev.target)) return;
+    box.hidden = true;
+    if (!input.value) setOpen(false);
   });
 })();

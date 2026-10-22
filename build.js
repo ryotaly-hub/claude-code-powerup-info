@@ -79,6 +79,7 @@ function layout({ title, description, body, depth }) {
       <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
     </a>
     <form class="search" role="search" data-base="${base}" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
       <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
       <div class="search__results" hidden></div>
     </form>
