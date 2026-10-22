@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-22",
+  "headline": "v2.1.305〜307。Code Review に `@claude review stop` で自動レビュー購読を止める機能、`/usage` の警告を `f` で一括適用、並列フォークサブエージェントの重複作業を防止",
+  "lead": "直近の changelog（v2.1.305〜307）から、GitHub の自動コードレビューを止める新コマンド、`/usage` の警告をワンキーで解決する改善、並列起動したフォークサブエージェントの重複防止、権限確認と `/effort` まわりの不具合修正をまとめた。",
+  "items": [
+    {
+      "category": "ワークフロー",
+      "title": "PR コメントで `@claude review stop`（`off` / `pause` も可）と打つと、自動レビューの購読を止められる（v2.1.307）",
+      "body": "GitHub の PR コメントで `@claude review always` と指示すると、以降のプッシュごとに Claude が自動でレビューするようになる機能がある。これを止めたいとき、新しいレビューを1回走らせずに購読だけを解除するコマンドが追加された。`@claude review stop` のほか `@claude review off`・`@claude review pause` でも同じ動作になる。",
+      "howto": [
+        "`@claude review always` で自動レビューを購読している PR で、以降のレビューを止めたいときは `@claude review stop` とコメントする",
+        "レビューをもう1回走らせてから止めたいだけなら、通常の `@claude review` で1回レビューさせたあとに `stop` を打つ"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.307)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/usage` の各警告がワンキーで直せるように、`f` を押すと該当する修正をまとめて適用（v2.1.305）",
+      "body": "`/usage` に出る警告（使用量の偏りや設定ミスなど）が、どこが原因かを名指しした1行の対処法として表示されるようになった。`f` キーを押すと、表示されている修正をまとめて適用できる。同じ修正は VS Code 拡張や `/doctor` でも表示される。",
+      "howto": [
+        "`/usage` を実行して警告が出たら、内容を読んで `f` を押すだけで該当の修正が適用される",
+        "ターミナルを使っていなくても、VS Code 拡張や `/doctor` の実行結果に同じ警告と修正が出ることを覚えておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.305)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "フォークサブエージェントを複数同時に起動したとき、互いの作業を奪いにくくなるよう改善（v2.1.307）",
+      "body": "`Agent` ツールで `subagent_type: \"fork\"` を複数同時に起動するようなワークフローで、各フォークに「どの起動が自分自身か」が伝わるようになった。これまでは複数のフォークが同じタスクを重複して処理してしまうことがあったが、今回の改善でその可能性が大きく下がる。",
+      "howto": [
+        "1回のメッセージで複数の fork サブエージェントを並列起動するワークフロー（調査の並列化など）を使っている場合、重複作業が減っていることを前提にタスクを分割してよい"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.307)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`/permissions` の「最近拒否した」一覧が、拒否したシェルコマンドを表示するよう修正（v2.1.307）",
+      "body": "`/permissions` の Recently denied で、実際に拒否したシェルコマンドが表示されず分かりにくかった不具合が修正された。あわせて、そこから承認操作をしたときに auto mode のローカル分類器が参照する記録も、コマンドの説明文ではなくコマンド名そのものになった。",
+      "howto": [
+        "auto mode や手動の permission ルールで誤って拒否したコマンドを `/permissions` の Recently denied から再確認・承認するとき、以前は説明文しか出なかった点が直っているので、コマンドの内容を見て判断しやすくなっている"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.307)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`modelOverrides` で大文字小文字や `[1m]` タグが違うモデル名を使っていると `/effort` と `/autocompact` が効かない不具合を修正（v2.1.305）",
+      "body": "設定の `modelOverrides` に書いたモデル名が、実際に使っているモデル名と大文字小文字や `[1m]` サフィックスの有無だけ違う場合、`/effort` と `/autocompact` の設定が反映されない不具合があった。v2.1.305 で修正され、表記が多少違っても正しく一致するようになった。",
+      "howto": [
+        "`modelOverrides` を設定しているのに `/effort` や `/autocompact` の値が効いていないと感じたら、まず v2.1.305 以降にアップデートする",
+        "新規に設定するときも、モデル名の大文字小文字や `[1m]` の有無で迷わず書いてよい"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.305)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "Code Review の再レビューが、未解決のブロッキングな指摘が残っている間は LGTM で始まらないように変更（v2.1.305）",
+      "body": "GitHub PR を自動レビューする Code Review 機能で、1回目のレビューでブロッキングな指摘が出たあとにプッシュして再レビューさせた場合、その指摘がまだ解決していないのに LGTM（問題なし）と出てしまうことがあった。v2.1.305 でこの挙動が変更され、未解決のブロッキング指摘が残っている間は再レビューが LGTM で始まらなくなった。",
+      "howto": [
+        "Code Review の指摘を受けて修正プッシュをしたら、再レビューのコメントが LGTM から始まっていても、過去の未解決の指摘が本当に直っているかを自分でも確認する習慣は変わらず持っておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.305)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
