@@ -78,6 +78,10 @@ function layout({ title, description, body, depth }) {
       <span class="logo__mark">P</span>
       <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
     </a>
+    <form class="search" role="search" data-base="${base}" onsubmit="return false">
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
     <span class="site-header__tag">DAILY 9:00 JST</span>
   </div>
 </header>
@@ -89,6 +93,7 @@ ${body}
     <p><a href="${base}index.html">記事一覧</a></p>
   </div>
 </footer>
+<script src="${base}assets/search.js" defer></script>
 </body>
 </html>
 `;
@@ -187,6 +192,24 @@ ${items}
   });
 }
 
+/**
+ * ヘッダ検索用のインデックス。fetch ではなく <script> で読ませるので file:// でも動く。
+ * 項目単位で持ち、検索結果から posts/<date>.html#item-N へ直接飛べるようにする。
+ */
+function renderSearchIndex(posts) {
+  const strip = (t) => String(t).replace(/[`*]/g, '');
+  const entries = posts.flatMap((p) => p.items.map((it, i) => ({
+    d: p.date,
+    v: p.issue,
+    h: p.headline,
+    n: i + 1,
+    c: it.category,
+    t: strip(it.title),
+    b: strip([it.body, ...(it.howto || [])].join(' ')),
+  })));
+  return `/* build.js が生成する。手で編集しない。 */\nwindow.SEARCH_INDEX = ${JSON.stringify(entries)};\n`;
+}
+
 function main() {
   const files = fs.readdirSync(POSTS_DIR).filter((f) => f.endsWith('.json'));
   if (!files.length) {
@@ -206,6 +229,7 @@ function main() {
     fs.writeFileSync(path.join(POSTS_DIR, `${p.date}.html`), renderPost(p, posts[i + 1]));
   });
   fs.writeFileSync(path.join(ROOT, 'index.html'), renderIndex(posts));
+  fs.writeFileSync(path.join(ROOT, 'assets', 'search-index.js'), renderSearchIndex(posts));
 
   console.log(`built: index.html + ${posts.length} post page(s)`);
   console.log(`latest: VOL.${posts[0].issue} ${posts[0].date} ${posts[0].headline}`);

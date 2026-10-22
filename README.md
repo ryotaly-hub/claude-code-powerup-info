@@ -33,6 +33,8 @@ open index.html            # 見た目を確認する
 | `build.js` | 静的サイトジェネレータ（依存ゼロ） |
 | `slack.js` | Slack 投稿文のジェネレータ |
 | `assets/style.css` | ledge.ai 風のスタイル |
+| `assets/search.js` | ヘッダのキーワード検索（全号の項目を対象、スペース区切りで AND） |
+| `assets/search-index.js` | 生成物。検索インデックス。直接編集しない |
 
 ## 記事 JSON のかたち
 

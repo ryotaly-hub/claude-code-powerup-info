@@ -18,6 +18,10 @@
       <span class="logo__mark">P</span>
       <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
     </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
     <span class="site-header__tag">DAILY 9:00 JST</span>
   </div>
 </header>
@@ -113,5 +117,6 @@
     <p><a href="../index.html">記事一覧</a></p>
   </div>
 </footer>
+<script src="../assets/search.js" defer></script>
 </body>
 </html>

@@ -7,11 +7,11 @@
 
 ビルドツール・npm 依存・テストフレームワークは**一切使っていない**。素の Node.js スクリプト 2 本だけで動く。
 
-- `node build.js` — `posts/*.json` を読んで `index.html` と `posts/*.html` を生成する
+- `node build.js` — `posts/*.json` を読んで `index.html`・`posts/*.html`・`assets/search-index.js`（ヘッダ検索用）を生成する
 - `node slack.js YYYY-MM-DD` — その号の Slack 投稿文（mrkdwn）を標準出力に出す
 
-`index.html` と `posts/*.html` は**生成物**。手で編集してはいけない（次のビルドで消える）。
-編集してよいのは `posts/*.json`、`build.js`、`slack.js`、`assets/style.css` のみ。
+`index.html`・`posts/*.html`・`assets/search-index.js` は**生成物**。手で編集してはいけない（次のビルドで消える）。
+編集してよいのは `posts/*.json`、`build.js`、`slack.js`、`assets/style.css`、`assets/search.js` のみ。
 
 ## 毎朝の発行手順
 
@@ -24,7 +24,7 @@
    - `howto` には「つまりこう使う」を具体的な操作で書く。抽象的な心構えは書かない。
    - 文体は常体（だ・である）。煽り・誇張はしない。不確かなことは書かない。
 4. **生成する** — `node build.js` を実行し、エラーなく終わることを確認する。
-5. **公開する** — `posts/YYYY-MM-DD.json`、生成された HTML、`index.html` をコミットして push する。
+5. **公開する** — `posts/YYYY-MM-DD.json`、生成された HTML、`index.html`、`assets/search-index.js` をコミットして push する。
    コミットメッセージは `Add issue YYYY-MM-DD: <headline>` の形。
 6. **Slack に流す** — `node slack.js YYYY-MM-DD` の出力を、そのまま Slack `#general`（ID: `C0ANTJKPZEJ`）に投稿する。
    Slack MCP の `slack_send_message` は**標準 Markdown** を受け取る（Slack 独自の mrkdwn ではない）ので、`slack.js` の出力は加工しないこと。
