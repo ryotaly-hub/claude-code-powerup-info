@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.309。`claude ultrareview` がワークスペース信頼を必須化、bypass permissions モードで危険な rm/rmdir を即座に拒否。`sed -i` が通常の Bash コマンドとして扱われ、Managed Agents はデフォルトで multiagent_20261001 構成に｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の changelog（v2.1.305〜309）から、CI スクリプトや危険操作まわりの挙動変更、Bash 編集の扱いの変化を中心に選んだ。">
+<meta property="og:title" content="v2.1.309。`claude ultrareview` がワークスペース信頼を必須化、bypass permissions モードで危険な rm/rmdir を即座に拒否。`sed -i` が通常の Bash コマンドとして扱われ、Managed Agents はデフォルトで multiagent_20261001 構成に｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の changelog（v2.1.305〜309）から、CI スクリプトや危険操作まわりの挙動変更、Bash 編集の扱いの変化を中心に選んだ。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.34</p>
+      <div class="article__head">
+        <span class="chip">2026.10.23</span>
+        <h1>v2.1.309。`claude ultrareview` がワークスペース信頼を必須化、bypass permissions モードで危険な rm/rmdir を即座に拒否。`sed -i` が通常の Bash コマンドとして扱われ、Managed Agents はデフォルトで multiagent_20261001 構成に</h1>
+        <div class="article__date">2026年10月23日(金)公開 ／ VOL.34</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.34</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.23</div>
+      </div></div>
+      <p class="lead">直近の changelog（v2.1.305〜309）から、CI スクリプトや危険操作まわりの挙動変更、Bash 編集の扱いの変化を中心に選んだ。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`claude ultrareview` の実行にワークスペース信頼が必須に</a></li><li><a href="#item-2">bypass permissions モードでも危険な rm / rmdir は即座に拒否されるように</a></li><li><a href="#item-3">`sed -i` が通常の Bash コマンドとして扱われ、`/rewind` では戻らなくなった</a></li><li><a href="#item-4">`/claude-api` の Managed Agents が `multiagent_20261001` 構成をデフォルトで使用</a></li><li><a href="#item-5">標準バンドルの dataviz スキルが APCA コントラスト測定に対応</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>`claude ultrareview` の実行にワークスペース信頼が必須に</h2>
+      <p><code>claude ultrareview</code> はワークスペースが信頼済みであることを要求するようになった。CI など非対話環境から呼んでいる場合、これまで通りには動かなくなる。</p>
+      <p>信頼チェックを通すには <code>--trust-workspace</code> フラグを付けるか、環境変数 <code>CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1</code> を設定する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI / スクリプトから <code>claude ultrareview</code> を呼んでいるなら、コマンドに <code>--trust-workspace</code> を足す</li><li>恒常的に無効化したい場合は <code>CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1</code> を実行環境の環境変数に追加する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.309)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>bypass permissions モードでも危険な rm / rmdir は即座に拒否されるように</h2>
+      <p>Desktop アプリと VS Code 拡張の bypass permissions モードで、<code>rm</code> や <code>rmdir</code> の危険なコマンド（マウントドライブ丸ごと削除など）を実行しようとすると、確認を挟まず即座に拒否されるようになった。拒否時には安全な書き換え案（rewrite hint）も表示される。</p>
+      <p>bypass permissions は本来すべての確認をスキップするモードだが、破壊的なファイル削除だけは例外的にブロックされる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>bypass permissions モードで <code>rm -r</code> 系のコマンドが拒否されたら、表示される rewrite hint の提案（対象を絞ったパス指定など）に従って書き直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.309)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`sed -i` が通常の Bash コマンドとして扱われ、`/rewind` では戻らなくなった</h2>
+      <p>これまで特別扱いされていた <code>sed -i</code> が、他の Bash コマンドと同じ標準の実行確認プロンプトを経て、書いた通りに実行されるようになった。他の Bash 経由のファイル編集と同様、<code>/rewind</code> では元に戻せない点に注意。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>sed -i</code> でファイルを書き換える前に、必ず対象ファイルをコミット済みにしておく（<code>/rewind</code> で戻せないため）</li><li>確実に戻したい変更は <code>Edit</code> ツールや git 管理下での作業に寄せる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.309)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>`/claude-api` の Managed Agents が `multiagent_20261001` 構成をデフォルトで使用</h2>
+      <p><code>/claude-api</code> スキルが生成する Managed Agents のサブエージェントチームは、デフォルトで <code>multiagent_20261001</code> 構成でビルドされるようになった。また同スキルはサービスアカウントキーや Workload Identity Federation（WIF）トークンを使って OpenTelemetry の送信先を管理できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Managed Agents でマルチエージェント構成を組むときは、<code>/claude-api</code> スキルを呼べば <code>multiagent_20261001</code> ベースの構成が自動で選ばれる</li><li>サービスアカウントキーや WIF トークンで OTel 送信先を切り替えたい場合も <code>/claude-api</code> スキル経由で設定できる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.309)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>標準バンドルの dataviz スキルが APCA コントラスト測定に対応</h2>
+      <p>グラフやダッシュボードを作る際に使う dataviz スキルが、テキストコントラストの指標として APCA（Advanced Perceptual Contrast Algorithm）を受け付けるようになり、<code>apca(text, background)</code> というバリデータ関数が追加された。WCAG のコントラスト比より知覚特性に沿った判定ができる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude にグラフ・ダッシュボードを作らせるとき、配色のコントラスト確認を <code>apca(text, background)</code> で行うよう指示すると、より正確な可読性チェックになる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.309)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-22.html">v2.1.305〜307。Code Review に `@claude review stop` で自動レビュー購読を止める機能、`/usage` の警告を `f` で一括適用、並列フォークサブエージェントの重複作業を防止</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

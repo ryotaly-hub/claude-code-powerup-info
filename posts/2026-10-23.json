@@ -1,0 +1,65 @@
+{
+  "date": "2026-10-23",
+  "headline": "v2.1.309。`claude ultrareview` がワークスペース信頼を必須化、bypass permissions モードで危険な rm/rmdir を即座に拒否。`sed -i` が通常の Bash コマンドとして扱われ、Managed Agents はデフォルトで multiagent_20261001 構成に",
+  "lead": "直近の changelog（v2.1.305〜309）から、CI スクリプトや危険操作まわりの挙動変更、Bash 編集の扱いの変化を中心に選んだ。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "`claude ultrareview` の実行にワークスペース信頼が必須に",
+      "body": "`claude ultrareview` はワークスペースが信頼済みであることを要求するようになった。CI など非対話環境から呼んでいる場合、これまで通りには動かなくなる。\n\n信頼チェックを通すには `--trust-workspace` フラグを付けるか、環境変数 `CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1` を設定する。",
+      "howto": [
+        "CI / スクリプトから `claude ultrareview` を呼んでいるなら、コマンドに `--trust-workspace` を足す",
+        "恒常的に無効化したい場合は `CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1` を実行環境の環境変数に追加する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.309)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "bypass permissions モードでも危険な rm / rmdir は即座に拒否されるように",
+      "body": "Desktop アプリと VS Code 拡張の bypass permissions モードで、`rm` や `rmdir` の危険なコマンド（マウントドライブ丸ごと削除など）を実行しようとすると、確認を挟まず即座に拒否されるようになった。拒否時には安全な書き換え案（rewrite hint）も表示される。\n\nbypass permissions は本来すべての確認をスキップするモードだが、破壊的なファイル削除だけは例外的にブロックされる。",
+      "howto": [
+        "bypass permissions モードで `rm -r` 系のコマンドが拒否されたら、表示される rewrite hint の提案（対象を絞ったパス指定など）に従って書き直す"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.309)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`sed -i` が通常の Bash コマンドとして扱われ、`/rewind` では戻らなくなった",
+      "body": "これまで特別扱いされていた `sed -i` が、他の Bash コマンドと同じ標準の実行確認プロンプトを経て、書いた通りに実行されるようになった。他の Bash 経由のファイル編集と同様、`/rewind` では元に戻せない点に注意。",
+      "howto": [
+        "`sed -i` でファイルを書き換える前に、必ず対象ファイルをコミット済みにしておく（`/rewind` で戻せないため）",
+        "確実に戻したい変更は `Edit` ツールや git 管理下での作業に寄せる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.309)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/claude-api` の Managed Agents が `multiagent_20261001` 構成をデフォルトで使用",
+      "body": "`/claude-api` スキルが生成する Managed Agents のサブエージェントチームは、デフォルトで `multiagent_20261001` 構成でビルドされるようになった。また同スキルはサービスアカウントキーや Workload Identity Federation（WIF）トークンを使って OpenTelemetry の送信先を管理できるようになった。",
+      "howto": [
+        "Managed Agents でマルチエージェント構成を組むときは、`/claude-api` スキルを呼べば `multiagent_20261001` ベースの構成が自動で選ばれる",
+        "サービスアカウントキーや WIF トークンで OTel 送信先を切り替えたい場合も `/claude-api` スキル経由で設定できる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.309)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "標準バンドルの dataviz スキルが APCA コントラスト測定に対応",
+      "body": "グラフやダッシュボードを作る際に使う dataviz スキルが、テキストコントラストの指標として APCA（Advanced Perceptual Contrast Algorithm）を受け付けるようになり、`apca(text, background)` というバリデータ関数が追加された。WCAG のコントラスト比より知覚特性に沿った判定ができる。",
+      "howto": [
+        "Claude にグラフ・ダッシュボードを作らせるとき、配色のコントラスト確認を `apca(text, background)` で行うよう指示すると、より正確な可読性チェックになる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.309)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
