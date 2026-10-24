@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.310。Monitor ツールが Bedrock・Vertex・Foundry でも利用可能に、「Prompt is too long」後のコンパクション不具合も修正。VS Code のプランレビューと LaTeX 数式表示にも改善｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の changelog（v2.1.301・v2.1.310）から、サードパーティ基盤でも Monitor ツールが使えるようになった変更、長い会話がコンパクション後も縮まり切らずエラーを繰り返す不具合の修正、VS Code 拡張のプランレビュー・数式表示まわりの改善、Enterprise のロール管理の拡張をまとめた。">
+<meta property="og:title" content="v2.1.310。Monitor ツールが Bedrock・Vertex・Foundry でも利用可能に、「Prompt is too long」後のコンパクション不具合も修正。VS Code のプランレビューと LaTeX 数式表示にも改善｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の changelog（v2.1.301・v2.1.310）から、サードパーティ基盤でも Monitor ツールが使えるようになった変更、長い会話がコンパクション後も縮まり切らずエラーを繰り返す不具合の修正、VS Code 拡張のプランレビュー・数式表示まわりの改善、Enterprise のロール管理の拡張をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.35</p>
+      <div class="article__head">
+        <span class="chip">2026.10.24</span>
+        <h1>v2.1.310。Monitor ツールが Bedrock・Vertex・Foundry でも利用可能に、「Prompt is too long」後のコンパクション不具合も修正。VS Code のプランレビューと LaTeX 数式表示にも改善</h1>
+        <div class="article__date">2026年10月24日(土)公開 ／ VOL.35</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.35</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.24</div>
+      </div></div>
+      <p class="lead">直近の changelog（v2.1.301・v2.1.310）から、サードパーティ基盤でも Monitor ツールが使えるようになった変更、長い会話がコンパクション後も縮まり切らずエラーを繰り返す不具合の修正、VS Code 拡張のプランレビュー・数式表示まわりの改善、Enterprise のロール管理の拡張をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Monitor ツールが Amazon Bedrock・Vertex AI・Foundry でも使えるように（v2.1.310）</a></li><li><a href="#item-2">「Prompt is too long」後のコンパクションが密度の高いテキストを削り切れず、再度失敗する不具合を修正（v2.1.310）</a></li><li><a href="#item-3">`-p` など非対話セッションで、MCP ツールの応答待ちタイムアウトのエラーメッセージが改善（v2.1.310）</a></li><li><a href="#item-4">VS Code: プランレビューカードで Enter を押すと誤って計画を承認してしまう不具合を修正（v2.1.310）</a></li><li><a href="#item-5">VS Code 拡張の会話パネルで LaTeX の数式がレンダリングされるように（v2.1.301）</a></li><li><a href="#item-6">Enterprise のカスタムロールに「Cloud sessions」「Remote Control」の権限が追加（v2.1.310）</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Monitor ツールが Amazon Bedrock・Vertex AI・Foundry でも使えるように（v2.1.310）</h2>
+      <p>Monitor ツールはバックグラウンドのイベントをストリーミングして会話に流し込み、ログを tail してリアルタイムに反応できるようにする機能。これまで Anthropic 直接プランでのみ使えたが、v2.1.310 で Amazon Bedrock・Google Cloud の Vertex AI・Microsoft Foundry 経由でも、Monitor ツールとプラグイン提供の monitor が使えるようになった。</p>
+      <p>あわせて、テレメトリ送信や非必須通信を無効化した環境でも、長時間のフォアグラウンド <code>sleep</code> はこれまで同様ブロックされるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Bedrock・Vertex AI・Foundry 経由で Claude Code を使っている場合も、CI の進捗やデプロイログを Monitor ツールで tail させ、完了や失敗を検知させられる</li><li>長時間の待機は <code>sleep</code> を直接叩かず、Monitor ツールでイベントを待つ運用に寄せておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.310)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>「Prompt is too long」後のコンパクションが密度の高いテキストを削り切れず、再度失敗する不具合を修正（v2.1.310）</h2>
+      <p>会話が長くなりすぎて「Prompt is too long」エラーが出ると、自動でコンパクション（要約）が走る。しかし base64 データや巨大な SVG のような密度の高いテキストが会話に含まれていると、コンパクション後も十分に縮まらず、次のリクエストで同じエラーが再発することがあった。v2.1.310 でこの挙動が修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>画像の base64 や大きな SVG をそのままプロンプトに貼り付けると、修正後もコンパクションの負荷が高い点は変わらないので、可能ならファイルパスで渡す運用にしておくとこのエラーに遭遇しにくい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.310)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`-p` など非対話セッションで、MCP ツールの応答待ちタイムアウトのエラーメッセージが改善（v2.1.310）</h2>
+      <p>MCP サーバーがユーザー入力を求める elicitation を出したまま応答がなく、非対話セッション（<code>-p</code> や Agent SDK）でタイムアウトした場合、以前は原因がわかりにくいエラーになっていた。v2.1.310 では「応答が来なかったこと」と「同じ呼び出しを繰り返さないこと」を Claude 自身に伝えるようになり、同じツール呼び出しを延々と再試行してしまう事故を防ぎやすくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>-p</code> や Agent SDK でユーザー入力待ちになる MCP ツールを使う構成の場合、非対話実行では応答できない前提で、該当ツールを外すか代替フローを用意しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.310)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>VS Code: プランレビューカードで Enter を押すと誤って計画を承認してしまう不具合を修正（v2.1.310）</h2>
+      <p>VS Code 拡張のプランレビューカードで「Send feedback and keep planning」ボタンにフォーカスした状態で Enter を押すと、フィードバックを送るつもりが誤って計画そのものを承認してしまう不具合があった。v2.1.310 で修正され、Enter キーでこのボタンを押した場合は意図どおりフィードバックだけが送信されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code でプランモードを使い、修正コメントを送ってから計画を練り直したいときは、このボタンにフォーカスした状態で Enter を押すだけでよい（マウスクリックに持ち替える必要がない）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.310)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>VS Code 拡張の会話パネルで LaTeX の数式がレンダリングされるように（v2.1.301）</h2>
+      <p>VS Code 拡張の会話パネルで、Claude の出力に含まれる LaTeX 形式の数式がそのままレンダリングして表示されるようになった。数式を多用するアルゴリズムの説明や論文実装のレビューが、別途 Markdown プレビューに貼り直さなくてもその場で読みやすくなる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>数式を含む説明や証明をレビューしたいときは、VS Code 拡張の会話パネルでそのまま確認すればよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.301)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>Enterprise のカスタムロールに「Cloud sessions」「Remote Control」の権限が追加（v2.1.310）</h2>
+      <p>Enterprise プランの管理画面で、Owner がカスタムロールごとに Cloud sessions（クラウドセッション）と Remote Control の利用権限を個別に設定できるようになった。あわせて、管理設定でこの2つを有効化する操作には確認ダイアログが出て、その権限を持つカスタムロールの一覧が表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Enterprise 管理者は、特定のロールだけにクラウドセッションや Remote Control の利用を許可する運用に切り替えられる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.310)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-23.html">v2.1.309。`claude ultrareview` がワークスペース信頼を必須化、bypass permissions モードで危険な rm/rmdir を即座に拒否。`sed -i` が通常の Bash コマンドとして扱われ、Managed Agents はデフォルトで multiagent_20261001 構成に</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
