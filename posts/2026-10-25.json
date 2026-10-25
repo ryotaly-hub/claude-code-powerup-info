@@ -1,0 +1,75 @@
+{
+  "date": "2026-10-25",
+  "headline": "v2.1.304〜310。`/auto-mode-setup` で auto mode のセットアップをガイド、Linux サンドボックスの AppArmor 対応やシンボリックリンク表示などの地味だが効く修正も",
+  "lead": "直近の changelog から、今日から試せる変更を6本選んだ。目立つ新機能は少ないが、auto mode のセットアップを楽にする新コマンドと、サンドボックスやクラウドセッション周りの地味な不具合修正がまとまって入っている。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`/auto-mode-setup` で auto mode を自分の環境向けにガイド設定",
+      "body": "v2.1.304 で `/auto-mode-setup` が追加された。プロジェクトと直近のセッションを読み取り、auto mode にその環境のクセを学習させるガイド付きセットアップで、Amazon Bedrock・Google Vertex AI・Microsoft Foundry・Claude apps gateway・テレメトリ無効のセッションでも使えるようになった。\n\nauto mode は許可プロンプトの代わりにバックグラウンドの安全チェックで判断するモードなので、環境に合わせてチューニングしておくほど誤検知が減る。",
+      "howto": [
+        "auto mode を使っているプロジェクトで `/auto-mode-setup` を一度実行し、許可ルールと安全チェックの調整を任せる。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.304 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.304" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude -p` / Agent SDK、巨大なトランスクリプトのコンパクション時メモリ使用量を改善",
+      "body": "v2.1.310 で、`claude -p` や Agent SDK を使う非対話セッションがコンパクションを行う際、トランスクリプトファイルが非常に大きい場合のメモリ使用量が改善された。",
+      "howto": [
+        "CI や自動化スクリプトで `claude -p` を長時間・大きな入力で回している場合、アップグレードするだけで OOM で落ちにくくなる。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.310 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Linux サンドボックス: AppArmor 起因の起動失敗にメッセージが付き、`allowNestedUserNamespaces` で user namespace を許可できる",
+      "body": "v2.1.310 で、Ubuntu の AppArmor が user namespace の作成を制限していて bubblewrap がサンドボックスを起動できないとき、`/sandbox` とサンドボックス起動時の警告がその原因と解除方法を名指しするようになった。\n\nまた v2.1.305 では `sandbox.allowNestedUserNamespaces` 設定が追加され、Chromium や rootless podman のようにサンドボックス内で user namespace を作る必要があるコマンドを許可できる。ただしこれはサンドボックスのファイル保護を一部迂回することになるので、必要な場合だけ有効にする。",
+      "howto": [
+        "Ubuntu でサンドボックスが起動しない場合は `/sandbox` のエラーメッセージに従って AppArmor の制限を確認する。",
+        "サンドボックス内で Chromium や rootless podman を動かす必要があるなら、`settings.json` に `\"sandbox\": { \"allowNestedUserNamespaces\": true }` を追加する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.310 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310" },
+        { "label": "claude-code v2.1.305 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.305" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "クラウドセッション内の `claude -p` が誤って「ログインしていません」と表示する不具合を修正",
+      "body": "v2.1.306 で、クラウドセッションの中からセッションの環境変数を渡さずに `claude -p` を起動すると「Not logged in」と誤表示される不具合が修正された。",
+      "howto": [
+        "クラウドセッションから入れ子で `claude -p` を呼ぶ自動化を組んでいる場合は、アップグレードすれば認証エラーで止まらなくなる。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.306 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.306" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "ファイル読み取りの許可プロンプトが、シンボリックリンクの先を表示するように",
+      "body": "v2.1.310 で、ファイル読み取りの許可を求めるプロンプトが、対象がシンボリックリンクの場合にそのリンク先を表示していなかった不具合が修正された。許可を出す前にリンク先を確認できる。",
+      "howto": [
+        "許可プロンプトでパスがシンボリックリンクだと分かったら、リンク先が意図した場所を指しているか確認してから許可する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.310 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`cleanupPeriodDays` を大きくしていると、直近に貼り付けた画像などが誤って削除される不具合を修正",
+      "body": "v2.1.310 で、`cleanupPeriodDays` を非常に大きい値に設定していると、バックグラウンドのクリーンアップが貼り付けた画像のような直近のファイルまで削除してしまう不具合が修正された。",
+      "howto": [
+        "この設定をデフォルトより大きくして使っている場合は、アップグレードしておく。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.310 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310" }
+      ]
+    }
+  ]
+}
