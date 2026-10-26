@@ -1,0 +1,73 @@
+{
+  "date": "2026-10-26",
+  "headline": "v2.1.307〜309。Windows のフックすり抜けと PowerShell の `cd` 誤許可を修正、`/rewind` の差分検出・ディスク容量不足時のエラー表示・`--add-dir` のスキル名衝突もまとめて改善",
+  "lead": "直近の changelog から、前号までで拾っていなかった修正・改善を6本選んだ。目立つ新機能はないが、Windows のフックと権限チェックの穴、`/rewind` の差分検出漏れ、ディスク容量不足時の分かりにくいエラーなど、実際にハマりやすい地味な不具合がまとまって直っている。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "Windows: Git Bash が無い環境で `PreToolUse`/`PermissionRequest` フックがすり抜けていた不具合を修正",
+      "body": "v2.1.309 で、Windows で `\"shell\": \"powershell\"` を指定した `PreToolUse` / `PermissionRequest` フックが、Git Bash がインストールされていない環境だと fail-open（＝チェックをすり抜けて許可されてしまう）していた不具合が修正された。フックでツール呼び出しをブロックする設定をしていても、実際には効いていなかった可能性がある。\n\n合わせて、PowerShell で動くフックのプログラムが終了コード 2 を返したときにブロックされない不具合も直っている。",
+      "howto": [
+        "Windows + PowerShell シェルで security 目的の `PreToolUse`/`PermissionRequest` フックを使っている場合は v2.1.309 以降にアップデートし、意図したブロックが実際に効くか一度確認する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Windows: PowerShell の `Set-Location`/`cd` に引数を追加したコマンドが自動承認されなくなった",
+      "body": "v2.1.309 で、PowerShell の `Set-Location` や `cd` が対象を現在のディレクトリにしていても、余分な引数が付いている場合は無条件に自動承認されていた不具合が修正された。今後はそうしたコマンドも通常どおり許可プロンプトが出る。",
+      "howto": [
+        "Windows でビルドスクリプトやフックの中で `cd` に追加フラグを渡している場合、アップデート後は許可プロンプトが増える想定でワークフローを組んでおく。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/rewind` が `/code-review --fix`・サブエージェント・シェルコマンドによる変更も正しく検出するように",
+      "body": "v2.1.309 で、`/rewind` の一覧が、そのターンで `/code-review --fix` やサブエージェント、シェルコマンド経由でチェックポイント対象のファイルが変更されていても「No code changes」と表示してしまう不具合が修正された。Claude が直接 Edit/Write したときだけでなく、こうした経路での変更も一覧から見えるようになる。",
+      "howto": [
+        "`/code-review --fix` やサブエージェントに修正をまとめて任せた後、`/rewind` を開いてそのターンに「変更あり」と表示されるか確認してから戻す/戻さないを判断する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "ディスク容量不足でコマンドが止まったとき、原因と空き容量を確保すべきフォルダ名が表示されるように",
+      "body": "v2.1.309 で、ディスク容量不足のために Bash コマンドが途中で止まったとき、生の `ENOSPC` エラーの代わりに容量不足であることと、空き容量を確保すべきフォルダ名を示すようになった。一時ファイル用ボリュームの空き容量が無い状態で Claude Code を起動した場合も同様に分かりやすいメッセージが出る。",
+      "howto": [
+        "長時間のビルドや大きなファイル出力を伴うコマンドが途中で止まったら、まずこのエラー表示でディスク容量不足かどうかを確認し、該当フォルダを掃除してから再実行する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`--add-dir` のフォルダに同名スキルがあっても `<folder>:<name>` で呼び分けられるように",
+      "body": "v2.1.309 で、`--add-dir` で追加したフォルダの中のスキルが、既存のスキルと同じ名前のために呼び出せなくなっていた不具合が修正された。今後は名前が衝突した場合、そのスキルは `<folder>:<name>` という形式で提供され、両方とも使えるようになる。",
+      "howto": [
+        "`--add-dir` で別プロジェクトのスキルフォルダを読み込んでいて名前が衝突している場合は、`/<folder名>:<スキル名>` の形で呼び出す。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "auto mode: 作業ディレクトリ外の最初の読み取り前の確認が、シェルコマンドへの影響も明示するように",
+      "body": "v2.1.310 で、auto mode が作業ディレクトリ外のファイルへの最初の読み取りを確認する際のプロンプトが改善された。そこで読み取りをブロックすると、以降はシェルコマンドも許可プロンプトを求められるようになる、という影響を事前に示すようになった。",
+      "howto": [
+        "auto mode を使っていて作業ディレクトリ外のファイル読み取りを確認された場合、ブロックを選ぶとその後のシェルコマンドの挙動も変わる点を踏まえて判断する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.310 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.310" }
+      ]
+    }
+  ]
+}

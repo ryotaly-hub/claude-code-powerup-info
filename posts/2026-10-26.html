@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.307〜309。Windows のフックすり抜けと PowerShell の `cd` 誤許可を修正、`/rewind` の差分検出・ディスク容量不足時のエラー表示・`--add-dir` のスキル名衝突もまとめて改善｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の changelog から、前号までで拾っていなかった修正・改善を6本選んだ。目立つ新機能はないが、Windows のフックと権限チェックの穴、`/rewind` の差分検出漏れ、ディスク容量不足時の分かりにくいエラーなど、実際にハマりやすい地味な不具合がまとまって直っている。">
+<meta property="og:title" content="v2.1.307〜309。Windows のフックすり抜けと PowerShell の `cd` 誤許可を修正、`/rewind` の差分検出・ディスク容量不足時のエラー表示・`--add-dir` のスキル名衝突もまとめて改善｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の changelog から、前号までで拾っていなかった修正・改善を6本選んだ。目立つ新機能はないが、Windows のフックと権限チェックの穴、`/rewind` の差分検出漏れ、ディスク容量不足時の分かりにくいエラーなど、実際にハマりやすい地味な不具合がまとまって直っている。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.37</p>
+      <div class="article__head">
+        <span class="chip">2026.10.26</span>
+        <h1>v2.1.307〜309。Windows のフックすり抜けと PowerShell の `cd` 誤許可を修正、`/rewind` の差分検出・ディスク容量不足時のエラー表示・`--add-dir` のスキル名衝突もまとめて改善</h1>
+        <div class="article__date">2026年10月26日(月)公開 ／ VOL.37</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.37</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.26</div>
+      </div></div>
+      <p class="lead">直近の changelog から、前号までで拾っていなかった修正・改善を6本選んだ。目立つ新機能はないが、Windows のフックと権限チェックの穴、`/rewind` の差分検出漏れ、ディスク容量不足時の分かりにくいエラーなど、実際にハマりやすい地味な不具合がまとまって直っている。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Windows: Git Bash が無い環境で `PreToolUse`/`PermissionRequest` フックがすり抜けていた不具合を修正</a></li><li><a href="#item-2">Windows: PowerShell の `Set-Location`/`cd` に引数を追加したコマンドが自動承認されなくなった</a></li><li><a href="#item-3">`/rewind` が `/code-review --fix`・サブエージェント・シェルコマンドによる変更も正しく検出するように</a></li><li><a href="#item-4">ディスク容量不足でコマンドが止まったとき、原因と空き容量を確保すべきフォルダ名が表示されるように</a></li><li><a href="#item-5">`--add-dir` のフォルダに同名スキルがあっても `&lt;folder&gt;:&lt;name&gt;` で呼び分けられるように</a></li><li><a href="#item-6">auto mode: 作業ディレクトリ外の最初の読み取り前の確認が、シェルコマンドへの影響も明示するように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>Windows: Git Bash が無い環境で `PreToolUse`/`PermissionRequest` フックがすり抜けていた不具合を修正</h2>
+      <p>v2.1.309 で、Windows で <code>&quot;shell&quot;: &quot;powershell&quot;</code> を指定した <code>PreToolUse</code> / <code>PermissionRequest</code> フックが、Git Bash がインストールされていない環境だと fail-open（＝チェックをすり抜けて許可されてしまう）していた不具合が修正された。フックでツール呼び出しをブロックする設定をしていても、実際には効いていなかった可能性がある。</p>
+      <p>合わせて、PowerShell で動くフックのプログラムが終了コード 2 を返したときにブロックされない不具合も直っている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows + PowerShell シェルで security 目的の <code>PreToolUse</code>/<code>PermissionRequest</code> フックを使っている場合は v2.1.309 以降にアップデートし、意図したブロックが実際に効くか一度確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Windows: PowerShell の `Set-Location`/`cd` に引数を追加したコマンドが自動承認されなくなった</h2>
+      <p>v2.1.309 で、PowerShell の <code>Set-Location</code> や <code>cd</code> が対象を現在のディレクトリにしていても、余分な引数が付いている場合は無条件に自動承認されていた不具合が修正された。今後はそうしたコマンドも通常どおり許可プロンプトが出る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows でビルドスクリプトやフックの中で <code>cd</code> に追加フラグを渡している場合、アップデート後は許可プロンプトが増える想定でワークフローを組んでおく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`/rewind` が `/code-review --fix`・サブエージェント・シェルコマンドによる変更も正しく検出するように</h2>
+      <p>v2.1.309 で、<code>/rewind</code> の一覧が、そのターンで <code>/code-review --fix</code> やサブエージェント、シェルコマンド経由でチェックポイント対象のファイルが変更されていても「No code changes」と表示してしまう不具合が修正された。Claude が直接 Edit/Write したときだけでなく、こうした経路での変更も一覧から見えるようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/code-review --fix</code> やサブエージェントに修正をまとめて任せた後、<code>/rewind</code> を開いてそのターンに「変更あり」と表示されるか確認してから戻す/戻さないを判断する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>ディスク容量不足でコマンドが止まったとき、原因と空き容量を確保すべきフォルダ名が表示されるように</h2>
+      <p>v2.1.309 で、ディスク容量不足のために Bash コマンドが途中で止まったとき、生の <code>ENOSPC</code> エラーの代わりに容量不足であることと、空き容量を確保すべきフォルダ名を示すようになった。一時ファイル用ボリュームの空き容量が無い状態で Claude Code を起動した場合も同様に分かりやすいメッセージが出る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長時間のビルドや大きなファイル出力を伴うコマンドが途中で止まったら、まずこのエラー表示でディスク容量不足かどうかを確認し、該当フォルダを掃除してから再実行する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>`--add-dir` のフォルダに同名スキルがあっても `&lt;folder&gt;:&lt;name&gt;` で呼び分けられるように</h2>
+      <p>v2.1.309 で、<code>--add-dir</code> で追加したフォルダの中のスキルが、既存のスキルと同じ名前のために呼び出せなくなっていた不具合が修正された。今後は名前が衝突した場合、そのスキルは <code>&lt;folder&gt;:&lt;name&gt;</code> という形式で提供され、両方とも使えるようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>--add-dir</code> で別プロジェクトのスキルフォルダを読み込んでいて名前が衝突している場合は、<code>/&lt;folder名&gt;:&lt;スキル名&gt;</code> の形で呼び出す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>auto mode: 作業ディレクトリ外の最初の読み取り前の確認が、シェルコマンドへの影響も明示するように</h2>
+      <p>v2.1.310 で、auto mode が作業ディレクトリ外のファイルへの最初の読み取りを確認する際のプロンプトが改善された。そこで読み取りをブロックすると、以降はシェルコマンドも許可プロンプトを求められるようになる、という影響を事前に示すようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto mode を使っていて作業ディレクトリ外のファイル読み取りを確認された場合、ブロックを選ぶとその後のシェルコマンドの挙動も変わる点を踏まえて判断する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.310" target="_blank" rel="noopener">claude-code v2.1.310 release notes</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-25.html">v2.1.304〜310。`/auto-mode-setup` で auto mode のセットアップをガイド、Linux サンドボックスの AppArmor 対応やシンボリックリンク表示などの地味だが効く修正も</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
