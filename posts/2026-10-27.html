@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.311。CLAUDE.md の長大なリスト項目で起動フリーズ、数千行の一括編集で Write/Edit が遅延・誤表示する不具合を修正。`ultrathink` は対象モデルでそのターンだけ xhigh エフォートに｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.311 の changelog から6本選んだ。CLAUDE.md や大規模な一括編集にまつわる地味だが刺さる不具合修正に加え、`ultrathink` の効き方の変更、サブエージェントの MCP 接続待ち問題、Slack 連携の投稿ルール確認まで、日々の使い方に直結する変更をまとめた。">
+<meta property="og:title" content="v2.1.311。CLAUDE.md の長大なリスト項目で起動フリーズ、数千行の一括編集で Write/Edit が遅延・誤表示する不具合を修正。`ultrathink` は対象モデルでそのターンだけ xhigh エフォートに｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.311 の changelog から6本選んだ。CLAUDE.md や大規模な一括編集にまつわる地味だが刺さる不具合修正に加え、`ultrathink` の効き方の変更、サブエージェントの MCP 接続待ち問題、Slack 連携の投稿ルール確認まで、日々の使い方に直結する変更をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.38</p>
+      <div class="article__head">
+        <span class="chip">2026.10.27</span>
+        <h1>v2.1.311。CLAUDE.md の長大なリスト項目で起動フリーズ、数千行の一括編集で Write/Edit が遅延・誤表示する不具合を修正。`ultrathink` は対象モデルでそのターンだけ xhigh エフォートに</h1>
+        <div class="article__date">2026年10月27日(火)公開 ／ VOL.38</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.38</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.27</div>
+      </div></div>
+      <p class="lead">v2.1.311 の changelog から6本選んだ。CLAUDE.md や大規模な一括編集にまつわる地味だが刺さる不具合修正に加え、`ultrathink` の効き方の変更、サブエージェントの MCP 接続待ち問題、Slack 連携の投稿ルール確認まで、日々の使い方に直結する変更をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">CLAUDE.md に非常に長いリスト項目があると、起動時やファイルの読み書き時に長時間フリーズする不具合を修正</a></li><li><a href="#item-2">数千行規模の一括編集で Write/Edit が最大5秒遅延し、「0 lines changed」と誤表示する不具合を修正</a></li><li><a href="#item-3">サブエージェント起動後に接続が完了した MCP サーバーのツールを、そのサブエージェントが使えなかった不具合を修正</a></li><li><a href="#item-4">`ultrathink` が対象モデルでそのターンだけ xhigh エフォートで動くように変更</a></li><li><a href="#item-5">`SubagentStop` フックが、サブエージェント終了時に1回だけ実行されるべきところを、実行中のサブエージェントごとに約1分に2回呼ばれていた不具合を修正</a></li><li><a href="#item-6">Slack 連携で、名前を指定していないチャンネルに投稿する前に、Claude がそのチャンネルのトピックを確認して投稿ルールをチェックするように変更</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>CLAUDE.md に非常に長いリスト項目があると、起動時やファイルの読み書き時に長時間フリーズする不具合を修正</h2>
+      <p>v2.1.311 で、<code>CLAUDE.md</code>（および <code>MEMORY.md</code> など）の中に極端に長い1つのリスト項目があると、Claude Code の起動時や、ファイルを読み書きするたびに処理が長時間止まってしまう不具合が修正された。長い説明や手順を1項目にまとめて書いているプロジェクトほど影響を受けやすかった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>CLAUDE.md</code> の箇条書きが1項目でやたら長くなっている場合は、v2.1.311 以降に更新したうえで、見出しや空行で複数項目に分けておくと今後も読みやすく安全になる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>数千行規模の一括編集で Write/Edit が最大5秒遅延し、「0 lines changed」と誤表示する不具合を修正</h2>
+      <p>v2.1.311 で、ファイルの数千行を一度に書き換えるような大きな Write/Edit を実行した際、実行完了後に最大5秒ほど処理が止まり、さらに結果が「0 lines changed」と誤表示されていた不具合が修正された。実際には編集は正しく反映されていたが、表示だけを見て失敗したと誤解しやすい状態だった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>大規模な自動リファクタリングやコード生成で Write/Edit の結果表示が怪しいと感じたら、v2.1.311 以降かを確認する。古いバージョンのままなら「0 lines changed」表示だけで判断せず、実ファイルの差分を見て確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>サブエージェント起動後に接続が完了した MCP サーバーのツールを、そのサブエージェントが使えなかった不具合を修正</h2>
+      <p>v2.1.311 で、サブエージェントの起動タイミングよりあとに接続が完了する MCP サーバーがある場合、そのサーバーのツールをサブエージェントが認識できず使えなかった不具合が修正された。起動が遅い MCP サーバーを使っている構成で、親セッションでは使えるツールがサブエージェント側では見えない、という状況が起きていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>接続に時間がかかる MCP サーバーをサブエージェントに使わせたい場合、v2.1.311 以降なら起動直後に接続中でも最終的にツールが使えるようになる。以前のバージョンで「サブエージェントだけツールが見えない」と感じていた人は更新して再確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>`ultrathink` が対象モデルでそのターンだけ xhigh エフォートで動くように変更</h2>
+      <p>v2.1.311 で、対話型ターミナルで <code>ultrathink</code> と打つと、Opus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1（Anthropic API 経由）では、そのターンだけエフォートレベルが xhigh に上がるようになった。Claude が作業中に打った場合は、残りのターンのエフォートが上がる。ただし引用符の中やファイルパスの一部として書かれた <code>ultrathink</code> は対象にならないよう変更されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>普段は通常のエフォートで作業し、特にじっくり考えさせたい一手だけ <code>ultrathink</code> と打つ。<code>/effort</code> でレベルを都度切り替える手間が減る。対象モデル・提供元（Anthropic API 経由）であることだけ確認しておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`SubagentStop` フックが、サブエージェント終了時に1回だけ実行されるべきところを、実行中のサブエージェントごとに約1分に2回呼ばれていた不具合を修正</h2>
+      <p>v2.1.311 で、<code>SubagentStop</code> フックが本来の「サブエージェントが終了したタイミングで1回」ではなく、実行中のサブエージェントが存在する間、1体につき約1分に2回のペースで呼ばれ続けていた不具合が修正された。通知やログ記録をこのフックに書いている場合、これまで意図しない回数実行されていた可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>SubagentStop</code> フックで通知やログ記録をしている場合、重複実行を前提に回数チェックなどのワークアラウンドを入れていたら、v2.1.311 への更新後は外してよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>Slack 連携で、名前を指定していないチャンネルに投稿する前に、Claude がそのチャンネルのトピックを確認して投稿ルールをチェックするように変更</h2>
+      <p>v2.1.311 で、Slack 連携から Claude がメッセージを送る際、ユーザーが明示的に名前を挙げていないチャンネルに投稿しようとすると、まずそのチャンネルのトピック・説明を確認し、「そこへの投稿は望ましくない」と書かれていればユーザーに伝えるようになった。意図せず無関係なチャンネルに投稿してしまう事故を減らす狙いの変更。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Slack MCP 経由で Claude に投稿させる運用をしている場合、投稿先チャンネルのトピックに投稿ルール（例:「お知らせはここに書かない」等）を書いておくと、Claude がそれを踏まえて投稿先を判断するようになる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-26.html">v2.1.307〜309。Windows のフックすり抜けと PowerShell の `cd` 誤許可を修正、`/rewind` の差分検出・ディスク容量不足時のエラー表示・`--add-dir` のスキル名衝突もまとめて改善</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
