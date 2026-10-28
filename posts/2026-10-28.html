@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.312。巨大な CLAUDE.md / rules ファイル / `@` インクルードを途中までしか読まずに上書きする不具合を修正。hooks の同時実行数は最大24に制限、クラウドセッションの Routine でエフォートレベルを指定可能に｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.312 の changelog から6本選んだ。CLAUDE.md やルールファイルの事故りやすい上書き問題の修正に加え、hooks の同時実行数の明文化、クラウドセッション側の使い勝手の改善、Bedrock/Vertex 系でのシステムプロンプトの変更まで、構成を見直すきっかけになる変更をまとめた。">
+<meta property="og:title" content="v2.1.312。巨大な CLAUDE.md / rules ファイル / `@` インクルードを途中までしか読まずに上書きする不具合を修正。hooks の同時実行数は最大24に制限、クラウドセッションの Routine でエフォートレベルを指定可能に｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.312 の changelog から6本選んだ。CLAUDE.md やルールファイルの事故りやすい上書き問題の修正に加え、hooks の同時実行数の明文化、クラウドセッション側の使い勝手の改善、Bedrock/Vertex 系でのシステムプロンプトの変更まで、構成を見直すきっかけになる変更をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.39</p>
+      <div class="article__head">
+        <span class="chip">2026.10.28</span>
+        <h1>v2.1.312。巨大な CLAUDE.md / rules ファイル / `@` インクルードを途中までしか読まずに上書きする不具合を修正。hooks の同時実行数は最大24に制限、クラウドセッションの Routine でエフォートレベルを指定可能に</h1>
+        <div class="article__date">2026年10月28日(水)公開 ／ VOL.39</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.39</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.28</div>
+      </div></div>
+      <p class="lead">v2.1.312 の changelog から6本選んだ。CLAUDE.md やルールファイルの事故りやすい上書き問題の修正に加え、hooks の同時実行数の明文化、クラウドセッション側の使い勝手の改善、Bedrock/Vertex 系でのシステムプロンプトの変更まで、構成を見直すきっかけになる変更をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">大きな CLAUDE.md・rules ファイル・`@` インクルードファイルを途中までしか読まずに上書きする不具合を修正</a></li><li><a href="#item-2">prompt/agent hooks の同時実行数がセッションあたり最大24（サブエージェント含む）に制限。`timeout` の最小値は1秒</a></li><li><a href="#item-3">クラウドセッションの Routine 作成・編集画面で、モデルピッカーからエフォートレベルを指定可能に</a></li><li><a href="#item-4">フルスクリーン表示で、キュー済みメッセージの「to send now」をクリックすると待たずに送信できるように</a></li><li><a href="#item-5">Bedrock・Vertex・Foundry・Mantle で、認識されないモデル名には短縮版のシステムプロンプトが使われるように変更</a></li><li><a href="#item-6">GitHub の push イベントが遅れて届いた際、Code Review が古いコミットをレビューしてしまう不具合を修正</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>大きな CLAUDE.md・rules ファイル・`@` インクルードファイルを途中までしか読まずに上書きする不具合を修正</h2>
+      <p>v2.1.312 で、<code>CLAUDE.md</code> や rules ファイル、<code>@</code> で読み込んでいるファイルが非常に大きいと、Claude がファイルの一部しか読み込んでいない状態のまま <code>Write</code> で上書きしてしまう不具合が修正された。以後は <code>Write</code> がファイル全体を読んでから書き込むか、読み込みきれない場合は代わりに <code>Edit</code> を使うよう動作が変わっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>CLAUDE.md</code> やルールファイルが大きくなってきたプロジェクトでは、<code>Write</code> で丸ごと書き換えさせるのではなく、最初から <code>Edit</code> で差分だけ直させる運用にしておくと、v2.1.312 より前のバージョンでも事故を避けやすい。</li><li>v2.1.312 以降に更新したあとも、ファイルが巨大なままだと読み込みに時間がかかるので、肥大化した <code>CLAUDE.md</code> は見出しごとに分割しておくと安全。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>prompt/agent hooks の同時実行数がセッションあたり最大24（サブエージェント含む）に制限。`timeout` の最小値は1秒</h2>
+      <p>v2.1.312 で、<code>PreToolUse</code> などの prompt/agent hooks が同時に実行できる数が、サブエージェントの分も含めて1セッションあたり最大24本までと明文化された。また hooks の <code>timeout</code> に指定できる最小値が1秒に決まった。多数のサブエージェントを並行起動しつつ各エージェントにフックを仕込む構成では、上限に当たると古いものから待たされる・切られる可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>parallel()</code> やバックグラウンドサブエージェントを多数同時に動かすワークフローで hooks を使っている場合、1セッションで同時に走る hooks の総数が24を超えないか見積もっておく。</li><li>hooks の <code>timeout</code> を1秒未満に設定している箇所があれば、v2.1.312 以降は無効になるので1秒以上に直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">新機能</span>
+      <h2>クラウドセッションの Routine 作成・編集画面で、モデルピッカーからエフォートレベルを指定可能に</h2>
+      <p>v2.1.312 で、claude.ai/code の Routine（定期実行・GitHub イベント起動などのクラウドエージェント）を作成・編集する画面のモデルピッカーに、モデル選択とあわせてエフォートレベル（low/high/xhigh など）を指定する項目が追加された。あわせて環境設定のセットアップスクリプト欄にも、色分け・行番号・コピーボタン付きのエディタが付いた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>毎朝の自動配信や定期レビューのような軽い Routine は低いエフォート、込み入った調査や大きなコード変更をさせる Routine は <code>xhigh</code> を選んでおくと、都度 <code>/effort</code> で切り替える手間が減る。</li><li>セットアップスクリプトを編集する際は、新しいエディタの行番号表示を使うとエラー箇所を特定しやすい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>フルスクリーン表示で、キュー済みメッセージの「to send now」をクリックすると待たずに送信できるように</h2>
+      <p>v2.1.312 で、フルスクリーンレンダリング中に次のメッセージとして入力待ちキューに積んだメッセージの下に出る「to send now」をクリックすると、現在の処理の完了を待たずにそのメッセージをすぐ送信できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>作業中にキューへ複数の指示を積んだあと、途中で優先度の高い1件だけ先に処理させたくなったら、そのメッセージの下の「to send now」をクリックする。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>Bedrock・Vertex・Foundry・Mantle で、認識されないモデル名には短縮版のシステムプロンプトが使われるように変更</h2>
+      <p>v2.1.312 で、Amazon Bedrock・Google Cloud Vertex AI・Microsoft Foundry・Mantle 経由で、カスタムデプロイ名や推論プロファイル ARN など Claude Code が認識できないモデル名を指定している場合、通常より短いシステムプロンプトが使われるようになった。あわせて、安全性チェックでフラグが付いたメッセージの後に自動でモデルを切り替える動作も、未認識のモデル名に対して適用されるようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>カスタムデプロイ名で運用していて以前と応答の雰囲気が変わったと感じたら、元の挙動に戻すには環境変数 <code>CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0</code> を設定する。</li><li>フラグ後の自動モデル切り替えが意図しないタイミングで起きて困る場合は <code>CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK=1</code> を設定して無効化する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>GitHub の push イベントが遅れて届いた際、Code Review が古いコミットをレビューしてしまう不具合を修正</h2>
+      <p>v2.1.312 で、GitHub からの push イベントの通知が遅延して届いた場合に、Claude Code の Code Review 機能が最新コミットではなく古いコミットをレビューしてしまう、あるいはレビュー自体が行われない不具合が修正された。PR に対して自動レビューや Claude Approvals を回している構成に直接関係する修正。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/code-review</code> や Claude Approvals を CI・PR フローに組み込んでいる場合、v2.1.312 以降は push 直後にレビューコメントが古いコミット由来でないか気にする必要が減る。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-27.html">v2.1.311。CLAUDE.md の長大なリスト項目で起動フリーズ、数千行の一括編集で Write/Edit が遅延・誤表示する不具合を修正。`ultrathink` は対象モデルでそのターンだけ xhigh エフォートに</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
