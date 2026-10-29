@@ -1,0 +1,78 @@
+{
+  "date": "2026-10-29",
+  "headline": "v2.1.311。200Kトークン超えで「Usage credits required for 1M context」と誤停止していた不具合を修正、以後は自動コンパクションして続行。`/code-review` の呼び出し順序やシェルコマンドのタイムアウト表示も改善",
+  "lead": "v2.1.311・v2.1.309 の changelog から、これまでの号で取り上げていなかった項目を6本選んだ。標準コンテキストの誤停止修正を中心に、`/code-review` の呼び出し方、シェルコマンドのタイムアウト表示、画像ペースト、git worktree の fetch 挙動、VS Code/JetBrains のカスタムコマンドまで、日々の作業に直結する修正をまとめた。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "標準コンテキストのセッションが「Usage credits required for 1M context」と誤って停止する不具合を修正",
+      "body": "v2.1.311 で、標準コンテキスト（200K トークン）のセッションでリクエストが200Kトークンを超えた際に、本来必要ない「Usage credits required for 1M context」というエラーで止まってしまう不具合が修正された。以後はエラーで停止せず、Claude Code が自動でコンパクションしてから処理を続行するようになっている。",
+      "howto": [
+        "長い会話の途中で「Usage credits required for 1M context」と出て止まっていた場合、v2.1.311 以降にアップデートすれば発生しなくなる。1M コンテキストのクレジットを別途用意する必要はない。",
+        "エラーで止まらなくなった代わりに自動コンパクションが走る分、長時間の作業では要点を `CLAUDE.md` やメモに残しておくと、コンパクション後も文脈を補いやすい。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/code-review` の内部プロンプトが、エフォートレベルを先に・`max` は明示的に頼まれたときだけ使うように変更",
+      "body": "v2.1.311 で `/code-review` の内部プロンプトが変更され、Claude に対して「エフォートレベルを先に、対象（ファイルや PR）をその後に指定する」「`max` はユーザーから明示的に頼まれたときだけ使う」よう指示するようになった。`/code-review` 自体の仕様（`low|medium|high|xhigh|max` を最初に書き、対象をその後に続ける）が、この変更であらためて徹底された。",
+      "howto": [
+        "`/code-review` をコマンドやフックから自動実行する場合は、`/code-review high src/foo.ts` のようにエフォートレベルを引数の先頭に置く書き方で統一しておく。",
+        "多くのレビュアーサブエージェントが起動してコストが大きいため、特に理由がなければ `max` は指定せず、必要なときだけユーザー自身が明示的に指定する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "シェルコマンドがタイムアウトに達すると、それまでの出力とバックグラウンドで継続中である旨を表示するように改善",
+      "body": "v2.1.311 で、Bash で実行したコマンドが設定されたタイムアウトに達した際の表示が改善された。コマンドを単に打ち切るのではなく、タイムアウトまでの出力を見せつつ、コマンド自体はバックグラウンドで実行が続いていることを示すようになっている。",
+      "howto": [
+        "長時間かかるビルドやテストが Bash のタイムアウトに当たったときは、表示された「バックグラウンドで実行中」の案内を見て、そのまま完了を待つか、別の手段（ログファイルの確認など）に切り替える。",
+        "タイムアウトで処理が消えたと誤解して、同じコマンドを重複して再実行しないよう注意する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "画像ファイル名を含むテキストをペーストすると画像だけ添付されパスの記述が消える不具合を修正",
+      "body": "v2.1.311 で、画像ファイルの名前に言及したテキストをプロンプトにペーストすると、その画像ファイルは添付される一方で、プロンプト本文からファイルパスの記述が欠け落ちてしまう不具合が修正された。",
+      "howto": [
+        "スクリーンショットのファイルパスを含むメモやログをそのままペーストして説明に使う運用では、v2.1.311 以降は画像添付とパスの文字列の両方が意図通り残る。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "git worktree の作成・再利用時、通常クローンや partial clone でオブジェクトのオンデマンド fetch をしなくなり高速化",
+      "body": "v2.1.309 で、git worktree の作成・再利用時の動作が変更された。通常のクローンに加え、Bash サンドボックスを設定した状態の partial clone でも、git が操作のたびにオブジェクトをオンデマンドで fetch する動作がなくなった。partial clone の場合は、worktree 作成前に必要なオブジェクトをまとめて fetch するようになっている。",
+      "howto": [
+        "`--worktree` やサブエージェントの隔離 worktree を多用する構成で、個々の git 操作のたびに通信が走って遅いと感じていた場合、v2.1.309 以降はその遅延が減っているはず。",
+        "Bash サンドボックスを有効にしたまま partial clone を使っている場合、worktree 作成時にまとめて fetch が走るので、作成直後の通信がやや増えることは把握しておく。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "VS Code・JetBrains パネルから送るカスタムスキル・スラッシュコマンドが、開いているファイルや選択範囲を正しく渡すように修正",
+      "body": "v2.1.311 で、VS Code・JetBrains 拡張のパネルからカスタムスキルやカスタムスラッシュコマンドを送信した際、開いているファイルや選択中の範囲の情報が抜け落ちてしまう不具合が修正された（GitHub issue #102799）。",
+      "howto": [
+        "VS Code・JetBrains の拡張パネルからカスタムスラッシュコマンドやスキルを呼ぶ運用で、「今開いているファイル」や「選択範囲」を前提にしたプロンプトを書いている場合、v2.1.311 以降は期待通りその情報が渡る。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" },
+        { "label": "GitHub issue #102799", "url": "https://github.com/anthropics/claude-code/issues/102799" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.311。200Kトークン超えで「Usage credits required for 1M context」と誤停止していた不具合を修正、以後は自動コンパクションして続行。`/code-review` の呼び出し順序やシェルコマンドのタイムアウト表示も改善｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.311・v2.1.309 の changelog から、これまでの号で取り上げていなかった項目を6本選んだ。標準コンテキストの誤停止修正を中心に、`/code-review` の呼び出し方、シェルコマンドのタイムアウト表示、画像ペースト、git worktree の fetch 挙動、VS Code/JetBrains のカスタムコマンドまで、日々の作業に直結する修正をまとめた。">
+<meta property="og:title" content="v2.1.311。200Kトークン超えで「Usage credits required for 1M context」と誤停止していた不具合を修正、以後は自動コンパクションして続行。`/code-review` の呼び出し順序やシェルコマンドのタイムアウト表示も改善｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.311・v2.1.309 の changelog から、これまでの号で取り上げていなかった項目を6本選んだ。標準コンテキストの誤停止修正を中心に、`/code-review` の呼び出し方、シェルコマンドのタイムアウト表示、画像ペースト、git worktree の fetch 挙動、VS Code/JetBrains のカスタムコマンドまで、日々の作業に直結する修正をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.40</p>
+      <div class="article__head">
+        <span class="chip">2026.10.29</span>
+        <h1>v2.1.311。200Kトークン超えで「Usage credits required for 1M context」と誤停止していた不具合を修正、以後は自動コンパクションして続行。`/code-review` の呼び出し順序やシェルコマンドのタイムアウト表示も改善</h1>
+        <div class="article__date">2026年10月29日(木)公開 ／ VOL.40</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.40</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.29</div>
+      </div></div>
+      <p class="lead">v2.1.311・v2.1.309 の changelog から、これまでの号で取り上げていなかった項目を6本選んだ。標準コンテキストの誤停止修正を中心に、`/code-review` の呼び出し方、シェルコマンドのタイムアウト表示、画像ペースト、git worktree の fetch 挙動、VS Code/JetBrains のカスタムコマンドまで、日々の作業に直結する修正をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">標準コンテキストのセッションが「Usage credits required for 1M context」と誤って停止する不具合を修正</a></li><li><a href="#item-2">`/code-review` の内部プロンプトが、エフォートレベルを先に・`max` は明示的に頼まれたときだけ使うように変更</a></li><li><a href="#item-3">シェルコマンドがタイムアウトに達すると、それまでの出力とバックグラウンドで継続中である旨を表示するように改善</a></li><li><a href="#item-4">画像ファイル名を含むテキストをペーストすると画像だけ添付されパスの記述が消える不具合を修正</a></li><li><a href="#item-5">git worktree の作成・再利用時、通常クローンや partial clone でオブジェクトのオンデマンド fetch をしなくなり高速化</a></li><li><a href="#item-6">VS Code・JetBrains パネルから送るカスタムスキル・スラッシュコマンドが、開いているファイルや選択範囲を正しく渡すように修正</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>標準コンテキストのセッションが「Usage credits required for 1M context」と誤って停止する不具合を修正</h2>
+      <p>v2.1.311 で、標準コンテキスト（200K トークン）のセッションでリクエストが200Kトークンを超えた際に、本来必要ない「Usage credits required for 1M context」というエラーで止まってしまう不具合が修正された。以後はエラーで停止せず、Claude Code が自動でコンパクションしてから処理を続行するようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長い会話の途中で「Usage credits required for 1M context」と出て止まっていた場合、v2.1.311 以降にアップデートすれば発生しなくなる。1M コンテキストのクレジットを別途用意する必要はない。</li><li>エラーで止まらなくなった代わりに自動コンパクションが走る分、長時間の作業では要点を <code>CLAUDE.md</code> やメモに残しておくと、コンパクション後も文脈を補いやすい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/code-review` の内部プロンプトが、エフォートレベルを先に・`max` は明示的に頼まれたときだけ使うように変更</h2>
+      <p>v2.1.311 で <code>/code-review</code> の内部プロンプトが変更され、Claude に対して「エフォートレベルを先に、対象（ファイルや PR）をその後に指定する」「<code>max</code> はユーザーから明示的に頼まれたときだけ使う」よう指示するようになった。<code>/code-review</code> 自体の仕様（<code>low|medium|high|xhigh|max</code> を最初に書き、対象をその後に続ける）が、この変更であらためて徹底された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/code-review</code> をコマンドやフックから自動実行する場合は、<code>/code-review high src/foo.ts</code> のようにエフォートレベルを引数の先頭に置く書き方で統一しておく。</li><li>多くのレビュアーサブエージェントが起動してコストが大きいため、特に理由がなければ <code>max</code> は指定せず、必要なときだけユーザー自身が明示的に指定する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>シェルコマンドがタイムアウトに達すると、それまでの出力とバックグラウンドで継続中である旨を表示するように改善</h2>
+      <p>v2.1.311 で、Bash で実行したコマンドが設定されたタイムアウトに達した際の表示が改善された。コマンドを単に打ち切るのではなく、タイムアウトまでの出力を見せつつ、コマンド自体はバックグラウンドで実行が続いていることを示すようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長時間かかるビルドやテストが Bash のタイムアウトに当たったときは、表示された「バックグラウンドで実行中」の案内を見て、そのまま完了を待つか、別の手段（ログファイルの確認など）に切り替える。</li><li>タイムアウトで処理が消えたと誤解して、同じコマンドを重複して再実行しないよう注意する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>画像ファイル名を含むテキストをペーストすると画像だけ添付されパスの記述が消える不具合を修正</h2>
+      <p>v2.1.311 で、画像ファイルの名前に言及したテキストをプロンプトにペーストすると、その画像ファイルは添付される一方で、プロンプト本文からファイルパスの記述が欠け落ちてしまう不具合が修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>スクリーンショットのファイルパスを含むメモやログをそのままペーストして説明に使う運用では、v2.1.311 以降は画像添付とパスの文字列の両方が意図通り残る。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">ワークフロー</span>
+      <h2>git worktree の作成・再利用時、通常クローンや partial clone でオブジェクトのオンデマンド fetch をしなくなり高速化</h2>
+      <p>v2.1.309 で、git worktree の作成・再利用時の動作が変更された。通常のクローンに加え、Bash サンドボックスを設定した状態の partial clone でも、git が操作のたびにオブジェクトをオンデマンドで fetch する動作がなくなった。partial clone の場合は、worktree 作成前に必要なオブジェクトをまとめて fetch するようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>--worktree</code> やサブエージェントの隔離 worktree を多用する構成で、個々の git 操作のたびに通信が走って遅いと感じていた場合、v2.1.309 以降はその遅延が減っているはず。</li><li>Bash サンドボックスを有効にしたまま partial clone を使っている場合、worktree 作成時にまとめて fetch が走るので、作成直後の通信がやや増えることは把握しておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>VS Code・JetBrains パネルから送るカスタムスキル・スラッシュコマンドが、開いているファイルや選択範囲を正しく渡すように修正</h2>
+      <p>v2.1.311 で、VS Code・JetBrains 拡張のパネルからカスタムスキルやカスタムスラッシュコマンドを送信した際、開いているファイルや選択中の範囲の情報が抜け落ちてしまう不具合が修正された（GitHub issue #102799）。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code・JetBrains の拡張パネルからカスタムスラッシュコマンドやスキルを呼ぶ運用で、「今開いているファイル」や「選択範囲」を前提にしたプロンプトを書いている場合、v2.1.311 以降は期待通りその情報が渡る。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li><li><a href="https://github.com/anthropics/claude-code/issues/102799" target="_blank" rel="noopener">GitHub issue #102799</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-28.html">v2.1.312。巨大な CLAUDE.md / rules ファイル / `@` インクルードを途中までしか読まずに上書きする不具合を修正。hooks の同時実行数は最大24に制限、クラウドセッションの Routine でエフォートレベルを指定可能に</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
