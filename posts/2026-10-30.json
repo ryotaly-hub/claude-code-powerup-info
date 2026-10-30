@@ -1,7 +1,7 @@
 {
   "date": "2026-10-30",
-  "headline": "v2.1.304〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。`claude ultrareview` の非対話実行には `--trust-workspace` が必須に、`sed -i` は `/rewind` で戻せない通常の Bash コマンドに変更",
-  "lead": "直近1週間ほどの更新から、CI やカスタムコマンドの運用で踏むと地味に痛い変更と、GitHub の Code Review・VS Code・`/usage` の実用的な改善をまとめた。",
+  "headline": "v2.1.309〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。サブディレクトリ用スキルが `cd` 後に見つからなくなる不具合や、vim モードの `d`/`c`/`y` が意図せず削除・コピーしてしまう不具合も修正",
+  "lead": "直近の更新から、CI やスキル構成で踏むと気づきにくい不具合の修正と、VS Code・WebFetch の実用的な改善をまとめた。",
   "items": [
     {
       "category": "注意点",
@@ -16,49 +16,47 @@
       ]
     },
     {
-      "category": "ワークフロー",
-      "title": "`claude ultrareview` の実行にワークスペース信頼の確認が必須になった",
-      "body": "v2.1.309 で `claude ultrareview` がワークスペースの信頼確認を求めるようになった。ターミナルから実行すると確認プロンプトが表示され、応答がなければ実行を拒否する。ターミナルのない CI などから呼ぶ場合はこの確認ができないため、何もしないと実行が拒否される。",
-      "howto": [
-        "CI などの非対話環境で `claude ultrareview` を使う場合は `--trust-workspace` を付けて実行する。このフラグは値を取らないので、PR 番号やベースブランチなどの引数は `--trust-workspace` より前に置く。",
-        "確認自体が不要と判断した環境では、環境変数 `CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1` を設定しておけば確認をスキップできる。"
-      ],
-      "links": [
-        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
-      ]
-    },
-    {
       "category": "注意点",
-      "title": "`sed -i` が通常の Bash コマンドとして実行されるようになり、`/rewind` で戻せなくなった",
-      "body": "v2.1.309 で `sed -i` の扱いが変わった。これまでは特別扱いで、ファイル編集のプレビューをシミュレートしてから適用していたが、今後は通常の Bash プロンプトを経て、書いたとおりにそのまま実行されるようになった。他の Bash による編集と同じ扱いになったため、`/rewind` での復元対象にも含まれなくなっている。",
+      "title": "vim モードで `gj`/`gk` に大きい回数を付けた `d`/`c`/`y` が、意図せず削除・コピーしてしまう不具合を修正",
+      "body": "v2.1.311 で、vim モードの `d`（削除）・`c`（変更）・`y`（コピー）を、残り行数より大きい回数の `gj`/`gk` と組み合わせたときの挙動が修正された。これまでは本来の Vim の動きと異なり削除やコピーが実行されてしまっていたが、以後は Vim と同じく、カーソル移動のみで止まるようになった。",
       "howto": [
-        "Claude に `sed -i` でファイルを書き換えてもらった場合、その変更は `/rewind` では戻せない。戻す可能性がある変更は、先に git でコミットしておくか、Edit/Write ツールでの編集に任せたほうが安全。"
+        "vim モードで `d5gj` のように残り行数を超える回数を指定しても、意図せずテキストが消える事故は起きなくなる。v2.1.311 以降に更新しておけば十分。"
       ],
       "links": [
-        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
       ]
     },
     {
       "category": "Tips",
-      "title": "`/usage` の警告が、`f` キーひとつで直せる修正候補付きになった",
-      "body": "v2.1.305 で `/usage` の各警告が改善され、原因となっている設定元を名指しした一行の修正案として表示されるようになった。`f` キーを押すと、表示されている修正をまとめて適用できる。同じ修正の提示は VS Code 拡張や `/doctor` でも表示される。",
+      "title": "ディレクトリ単位のスキルが、Bash で `cd` してリポジトリの深い階層に移動した後に見つからなくなる不具合を修正",
+      "body": "v2.1.312 で、ディレクトリ単位のスキルや frontmatter の `paths:` で絞ったスキルが、Bash の `cd` コマンドで git リポジトリの深い階層に移動した後に見つからなくなる不具合が修正された。",
       "howto": [
-        "使用量の警告が気になったら `/usage` を開き、提示された修正内容を確認して問題なければ `f` を押すだけで直す。"
+        "サブディレクトリごとにスキルを分けて運用している場合、作業ディレクトリを `cd` で移動した直後にスキルが呼ばれないと感じたら、まずは v2.1.312 以降に更新する。"
       ],
       "links": [
-        { "label": "claude-code v2.1.305 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.305" }
+        { "label": "claude-code v2.1.312 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.312" }
       ]
     },
     {
-      "category": "エコシステム",
-      "title": "GitHub の Code Review に、レビューの深さを選べる「レベル」が追加",
-      "body": "v2.1.304 で、GitHub 連携の自動レビュー機能 Code Review にレビューレベルが追加された。組織の管理者は既定のレベルを Quick・Standard（デフォルト）・Deep から選べるほか、リポジトリごとに個別のレベルを設定できる。合わせて、個別に選ばなくても GitHub organization 内の全リポジトリ（今後追加されるものも含む）を自動でレビュー対象にするオプションも管理画面に追加された。",
+      "category": "Tips",
+      "title": "Windows での git コマンドが高速化、エラー表示も git の言語設定に関係なく常に英語に",
+      "body": "v2.1.309 で、Claude Code が内部で実行する多数の git コマンドの速度が Windows 上で改善された。また、プラットフォームを問わず、それらの git コマンドのエラーは git 自体の言語設定にかかわらず常に英語で表示されるようになった。",
       "howto": [
-        "レビューが重すぎる、あるいは軽すぎると感じるリポジトリがあれば、Code Review の管理設定でそのリポジトリだけレベルを変更する。",
-        "新しく作ったリポジトリを Code Review の対象に追加し忘れがちな組織は、全リポジトリを自動対象にするオプションを有効にしておく。"
+        "Windows で Claude Code の動作が git 絡みで遅いと感じていた場合、v2.1.309 以降に更新すれば改善分の恩恵を受けられる。日本語化した git を使っていても、Claude Code が表示する git のエラー文自体は英語のままになる。"
       ],
       "links": [
-        { "label": "claude-code v2.1.304 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.304" }
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "クラウドセッションの WebFetch が名前解決に失敗したとき、許可すべきホスト名を名指しするように改善",
+      "body": "v2.1.312 で、クラウドセッションにおける WebFetch のエラー表示が改善された。名前解決に失敗したホストは、許可済みのネットワークドメインの外にある可能性があると説明され、Claude が許可すべきホスト名を具体的に示すようになった。",
+      "howto": [
+        "クラウドセッションで WebFetch が失敗したときは、エラーに示されたホスト名を確認し、必要であればそのホストをクラウド環境のネットワーク許可設定に追加する。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.312 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.312" }
       ]
     },
     {
