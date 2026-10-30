@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.304〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。`claude ultrareview` の非対話実行には `--trust-workspace` が必須に、`sed -i` は `/rewind` で戻せない通常の Bash コマンドに変更｜Claude code の PowerUP info</title>
+<meta name="description" content="直近1週間ほどの更新から、CI やカスタムコマンドの運用で踏むと地味に痛い変更と、GitHub の Code Review・VS Code・`/usage` の実用的な改善をまとめた。">
+<meta property="og:title" content="v2.1.304〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。`claude ultrareview` の非対話実行には `--trust-workspace` が必須に、`sed -i` は `/rewind` で戻せない通常の Bash コマンドに変更｜Claude code の PowerUP info">
+<meta property="og:description" content="直近1週間ほどの更新から、CI やカスタムコマンドの運用で踏むと地味に痛い変更と、GitHub の Code Review・VS Code・`/usage` の実用的な改善をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.41</p>
+      <div class="article__head">
+        <span class="chip">2026.10.30</span>
+        <h1>v2.1.304〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。`claude ultrareview` の非対話実行には `--trust-workspace` が必須に、`sed -i` は `/rewind` で戻せない通常の Bash コマンドに変更</h1>
+        <div class="article__date">2026年10月30日(金)公開 ／ VOL.41</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.41</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.30</div>
+      </div></div>
+      <p class="lead">直近1週間ほどの更新から、CI やカスタムコマンドの運用で踏むと地味に痛い変更と、GitHub の Code Review・VS Code・`/usage` の実用的な改善をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">無効な名前のカスタムコマンドが1つあると、全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正</a></li><li><a href="#item-2">`claude ultrareview` の実行にワークスペース信頼の確認が必須になった</a></li><li><a href="#item-3">`sed -i` が通常の Bash コマンドとして実行されるようになり、`/rewind` で戻せなくなった</a></li><li><a href="#item-4">`/usage` の警告が、`f` キーひとつで直せる修正候補付きになった</a></li><li><a href="#item-5">GitHub の Code Review に、レビューの深さを選べる「レベル」が追加</a></li><li><a href="#item-6">VS Code 拡張、Claude の返信内のコードブロックにシンタックスハイライトが追加</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>無効な名前のカスタムコマンドが1つあると、全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正</h2>
+      <p>v2.1.312 で、無効な名前のカスタムコマンドが1つ存在するだけで、それ以外の全てのカスタムコマンドの読み込みまで止まってしまう不具合が修正された。この不具合が起きていた環境では、原因に気づきにくいまま <code>claude -p</code> が何も出力せずに終了することがあった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>.claude/commands/</code> 配下にカスタムコマンドを置いて <code>claude -p</code> などをスクリプトから呼んでいる場合、出力が急に空になったら、まずコマンドのファイル名やフロントマターの名前に無効な文字が入っていないか確認する。</li><li>v2.1.312 以降ではこの事故自体は起きなくなるので、該当する不具合に心当たりがあればアップデートしておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.312" target="_blank" rel="noopener">claude-code v2.1.312 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude ultrareview` の実行にワークスペース信頼の確認が必須になった</h2>
+      <p>v2.1.309 で <code>claude ultrareview</code> がワークスペースの信頼確認を求めるようになった。ターミナルから実行すると確認プロンプトが表示され、応答がなければ実行を拒否する。ターミナルのない CI などから呼ぶ場合はこの確認ができないため、何もしないと実行が拒否される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI などの非対話環境で <code>claude ultrareview</code> を使う場合は <code>--trust-workspace</code> を付けて実行する。このフラグは値を取らないので、PR 番号やベースブランチなどの引数は <code>--trust-workspace</code> より前に置く。</li><li>確認自体が不要と判断した環境では、環境変数 <code>CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1</code> を設定しておけば確認をスキップできる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>`sed -i` が通常の Bash コマンドとして実行されるようになり、`/rewind` で戻せなくなった</h2>
+      <p>v2.1.309 で <code>sed -i</code> の扱いが変わった。これまでは特別扱いで、ファイル編集のプレビューをシミュレートしてから適用していたが、今後は通常の Bash プロンプトを経て、書いたとおりにそのまま実行されるようになった。他の Bash による編集と同じ扱いになったため、<code>/rewind</code> での復元対象にも含まれなくなっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude に <code>sed -i</code> でファイルを書き換えてもらった場合、その変更は <code>/rewind</code> では戻せない。戻す可能性がある変更は、先に git でコミットしておくか、Edit/Write ツールでの編集に任せたほうが安全。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.309" target="_blank" rel="noopener">claude-code v2.1.309 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`/usage` の警告が、`f` キーひとつで直せる修正候補付きになった</h2>
+      <p>v2.1.305 で <code>/usage</code> の各警告が改善され、原因となっている設定元を名指しした一行の修正案として表示されるようになった。<code>f</code> キーを押すと、表示されている修正をまとめて適用できる。同じ修正の提示は VS Code 拡張や <code>/doctor</code> でも表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>使用量の警告が気になったら <code>/usage</code> を開き、提示された修正内容を確認して問題なければ <code>f</code> を押すだけで直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.305" target="_blank" rel="noopener">claude-code v2.1.305 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>GitHub の Code Review に、レビューの深さを選べる「レベル」が追加</h2>
+      <p>v2.1.304 で、GitHub 連携の自動レビュー機能 Code Review にレビューレベルが追加された。組織の管理者は既定のレベルを Quick・Standard（デフォルト）・Deep から選べるほか、リポジトリごとに個別のレベルを設定できる。合わせて、個別に選ばなくても GitHub organization 内の全リポジトリ（今後追加されるものも含む）を自動でレビュー対象にするオプションも管理画面に追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>レビューが重すぎる、あるいは軽すぎると感じるリポジトリがあれば、Code Review の管理設定でそのリポジトリだけレベルを変更する。</li><li>新しく作ったリポジトリを Code Review の対象に追加し忘れがちな組織は、全リポジトリを自動対象にするオプションを有効にしておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.304" target="_blank" rel="noopener">claude-code v2.1.304 release notes</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">新機能</span>
+      <h2>VS Code 拡張、Claude の返信内のコードブロックにシンタックスハイライトが追加</h2>
+      <p>v2.1.311 で、VS Code 拡張の Claude Code パネルに表示される返信内のコードブロックに、シンタックスハイライトが付くようになった。ライトテーマ・ダークテーマ・高コントラストダークテーマのいずれでも対応している。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code 拡張を v2.1.311 以降に更新すれば自動で有効になる。設定の変更は不要。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://github.com/anthropics/claude-code/releases/tag/v2.1.311" target="_blank" rel="noopener">claude-code v2.1.311 release notes</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-29.html">v2.1.311。200Kトークン超えで「Usage credits required for 1M context」と誤停止していた不具合を修正、以後は自動コンパクションして続行。`/code-review` の呼び出し順序やシェルコマンドのタイムアウト表示も改善</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

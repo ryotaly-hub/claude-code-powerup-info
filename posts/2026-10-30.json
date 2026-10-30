@@ -1,0 +1,76 @@
+{
+  "date": "2026-10-30",
+  "headline": "v2.1.304〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。`claude ultrareview` の非対話実行には `--trust-workspace` が必須に、`sed -i` は `/rewind` で戻せない通常の Bash コマンドに変更",
+  "lead": "直近1週間ほどの更新から、CI やカスタムコマンドの運用で踏むと地味に痛い変更と、GitHub の Code Review・VS Code・`/usage` の実用的な改善をまとめた。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "無効な名前のカスタムコマンドが1つあると、全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正",
+      "body": "v2.1.312 で、無効な名前のカスタムコマンドが1つ存在するだけで、それ以外の全てのカスタムコマンドの読み込みまで止まってしまう不具合が修正された。この不具合が起きていた環境では、原因に気づきにくいまま `claude -p` が何も出力せずに終了することがあった。",
+      "howto": [
+        "`.claude/commands/` 配下にカスタムコマンドを置いて `claude -p` などをスクリプトから呼んでいる場合、出力が急に空になったら、まずコマンドのファイル名やフロントマターの名前に無効な文字が入っていないか確認する。",
+        "v2.1.312 以降ではこの事故自体は起きなくなるので、該当する不具合に心当たりがあればアップデートしておく。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.312 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.312" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude ultrareview` の実行にワークスペース信頼の確認が必須になった",
+      "body": "v2.1.309 で `claude ultrareview` がワークスペースの信頼確認を求めるようになった。ターミナルから実行すると確認プロンプトが表示され、応答がなければ実行を拒否する。ターミナルのない CI などから呼ぶ場合はこの確認ができないため、何もしないと実行が拒否される。",
+      "howto": [
+        "CI などの非対話環境で `claude ultrareview` を使う場合は `--trust-workspace` を付けて実行する。このフラグは値を取らないので、PR 番号やベースブランチなどの引数は `--trust-workspace` より前に置く。",
+        "確認自体が不要と判断した環境では、環境変数 `CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1` を設定しておけば確認をスキップできる。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`sed -i` が通常の Bash コマンドとして実行されるようになり、`/rewind` で戻せなくなった",
+      "body": "v2.1.309 で `sed -i` の扱いが変わった。これまでは特別扱いで、ファイル編集のプレビューをシミュレートしてから適用していたが、今後は通常の Bash プロンプトを経て、書いたとおりにそのまま実行されるようになった。他の Bash による編集と同じ扱いになったため、`/rewind` での復元対象にも含まれなくなっている。",
+      "howto": [
+        "Claude に `sed -i` でファイルを書き換えてもらった場合、その変更は `/rewind` では戻せない。戻す可能性がある変更は、先に git でコミットしておくか、Edit/Write ツールでの編集に任せたほうが安全。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.309 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.309" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/usage` の警告が、`f` キーひとつで直せる修正候補付きになった",
+      "body": "v2.1.305 で `/usage` の各警告が改善され、原因となっている設定元を名指しした一行の修正案として表示されるようになった。`f` キーを押すと、表示されている修正をまとめて適用できる。同じ修正の提示は VS Code 拡張や `/doctor` でも表示される。",
+      "howto": [
+        "使用量の警告が気になったら `/usage` を開き、提示された修正内容を確認して問題なければ `f` を押すだけで直す。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.305 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.305" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "GitHub の Code Review に、レビューの深さを選べる「レベル」が追加",
+      "body": "v2.1.304 で、GitHub 連携の自動レビュー機能 Code Review にレビューレベルが追加された。組織の管理者は既定のレベルを Quick・Standard（デフォルト）・Deep から選べるほか、リポジトリごとに個別のレベルを設定できる。合わせて、個別に選ばなくても GitHub organization 内の全リポジトリ（今後追加されるものも含む）を自動でレビュー対象にするオプションも管理画面に追加された。",
+      "howto": [
+        "レビューが重すぎる、あるいは軽すぎると感じるリポジトリがあれば、Code Review の管理設定でそのリポジトリだけレベルを変更する。",
+        "新しく作ったリポジトリを Code Review の対象に追加し忘れがちな組織は、全リポジトリを自動対象にするオプションを有効にしておく。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.304 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.304" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "VS Code 拡張、Claude の返信内のコードブロックにシンタックスハイライトが追加",
+      "body": "v2.1.311 で、VS Code 拡張の Claude Code パネルに表示される返信内のコードブロックに、シンタックスハイライトが付くようになった。ライトテーマ・ダークテーマ・高コントラストダークテーマのいずれでも対応している。",
+      "howto": [
+        "VS Code 拡張を v2.1.311 以降に更新すれば自動で有効になる。設定の変更は不要。"
+      ],
+      "links": [
+        { "label": "claude-code v2.1.311 release notes", "url": "https://github.com/anthropics/claude-code/releases/tag/v2.1.311" }
+      ]
+    }
+  ]
+}
