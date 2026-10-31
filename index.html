@@ -29,22 +29,33 @@
 
   <div class="wrap">
     <section class="hero">
-      <a class="hero__thumb" href="posts/2026-10-30.html"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+      <a class="hero__thumb" href="posts/2026-10-31.html"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
         <div class="thumb__deco"></div>
-        <div class="thumb__issue">POWERUP INFO / VOL.41</div>
-        <div class="thumb__date" style="font-size:38px">2026.10.30</div>
+        <div class="thumb__issue">POWERUP INFO / VOL.42</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.31</div>
       </div></a>
       <div class="hero__body">
         <span class="chip">最新号</span>
-        <h1>v2.1.309〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。サブディレクトリ用スキルが `cd` 後に見つからなくなる不具合や、vim モードの `d`/`c`/`y` が意図せず削除・コピーしてしまう不具合も修正</h1>
-        <p>直近の更新から、CI やスキル構成で踏むと気づきにくい不具合の修正と、VS Code・WebFetch の実用的な改善をまとめた。</p>
-        <a class="readmore" href="posts/2026-10-30.html">この号を読む</a>
+        <h1>v2.1.309〜314。Write/Edit/NotebookEdit が作業ディレクトリ外への書き込みを権限モード無関係に拒否する設定を追加。`ultrathink` は対応モデルで自動的に xhigh effort に、`claude ultrareview` はワークスペースの信頼確認が必須に</h1>
+        <p>直近のアップデートから、設定ひとつで事故を防げるものと、CI・自動化スクリプトが影響を受けるものをまとめた。`permissions.blockWritesOutsideWorkingDirectories` と `sed -i` の扱いの変化は、特に複数ディレクトリやCIで Claude Code を使っている人は見ておきたい。</p>
+        <a class="readmore" href="posts/2026-10-31.html">この号を読む</a>
       </div>
     </section>
   </div>
   <div class="wrap">
     <div class="section-head"><h2>バックナンバー</h2><span>ARCHIVE</span></div>
     <div class="cards">
+      <a class="card" href="posts/2026-10-30.html">
+        <div class="card__thumb"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.41</div>
+        <div class="thumb__date">2026.10.30</div>
+      </div></div>
+        <span class="chip">VOL.41</span>
+        <div class="card__title">v2.1.309〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。サブディレクトリ用スキルが `cd` 後に見つからなくなる不具合や、vim モードの `d`/`c`/`y` が意図せず削除・コピーしてしまう不具合も修正</div>
+        <p class="card__excerpt">直近の更新から、CI やスキル構成で踏むと気づきにくい不具合の修正と、VS Code・WebFetch の実用的な改善をまとめた。…</p>
+        <div class="card__meta">2026年10月30日(金)</div>
+      </a>
       <a class="card" href="posts/2026-10-29.html">
         <div class="card__thumb"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
         <div class="thumb__deco"></div>

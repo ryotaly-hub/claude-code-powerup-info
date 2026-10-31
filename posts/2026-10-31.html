@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.309〜314。Write/Edit/NotebookEdit が作業ディレクトリ外への書き込みを権限モード無関係に拒否する設定を追加。`ultrathink` は対応モデルで自動的に xhigh effort に、`claude ultrareview` はワークスペースの信頼確認が必須に｜Claude code の PowerUP info</title>
+<meta name="description" content="直近のアップデートから、設定ひとつで事故を防げるものと、CI・自動化スクリプトが影響を受けるものをまとめた。`permissions.blockWritesOutsideWorkingDirectories` と `sed -i` の扱いの変化は、特に複数ディレクトリやCIで Claude Code を使っている人は見ておきたい。">
+<meta property="og:title" content="v2.1.309〜314。Write/Edit/NotebookEdit が作業ディレクトリ外への書き込みを権限モード無関係に拒否する設定を追加。`ultrathink` は対応モデルで自動的に xhigh effort に、`claude ultrareview` はワークスペースの信頼確認が必須に｜Claude code の PowerUP info">
+<meta property="og:description" content="直近のアップデートから、設定ひとつで事故を防げるものと、CI・自動化スクリプトが影響を受けるものをまとめた。`permissions.blockWritesOutsideWorkingDirectories` と `sed -i` の扱いの変化は、特に複数ディレクトリやCIで Claude Code を使っている人は見ておきたい。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.42</p>
+      <div class="article__head">
+        <span class="chip">2026.10.31</span>
+        <h1>v2.1.309〜314。Write/Edit/NotebookEdit が作業ディレクトリ外への書き込みを権限モード無関係に拒否する設定を追加。`ultrathink` は対応モデルで自動的に xhigh effort に、`claude ultrareview` はワークスペースの信頼確認が必須に</h1>
+        <div class="article__date">2026年10月31日(土)公開 ／ VOL.42</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.42</div>
+        <div class="thumb__date" style="font-size:38px">2026.10.31</div>
+      </div></div>
+      <p class="lead">直近のアップデートから、設定ひとつで事故を防げるものと、CI・自動化スクリプトが影響を受けるものをまとめた。`permissions.blockWritesOutsideWorkingDirectories` と `sed -i` の扱いの変化は、特に複数ディレクトリやCIで Claude Code を使っている人は見ておきたい。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">作業ディレクトリ外への書き込みを拒否する `permissions.blockWritesOutsideWorkingDirectories` を追加</a></li><li><a href="#item-2">`ultrathink` が対応モデルで自動的に xhigh effort になる</a></li><li><a href="#item-3">VS Code・Claude Desktop の Code タブにアイドル時コンパクションを追加</a></li><li><a href="#item-4">Bash ツールのシェルが継承した `which` のエイリアス・関数をクリアするように</a></li><li><a href="#item-5">`claude ultrareview` はワークスペースの信頼確認が必須に、CI では `--trust-workspace` が必要</a></li><li><a href="#item-6">`sed -i` は通常の Bash 権限プロンプトを通るようになり、`/rewind` で復元されなくなった</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>作業ディレクトリ外への書き込みを拒否する `permissions.blockWritesOutsideWorkingDirectories` を追加</h2>
+      <p>v2.1.314 で追加された設定。Write・Edit・NotebookEdit は、デフォルト・auto・acceptEdits などどの権限モードで動いていても、作業ディレクトリ外のパスへの書き込みを拒否するようになる。</p>
+      <p>モノレポや複数の worktree をまたいで作業していて、意図せず別ディレクトリのファイルを編集してしまう事故を防ぎたい場合に有効。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>settings.json に <code>{&quot;permissions&quot;: {&quot;blockWritesOutsideWorkingDirectories&quot;: true}}</code> を追加すると、作業ディレクトリ外への Write/Edit/NotebookEdit が権限モードに関係なく拒否されるようになる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.314）</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`ultrathink` が対応モデルで自動的に xhigh effort になる</h2>
+      <p>v2.1.311 で、インタラクティブ端末で <code>ultrathink</code> と打つと、Opus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1 では effort が自動的に <code>xhigh</code> に設定されるようになった。</p>
+      <p>これまでは <code>ultrathink</code> と <code>/effort xhigh</code> を別々に意識する必要があったが、今後は <code>ultrathink</code> ひとことで最大の思考深度に切り替わる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>難しいバグ調査や設計検討のときは、プロンプトの頭に <code>ultrathink</code> と書くだけでよい。対応モデルなら effort が xhigh まで自動で上がる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.311）</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>VS Code・Claude Desktop の Code タブにアイドル時コンパクションを追加</h2>
+      <p>v2.1.314 で、VS Code 拡張や Claude Desktop の Code タブに、セッションがアイドル状態のときにバックグラウンドでコンテキストをコンパクションする機能が追加された。</p>
+      <p>会話に戻ってきた直後にコンパクションが走って待たされる場面が減る。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特別な操作は不要。長時間アイドルにしたセッションに戻ったとき、以前よりコンパクション待ちが発生しにくくなっているはず。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.314）</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>Bash ツールのシェルが継承した `which` のエイリアス・関数をクリアするように</h2>
+      <p>v2.1.314 で、Claude Code の Bash ツールが起動するシェルは、ユーザーの <code>.bashrc</code> 等から継承した <code>which</code> 向けのエイリアスや関数をクリアして実行されるようになった。</p>
+      <p>これまでは環境によって <code>which npm</code> などが別名解決されてしまい、Claude が実際とは違うパスを参照することがあった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>手元の shell で <code>which</code> をラップする alias や function を定義していても、Claude Code の Bash ツール内では本来の <code>which</code> の結果がそのまま返ると理解しておけばよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.314）</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`claude ultrareview` はワークスペースの信頼確認が必須に、CI では `--trust-workspace` が必要</h2>
+      <p>v2.1.309 で、<code>claude ultrareview</code> の実行時にワークスペースの信頼確認が必須になった。</p>
+      <p>対話なしで動かしているスクリプトや CI では、この確認で止まってしまうため、フラグか環境変数で明示的に許可する必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI で <code>claude ultrareview</code> を使っている場合は <code>claude ultrareview --trust-workspace 123</code> のように渡す。</li><li>環境変数で確認を止めたい場合は <code>CLAUDE_CODE_DISABLE_ULTRAREVIEW_TRUST_CHECK=1</code> を設定する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.309）</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">注意点</span>
+      <h2>`sed -i` は通常の Bash 権限プロンプトを通るようになり、`/rewind` で復元されなくなった</h2>
+      <p>v2.1.309 で、<code>sed -i</code> によるファイル書き換えは Edit ツールと同じ特別扱いではなく、通常の Bash コマンドとして権限プロンプトの対象になった。</p>
+      <p>あわせて、この経由での変更は <code>/rewind</code> の対象外になったため、<code>sed -i</code> で書き換えた内容は Rewind メニューから元に戻せない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>sed -i</code> で一括置換した後に元に戻したくなった場合、<code>/rewind</code> には頼れない。git の diff から手動で戻す必要がある。</li><li>破壊的な一括置換をする前に、git で commit しておくか diff を確認してから実行すると安全。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog（v2.1.309）</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-30.html">v2.1.309〜312。無効な名前のカスタムコマンドが1つあるだけで全コマンドの読み込みが止まり `claude -p` が無出力になる不具合を修正。サブディレクトリ用スキルが `cd` 後に見つからなくなる不具合や、vim モードの `d`/`c`/`y` が意図せず削除・コピーしてしまう不具合も修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
