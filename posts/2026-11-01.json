@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-01",
+  "headline": "v2.1.316。Code Review に重要度別の指摘件数カードを追加。Opus 4.8 の fast mode は11/30に廃止予定でOpus 5.5への移行が必要に。CLAUDE_CODE_SUBAGENT_EFFORT でサブエージェントのeffortを個別指定できるように",
+  "lead": "10月31日公開のv2.1.316を中心に、今日から効く変更をまとめた。Code Review の分析ページが充実し、クラウドセッションではMCPサーバーからの入力依頼が見える形になった。Opus 4.8 の fast mode 廃止は日付が決まっているので早めに確認しておきたい。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "Opus 4.8 の fast mode が10/30付で廃止予定に、11/30に完全削除",
+      "body": "Opus 4.8 の fast mode が deprecated になった。11月30日に削除され、以後は Opus 4.8 に対する fast mode リクエストはエラーを返すだけで、standard の Opus 4.8 への自動フォールバックは行われない。",
+      "howto": [
+        "`/fast` を Opus 4.8 で使っている場合は、11/30より前に Opus 5.5 に切り替えておく",
+        "CI やスクリプトで `--fast` や fast mode 指定のモデルを固定している箇所があれば、Opus 5.5 を指すように更新する"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.316)", "url": "https://code.claude.com/docs/en/changelog" }]
+    },
+    {
+      "category": "新機能",
+      "title": "Code Review 分析ページに「重大度別の指摘件数」カードを追加",
+      "body": "Code Review の analytics ページに、期間ごとの指摘件数の合計・重大度で色分けした日次グラフ・各重大度の件数を表示するカードが追加された。",
+      "howto": [
+        "組織の Code Review analytics ページを開き、重大度の高い指摘が増えていないか日次グラフで確認する運用に使える"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.316)", "url": "https://code.claude.com/docs/en/changelog" }]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "クラウドセッションで、MCPサーバーからのフォーム入力依頼が見える形に",
+      "body": "クラウドセッション中にMCPサーバーが追加入力（elicitation）を求めたとき、これまでは見えないまま黙ってキャンセルされていた。今回からフォームカードが表示され、入力して答えるか、明示的に断るかを選べるようになった。",
+      "howto": [
+        "クラウドセッションでMCPサーバーを使っていて途中で処理が止まった場合は、フォームカードが出ていないか確認する",
+        "入力が不要なら「断る」を選べば、サーバー側に何も答えずに進められる"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.316)", "url": "https://code.claude.com/docs/en/changelog" }]
+    },
+    {
+      "category": "Tips",
+      "title": "`CLAUDE_CODE_SUBAGENT_EFFORT` でサブエージェントのeffortをまとめて指定",
+      "body": "これまでサブエージェントは何も指定しなければメインセッションのeffort levelを継承していた。`CLAUDE_CODE_SUBAGENT_EFFORT` を設定すると、個々に effort を指定していないサブエージェントはこの値で動くようになる。",
+      "howto": [
+        "メインセッションは `xhigh` で動かしつつ、サブエージェントはコスト重視で `medium` に固定したい場合は `CLAUDE_CODE_SUBAGENT_EFFORT=medium` を設定する"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.316)", "url": "https://code.claude.com/docs/en/changelog" }]
+    },
+    {
+      "category": "Tips",
+      "title": "Ctrl+R の履歴検索が、折りたたまれた貼り付けテキストにもマッチするように",
+      "body": "ターミナルで長いテキストを貼り付けると行が折りたたまれて表示されるが、これまで Ctrl+R の履歴検索はその中身を検索対象にしていなかった。今回から折りたたまれた貼り付けテキストの中身も検索にかかるようになった。",
+      "howto": [
+        "以前貼り付けたログやコードの断片を覚えているなら、その文字列で Ctrl+R 検索すれば該当コマンドまで辿れる"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.314)", "url": "https://code.claude.com/docs/en/changelog" }]
+    },
+    {
+      "category": "エコシステム",
+      "title": "Claude Tag（SlackのClaude）、チャンネルの応答設定が「How Claude participates」に統合",
+      "body": "Slack チャンネルの「Respond automatically」というオン・オフの設定が、チャンネルのConfigureページとClaude Tag管理設定の両方で「How Claude participates」という選択式の設定に変わった。",
+      "howto": [
+        "Claude Tag を導入しているSlackチャンネルがあれば、Configureページで「How Claude participates」の選択肢を確認し、意図した動作（常に応答する／メンション時のみ、など）になっているか見直す"
+      ],
+      "links": [{ "label": "Claude Code changelog (v2.1.316)", "url": "https://code.claude.com/docs/en/changelog" }]
+    }
+  ]
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.316。Code Review に重要度別の指摘件数カードを追加。Opus 4.8 の fast mode は11/30に廃止予定でOpus 5.5への移行が必要に。CLAUDE_CODE_SUBAGENT_EFFORT でサブエージェントのeffortを個別指定できるように｜Claude code の PowerUP info</title>
+<meta name="description" content="10月31日公開のv2.1.316を中心に、今日から効く変更をまとめた。Code Review の分析ページが充実し、クラウドセッションではMCPサーバーからの入力依頼が見える形になった。Opus 4.8 の fast mode 廃止は日付が決まっているので早めに確認しておきたい。">
+<meta property="og:title" content="v2.1.316。Code Review に重要度別の指摘件数カードを追加。Opus 4.8 の fast mode は11/30に廃止予定でOpus 5.5への移行が必要に。CLAUDE_CODE_SUBAGENT_EFFORT でサブエージェントのeffortを個別指定できるように｜Claude code の PowerUP info">
+<meta property="og:description" content="10月31日公開のv2.1.316を中心に、今日から効く変更をまとめた。Code Review の分析ページが充実し、クラウドセッションではMCPサーバーからの入力依頼が見える形になった。Opus 4.8 の fast mode 廃止は日付が決まっているので早めに確認しておきたい。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.43</p>
+      <div class="article__head">
+        <span class="chip">2026.11.01</span>
+        <h1>v2.1.316。Code Review に重要度別の指摘件数カードを追加。Opus 4.8 の fast mode は11/30に廃止予定でOpus 5.5への移行が必要に。CLAUDE_CODE_SUBAGENT_EFFORT でサブエージェントのeffortを個別指定できるように</h1>
+        <div class="article__date">2026年11月1日(日)公開 ／ VOL.43</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.43</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.01</div>
+      </div></div>
+      <p class="lead">10月31日公開のv2.1.316を中心に、今日から効く変更をまとめた。Code Review の分析ページが充実し、クラウドセッションではMCPサーバーからの入力依頼が見える形になった。Opus 4.8 の fast mode 廃止は日付が決まっているので早めに確認しておきたい。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Opus 4.8 の fast mode が10/30付で廃止予定に、11/30に完全削除</a></li><li><a href="#item-2">Code Review 分析ページに「重大度別の指摘件数」カードを追加</a></li><li><a href="#item-3">クラウドセッションで、MCPサーバーからのフォーム入力依頼が見える形に</a></li><li><a href="#item-4">`CLAUDE_CODE_SUBAGENT_EFFORT` でサブエージェントのeffortをまとめて指定</a></li><li><a href="#item-5">Ctrl+R の履歴検索が、折りたたまれた貼り付けテキストにもマッチするように</a></li><li><a href="#item-6">Claude Tag（SlackのClaude）、チャンネルの応答設定が「How Claude participates」に統合</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>Opus 4.8 の fast mode が10/30付で廃止予定に、11/30に完全削除</h2>
+      <p>Opus 4.8 の fast mode が deprecated になった。11月30日に削除され、以後は Opus 4.8 に対する fast mode リクエストはエラーを返すだけで、standard の Opus 4.8 への自動フォールバックは行われない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/fast</code> を Opus 4.8 で使っている場合は、11/30より前に Opus 5.5 に切り替えておく</li><li>CI やスクリプトで <code>--fast</code> や fast mode 指定のモデルを固定している箇所があれば、Opus 5.5 を指すように更新する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>Code Review 分析ページに「重大度別の指摘件数」カードを追加</h2>
+      <p>Code Review の analytics ページに、期間ごとの指摘件数の合計・重大度で色分けした日次グラフ・各重大度の件数を表示するカードが追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織の Code Review analytics ページを開き、重大度の高い指摘が増えていないか日次グラフで確認する運用に使える</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>クラウドセッションで、MCPサーバーからのフォーム入力依頼が見える形に</h2>
+      <p>クラウドセッション中にMCPサーバーが追加入力（elicitation）を求めたとき、これまでは見えないまま黙ってキャンセルされていた。今回からフォームカードが表示され、入力して答えるか、明示的に断るかを選べるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>クラウドセッションでMCPサーバーを使っていて途中で処理が止まった場合は、フォームカードが出ていないか確認する</li><li>入力が不要なら「断る」を選べば、サーバー側に何も答えずに進められる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`CLAUDE_CODE_SUBAGENT_EFFORT` でサブエージェントのeffortをまとめて指定</h2>
+      <p>これまでサブエージェントは何も指定しなければメインセッションのeffort levelを継承していた。<code>CLAUDE_CODE_SUBAGENT_EFFORT</code> を設定すると、個々に effort を指定していないサブエージェントはこの値で動くようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>メインセッションは <code>xhigh</code> で動かしつつ、サブエージェントはコスト重視で <code>medium</code> に固定したい場合は <code>CLAUDE_CODE_SUBAGENT_EFFORT=medium</code> を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>Ctrl+R の履歴検索が、折りたたまれた貼り付けテキストにもマッチするように</h2>
+      <p>ターミナルで長いテキストを貼り付けると行が折りたたまれて表示されるが、これまで Ctrl+R の履歴検索はその中身を検索対象にしていなかった。今回から折りたたまれた貼り付けテキストの中身も検索にかかるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>以前貼り付けたログやコードの断片を覚えているなら、その文字列で Ctrl+R 検索すれば該当コマンドまで辿れる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>Claude Tag（SlackのClaude）、チャンネルの応答設定が「How Claude participates」に統合</h2>
+      <p>Slack チャンネルの「Respond automatically」というオン・オフの設定が、チャンネルのConfigureページとClaude Tag管理設定の両方で「How Claude participates」という選択式の設定に変わった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude Tag を導入しているSlackチャンネルがあれば、Configureページで「How Claude participates」の選択肢を確認し、意図した動作（常に応答する／メンション時のみ、など）になっているか見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-10-31.html">v2.1.311〜314。Write/Edit/NotebookEdit が作業ディレクトリ外への書き込みを権限モード無関係に拒否する設定を追加。`ultrathink` は対応モデルで自動的に xhigh effort に、`claude -p` は起動失敗時に終了コード1で落ちるように修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
