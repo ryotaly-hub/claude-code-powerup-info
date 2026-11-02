@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.314〜316。auto mode にブロックされた呼び出しの通知にコマンド名と `/permissions` への案内を追加。`/diff` は大規模リポジトリでの再描画を軽量化、`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化可能に｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。auto mode のブロック通知の改善、`/permissions` の改名、`sandbox.excludedCommands` の正しい挙動の理解など、日々の操作に直結する変更をまとめた。">
+<meta property="og:title" content="v2.1.314〜316。auto mode にブロックされた呼び出しの通知にコマンド名と `/permissions` への案内を追加。`/diff` は大規模リポジトリでの再描画を軽量化、`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化可能に｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。auto mode のブロック通知の改善、`/permissions` の改名、`sandbox.excludedCommands` の正しい挙動の理解など、日々の操作に直結する変更をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.44</p>
+      <div class="article__head">
+        <span class="chip">2026.11.02</span>
+        <h1>v2.1.314〜316。auto mode にブロックされた呼び出しの通知にコマンド名と `/permissions` への案内を追加。`/diff` は大規模リポジトリでの再描画を軽量化、`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化可能に</h1>
+        <div class="article__date">2026年11月2日(月)公開 ／ VOL.44</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.44</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.02</div>
+      </div></div>
+      <p class="lead">v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。auto mode のブロック通知の改善、`/permissions` の改名、`sandbox.excludedCommands` の正しい挙動の理解など、日々の操作に直結する変更をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化できるように</a></li><li><a href="#item-2">auto mode でブロックされた呼び出しのメッセージに、コマンド名・再試行の可能性・`/permissions` への案内を追加</a></li><li><a href="#item-3">`/diff` が大規模リポジトリで軽量化、git が遅いときは再描画の間隔を自動で空けるように</a></li><li><a href="#item-4">`/permissions` の確認タブが「Recently blocked」に改名、マークした行に対する Esc の動作をフッターに表示</a></li><li><a href="#item-5">`sandbox.excludedCommands` の説明を修正。1回の呼び出し内の全コマンドが一致した場合のみサンドボックス外で実行される</a></li><li><a href="#item-6">VS Code 拡張、モデル名に `[1m]` が付いていると Effort スライダー・Ultracode スイッチ・モデル名表示が欠けていた不具合を修正</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化できるように</h2>
+      <p>v2.1.316 で追加された環境変数。これまで <code>ultrathink</code> と入力すると、対応モデルで effort が自動的に <code>xhigh</code> になる仕様だったが（v2.1.311、10/31号で既報）、<code>CLAUDE_CODE_DISABLE_ULTRATHINK</code> を設定すると、このキーワード検知自体を無効化できる。</p>
+      <p>チームで effort・コストを一律管理したい場合に使える設定。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織やプロジェクトで effort によるコストを統制したい場合、settings.json や環境変数で <code>CLAUDE_CODE_DISABLE_ULTRATHINK=1</code> を設定すると、メンバーが <code>ultrathink</code> と書いても自動で <code>xhigh</code> に上がらなくなる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>auto mode でブロックされた呼び出しのメッセージに、コマンド名・再試行の可能性・`/permissions` への案内を追加</h2>
+      <p>v2.1.314 で、auto mode が呼び出しをブロックしたときのメッセージが改善された。ブロックされたコマンド名を明示し、Claude が再試行して auto mode が再度チェックする可能性があることを伝え、<code>/permissions</code> で確認する方法も案内するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto mode で作業中にブロック通知が出たら、メッセージに示されたコマンド名を確認してから <code>/permissions</code> を開き、許可ルールを調整するかどうか判断する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`/diff` が大規模リポジトリで軽量化、git が遅いときは再描画の間隔を自動で空けるように</h2>
+      <p>v2.1.316 で <code>/diff</code> の挙動が改善された。大規模リポジトリでは、1回の更新につき実行するリポジトリ全体を対象にした git コマンドが通常1つ減り、git の応答が遅いときは更新の間隔を自動で空けるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>巨大なモノレポで <code>/diff</code> パネルを開きっぱなしにしていて重く感じていた場合、v2.1.316 以降に更新すれば負荷が軽くなっているはず。設定変更は不要。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`/permissions` の確認タブが「Recently blocked」に改名、マークした行に対する Esc の動作をフッターに表示</h2>
+      <p>v2.1.314 で <code>/permissions</code> のレビュータブの名称が「Recently blocked」に変わった。行をマークした状態で Esc キーが何をするかがフッターに表示されるようになり、複数行をまとめて処理するときの見通しが良くなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ブロックされた操作をまとめて見直したいときは <code>/permissions</code> を開き「Recently blocked」タブで対象行をマークし、フッターの案内に従って Esc で処理する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`sandbox.excludedCommands` の説明を修正。1回の呼び出し内の全コマンドが一致した場合のみサンドボックス外で実行される</h2>
+      <p>v2.1.314 で <code>sandbox.excludedCommands</code> 設定の説明文の誤りが修正された。これまでは「リストに載っているコマンドは常にサンドボックス外で実行される」という説明だったが、実際の動作は「1回の呼び出しに含まれる全てのコマンドがリストのいずれかに一致した場合のみサンドボックス外で実行される」というもので、説明文もそれに合わせて直された。パイプや <code>&amp;&amp;</code> で複数コマンドをつなぐと、1つでもリストにないコマンドが混ざっていればサンドボックス内で実行される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>sandbox.excludedCommands</code> でサンドボックス外実行を許可しているコマンドがある場合、パイプや <code>&amp;&amp;</code> で別のコマンドと繋ぐと丸ごとサンドボックス内に戻ることを前提に設定を見直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>VS Code 拡張、モデル名に `[1m]` が付いていると Effort スライダー・Ultracode スイッチ・モデル名表示が欠けていた不具合を修正</h2>
+      <p>v2.1.316 で、VS Code 拡張において、設定しているモデル名に <code>[1m]</code> タグ（例: <code>opus[1m]</code>）が付いている場合、Effort スライダー・Ultracode の切り替えスイッチ・モデル名表示が出ない不具合が修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code 拡張で1Mトークンコンテキストのモデル（<code>opus[1m]</code> など）を指定している場合、v2.1.316 以降に更新すれば Effort スライダーや Ultracode スイッチが表示されるようになる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-01.html">v2.1.316。Code Review に重要度別の指摘件数カードを追加。Opus 4.8 の fast mode は11/30に廃止予定でOpus 5.5への移行が必要に。CLAUDE_CODE_SUBAGENT_EFFORT でサブエージェントのeffortを個別指定できるように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
