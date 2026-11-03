@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.314〜316。effort を上限超えで指定すると落ちていた不具合を自動調整に変更、ブロックされたシェル/MCP呼び出しが実行済みのように見えていた表示も修正。デスクトップ/web版の `/code-review` にも findings カードが付くように｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。effort 上限超え時の挙動、ブロックされた呼び出しの表示、`/code-review` の見た目の統一など、作業中に気づきにくいが地味に効く修正をまとめた。">
+<meta property="og:title" content="v2.1.314〜316。effort を上限超えで指定すると落ちていた不具合を自動調整に変更、ブロックされたシェル/MCP呼び出しが実行済みのように見えていた表示も修正。デスクトップ/web版の `/code-review` にも findings カードが付くように｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。effort 上限超え時の挙動、ブロックされた呼び出しの表示、`/code-review` の見た目の統一など、作業中に気づきにくいが地味に効く修正をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.45</p>
+      <div class="article__head">
+        <span class="chip">2026.11.03</span>
+        <h1>v2.1.314〜316。effort を上限超えで指定すると落ちていた不具合を自動調整に変更、ブロックされたシェル/MCP呼び出しが実行済みのように見えていた表示も修正。デスクトップ/web版の `/code-review` にも findings カードが付くように</h1>
+        <div class="article__date">2026年11月3日(火)公開 ／ VOL.45</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.45</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.03</div>
+      </div></div>
+      <p class="lead">v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。effort 上限超え時の挙動、ブロックされた呼び出しの表示、`/code-review` の見た目の統一など、作業中に気づきにくいが地味に効く修正をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">effort を管理者の上限より高く指定すると失敗していた不具合を修正、自動的に下げて知らせるように</a></li><li><a href="#item-2">ブロックされたシェル/MCP呼び出しが、ツールグループ内で実行済みのように見えていた不具合を修正</a></li><li><a href="#item-3">デスクトップアプリ・claude.ai web から実行した `/code-review` にも findings カードが表示されるように</a></li><li><a href="#item-4">Windows で、タイムアウトで Kill したはずの検索プロセスが終了しないと Grep/Glob がハングする不具合を修正</a></li><li><a href="#item-5">GitHub remote が見つからないときのエラーメッセージが分かりやすくなった</a></li><li><a href="#item-6">macOS: `git grep` が C ロケールで動くようになり、正規表現検索でのメモリリークを回避</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">ワークフロー</span>
+      <h2>effort を管理者の上限より高く指定すると失敗していた不具合を修正、自動的に下げて知らせるように</h2>
+      <p>v2.1.314 で修正。組織の管理者が <code>maxEffortLevel</code> で effort の上限を設定している環境で、<code>ultrathink</code> や <code>/effort xhigh</code> など上限を超える effort を指定すると、これまでは「Invalid effort level」という単純なエラーで止まっていた。修正後は Claude Code 側が自動的に上限内の effort まで下げて実行し、その旨をメッセージで知らせるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>チームや Enterprise 環境で effort の上限が設定されている場合、<code>ultrathink</code> や <code>/effort</code> で上限を超える値を指定してもエラーで止まらなくなる。代わりに下げられた effort 値がメッセージに表示されるので、それを見て想定より低い effort で動いていないか確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>ブロックされたシェル/MCP呼び出しが、ツールグループ内で実行済みのように見えていた不具合を修正</h2>
+      <p>v2.1.314 で修正。auto mode の安全チェックや許可ルールでシェルコマンドや MCP 呼び出しがブロックされたとき、複数のツール呼び出しがまとまって表示される「ツールグループ」内では、ブロックされた呼び出しも実行されたかのように表示されてしまう不具合があった。修正後は、ブロックされた呼び出しはグループ内でも正しくブロック済みとして表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>この不具合の影響を受けていたバージョンでは、ツールグループの表示だけを見て「このコマンドは実行された」と誤解していた可能性がある。v2.1.314 以降に更新した上で、過去の重要な判断をログの見た目だけで行っていた場合は、実際にブロックされていなかったか <code>/permissions</code> の「Recently blocked」で見直すとよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">新機能</span>
+      <h2>デスクトップアプリ・claude.ai web から実行した `/code-review` にも findings カードが表示されるように</h2>
+      <p>v2.1.316 で改善。これまで <code>/code-review</code> を CLI から実行したときは結果が findings カードとして見やすく表示されていたが、Claude Code Desktop や claude.ai web から実行した場合は同じ表示にならないケースがあった。修正後は実行環境に関わらず findings カードが表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Desktop アプリや web 版で <code>/code-review</code> を使っている場合、v2.1.316 以降では CLI と同じ見やすい findings カードで指摘事項を確認できる。CLI と使い分けているチームは、表示の違いを気にせず好きな環境から実行してよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>Windows で、タイムアウトで Kill したはずの検索プロセスが終了しないと Grep/Glob がハングする不具合を修正</h2>
+      <p>v2.1.316 で修正。Windows 環境で Grep や Glob の検索がタイムアウトに達した際、検索プロセスを Kill したにもかかわらずプロセスが実際には終了しないケースがあり、その場合 Claude Code 側がハングしてしまう不具合があった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows で巨大なリポジトリを対象に Grep/Glob を使っていてセッションが固まったように見えたことがある場合、v2.1.316 以降に更新すれば解消される可能性がある。固まったままなら再現条件（検索パターンや対象ディレクトリ）をメモしておくと報告しやすい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>GitHub remote が見つからないときのエラーメッセージが分かりやすくなった</h2>
+      <p>v2.1.316 で改善。Code Review など GitHub 連携機能を使おうとしたときに、リポジトリに GitHub の remote が設定されていない場合のエラーメッセージが分かりやすくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ローカルだけで管理しているリポジトリや、GitHub 以外のホスティングから clone したリポジトリで Code Review 系の機能を試してエラーになった場合、v2.1.316 以降ならメッセージを読めば「remote が無いこと」が原因だとすぐ分かる。<code>git remote add origin &lt;url&gt;</code> で GitHub の remote を設定すれば解決する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.316)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>macOS: `git grep` が C ロケールで動くようになり、正規表現検索でのメモリリークを回避</h2>
+      <p>v2.1.314 で変更。macOS では、Claude Code が内部で呼ぶ <code>git grep</code> が特定の正規表現パターンでメモリリークを起こすことがあった。修正後は <code>git grep</code> を C ロケールで実行するようにし、このリークを回避している。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>macOS で大きなリポジトリを対象に Grep ツールや Explore エージェントを多用していて、長時間セッションでメモリ使用量が増え続ける印象があった場合、v2.1.314 以降への更新で改善している可能性がある。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.314)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-02.html">v2.1.314〜316。auto mode にブロックされた呼び出しの通知にコマンド名と `/permissions` への案内を追加。`/diff` は大規模リポジトリでの再描画を軽量化、`CLAUDE_CODE_DISABLE_ULTRATHINK` で `ultrathink` キーワードを無効化可能に</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

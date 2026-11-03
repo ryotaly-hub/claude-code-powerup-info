@@ -1,0 +1,91 @@
+{
+  "date": "2026-11-03",
+  "headline": "v2.1.314〜316。effort を上限超えで指定すると落ちていた不具合を自動調整に変更、ブロックされたシェル/MCP呼び出しが実行済みのように見えていた表示も修正。デスクトップ/web版の `/code-review` にも findings カードが付くように",
+  "lead": "v2.1.314・v2.1.316 の changelog から、前号までで触れていなかった項目を6本選んだ。effort 上限超え時の挙動、ブロックされた呼び出しの表示、`/code-review` の見た目の統一など、作業中に気づきにくいが地味に効く修正をまとめた。",
+  "items": [
+    {
+      "category": "ワークフロー",
+      "title": "effort を管理者の上限より高く指定すると失敗していた不具合を修正、自動的に下げて知らせるように",
+      "body": "v2.1.314 で修正。組織の管理者が `maxEffortLevel` で effort の上限を設定している環境で、`ultrathink` や `/effort xhigh` など上限を超える effort を指定すると、これまでは「Invalid effort level」という単純なエラーで止まっていた。修正後は Claude Code 側が自動的に上限内の effort まで下げて実行し、その旨をメッセージで知らせるようになった。",
+      "howto": [
+        "チームや Enterprise 環境で effort の上限が設定されている場合、`ultrathink` や `/effort` で上限を超える値を指定してもエラーで止まらなくなる。代わりに下げられた effort 値がメッセージに表示されるので、それを見て想定より低い effort で動いていないか確認する。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.314)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "ブロックされたシェル/MCP呼び出しが、ツールグループ内で実行済みのように見えていた不具合を修正",
+      "body": "v2.1.314 で修正。auto mode の安全チェックや許可ルールでシェルコマンドや MCP 呼び出しがブロックされたとき、複数のツール呼び出しがまとまって表示される「ツールグループ」内では、ブロックされた呼び出しも実行されたかのように表示されてしまう不具合があった。修正後は、ブロックされた呼び出しはグループ内でも正しくブロック済みとして表示される。",
+      "howto": [
+        "この不具合の影響を受けていたバージョンでは、ツールグループの表示だけを見て「このコマンドは実行された」と誤解していた可能性がある。v2.1.314 以降に更新した上で、過去の重要な判断をログの見た目だけで行っていた場合は、実際にブロックされていなかったか `/permissions` の「Recently blocked」で見直すとよい。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.314)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "デスクトップアプリ・claude.ai web から実行した `/code-review` にも findings カードが表示されるように",
+      "body": "v2.1.316 で改善。これまで `/code-review` を CLI から実行したときは結果が findings カードとして見やすく表示されていたが、Claude Code Desktop や claude.ai web から実行した場合は同じ表示にならないケースがあった。修正後は実行環境に関わらず findings カードが表示されるようになった。",
+      "howto": [
+        "Desktop アプリや web 版で `/code-review` を使っている場合、v2.1.316 以降では CLI と同じ見やすい findings カードで指摘事項を確認できる。CLI と使い分けているチームは、表示の違いを気にせず好きな環境から実行してよい。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.316)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Windows で、タイムアウトで Kill したはずの検索プロセスが終了しないと Grep/Glob がハングする不具合を修正",
+      "body": "v2.1.316 で修正。Windows 環境で Grep や Glob の検索がタイムアウトに達した際、検索プロセスを Kill したにもかかわらずプロセスが実際には終了しないケースがあり、その場合 Claude Code 側がハングしてしまう不具合があった。",
+      "howto": [
+        "Windows で巨大なリポジトリを対象に Grep/Glob を使っていてセッションが固まったように見えたことがある場合、v2.1.316 以降に更新すれば解消される可能性がある。固まったままなら再現条件（検索パターンや対象ディレクトリ）をメモしておくと報告しやすい。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.316)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "GitHub remote が見つからないときのエラーメッセージが分かりやすくなった",
+      "body": "v2.1.316 で改善。Code Review など GitHub 連携機能を使おうとしたときに、リポジトリに GitHub の remote が設定されていない場合のエラーメッセージが分かりやすくなった。",
+      "howto": [
+        "ローカルだけで管理しているリポジトリや、GitHub 以外のホスティングから clone したリポジトリで Code Review 系の機能を試してエラーになった場合、v2.1.316 以降ならメッセージを読めば「remote が無いこと」が原因だとすぐ分かる。`git remote add origin <url>` で GitHub の remote を設定すれば解決する。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.316)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "macOS: `git grep` が C ロケールで動くようになり、正規表現検索でのメモリリークを回避",
+      "body": "v2.1.314 で変更。macOS では、Claude Code が内部で呼ぶ `git grep` が特定の正規表現パターンでメモリリークを起こすことがあった。修正後は `git grep` を C ロケールで実行するようにし、このリークを回避している。",
+      "howto": [
+        "macOS で大きなリポジトリを対象に Grep ツールや Explore エージェントを多用していて、長時間セッションでメモリ使用量が増え続ける印象があった場合、v2.1.314 以降への更新で改善している可能性がある。"
+      ],
+      "links": [
+        {
+          "label": "Claude Code changelog (v2.1.314)",
+          "url": "https://code.claude.com/docs/en/changelog"
+        }
+      ]
+    }
+  ]
+}
