@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.317〜318。`--continue` がツール呼び出し失敗後に以前の会話を失う不具合(2.1.314のリグレッション)を修正。Ctrl+Cでプロンプトを消すとバックグラウンドエージェントまで全部止まる不具合や、Grep/Globがタイムアウト時に部分結果を完全と誤認する不具合も修正｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.317・v2.1.318 の changelog から、前号までで触れていなかった項目を6本選んだ。`--continue`・Ctrl+C・Grep/Glob・Workflow resume など、気づかないまま作業を続けていると地味に損をする修正が中心。">
+<meta property="og:title" content="v2.1.317〜318。`--continue` がツール呼び出し失敗後に以前の会話を失う不具合(2.1.314のリグレッション)を修正。Ctrl+Cでプロンプトを消すとバックグラウンドエージェントまで全部止まる不具合や、Grep/Globがタイムアウト時に部分結果を完全と誤認する不具合も修正｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.317・v2.1.318 の changelog から、前号までで触れていなかった項目を6本選んだ。`--continue`・Ctrl+C・Grep/Glob・Workflow resume など、気づかないまま作業を続けていると地味に損をする修正が中心。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.46</p>
+      <div class="article__head">
+        <span class="chip">2026.11.04</span>
+        <h1>v2.1.317〜318。`--continue` がツール呼び出し失敗後に以前の会話を失う不具合(2.1.314のリグレッション)を修正。Ctrl+Cでプロンプトを消すとバックグラウンドエージェントまで全部止まる不具合や、Grep/Globがタイムアウト時に部分結果を完全と誤認する不具合も修正</h1>
+        <div class="article__date">2026年11月4日(水)公開 ／ VOL.46</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.46</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.04</div>
+      </div></div>
+      <p class="lead">v2.1.317・v2.1.318 の changelog から、前号までで触れていなかった項目を6本選んだ。`--continue`・Ctrl+C・Grep/Glob・Workflow resume など、気づかないまま作業を続けていると地味に損をする修正が中心。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`--continue` がツール呼び出し失敗の再試行切れ後に以前の会話を失う不具合を修正（v2.1.314のリグレッション）</a></li><li><a href="#item-2">Ctrl+C でプロンプトの入力中テキストを消すと、実行中のバックグラウンドエージェントまで全部止まっていた不具合を修正</a></li><li><a href="#item-3">Grep/Glob が検索のタイムリミットに達したとき、部分的な結果を完全な結果として扱ってしまう不具合を修正</a></li><li><a href="#item-4">Workflow ツールを usage limit 後に resume したとき、完了済みのエージェントまで再実行されてしまう不具合を修正</a></li><li><a href="#item-5">終了時の「Resume this session with」ヒントが、起動時のフラグを `--resume` の前に並べて表示するように改善</a></li><li><a href="#item-6">`claude -p` や SDK での非対話実行時、内容に変更がなければ `~/.claude.json` を毎回書き直さなくなった</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>`--continue` がツール呼び出し失敗の再試行切れ後に以前の会話を失う不具合を修正（v2.1.314のリグレッション）</h2>
+      <p>v2.1.318 で修正。壊れた形式のツール呼び出しが発生し、その再試行が上限に達して終了した場合、<code>--continue</code> で再開すると直前までの会話が失われてしまうことがあった。これは v2.1.314 で入ったリグレッションで、今回で直っている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>v2.1.314〜317 の間に <code>--continue</code> で会話が消えたように見えたことがあれば、不具合が原因だった可能性が高い。v2.1.318 以降に更新すれば解消される。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>Ctrl+C でプロンプトの入力中テキストを消すと、実行中のバックグラウンドエージェントまで全部止まっていた不具合を修正</h2>
+      <p>v2.1.317 で修正。プロンプトに入力した文字列を消すだけのつもりで Ctrl+C を押すと、実行中の全バックグラウンドエージェントまで一緒に停止してしまう不具合があった。修正後は、入力テキストのクリアと実行中エージェントの停止が分離される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>バックグラウンドでサブエージェントや Workflow を走らせながら、別の指示を打ち直すために Ctrl+C で入力を消す、という使い方をしている場合は v2.1.317 以降に更新する。これまでは意図せずエージェントを巻き込んで止めていた可能性がある。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.317)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>Grep/Glob が検索のタイムリミットに達したとき、部分的な結果を完全な結果として扱ってしまう不具合を修正</h2>
+      <p>v2.1.317 で修正。Grep や Glob の検索が内部のタイムリミットに達して途中で打ち切られた場合でも、これまでは Claude がその結果を「全件探索済み」として扱ってしまうことがあった。修正後は、打ち切られた検索結果を部分的なものとして正しく認識する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>巨大なリポジトリでの網羅的な Grep/Glob 検索（「◯◯を全部探して」系の指示）の結果が、実は一部しか見ていなかったのに「見つかりませんでした」と報告されていた可能性がある。v2.1.317 以降に更新した上で、重要な「該当なし」判定は結果の件数や表示を見て疑ってかかるとよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.317)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>Workflow ツールを usage limit 後に resume したとき、完了済みのエージェントまで再実行されてしまう不具合を修正</h2>
+      <p>v2.1.318 で修正。Workflow ツールが usage limit に当たって中断し、limit のリセット後に resume されたとき、すでに完了していたはずのエージェント呼び出しまで再実行されてしまう不具合があった。<code>resumeFromRunId</code> によるキャッシュ再利用が、usage limit 経由の resume では効いていなかったことになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>大きめの Workflow を実行中に usage limit に当たって自動 resume された経験がある場合、v2.1.317 以前では完了済みのエージェントが余分に再実行され、トークンを使い直していた可能性がある。v2.1.318 以降に更新すれば、resume 時に完了済みの agent() 呼び出しは再実行されずキャッシュから復元される。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>終了時の「Resume this session with」ヒントが、起動時のフラグを `--resume` の前に並べて表示するように改善</h2>
+      <p>v2.1.317 で改善。セッション終了時に表示される再開コマンドのヒントが、これまでは単に <code>claude --resume &lt;id&gt;</code> のような形だったが、改善後は起動時に付けていたフラグ（例: <code>--chrome</code>、<code>--debug</code>）を <code>--resume</code> の前に並べて表示するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>--chrome</code> や <code>--debug</code> など普段からフラグ付きで <code>claude</code> を起動している場合、セッション終了時に出るヒントをそのままコピペすれば、同じフラグ構成で再開コマンドが組み立てられる。フラグを付け忘れて再開してしまうミスが減る。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.317)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>`claude -p` や SDK での非対話実行時、内容に変更がなければ `~/.claude.json` を毎回書き直さなくなった</h2>
+      <p>v2.1.318 で改善。<code>claude -p</code> や Agent SDK を使った非対話実行では、これまで実行ごとに <code>~/.claude.json</code> を無条件で書き直していたが、改善後は内容に変化がない場合は書き込み自体をスキップするようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI や自動化スクリプトから <code>claude -p</code> を高頻度に呼んでいる場合、v2.1.318 以降では不要なディスク書き込みが減る。ネットワークホームディレクトリ上で <code>~/.claude.json</code> を使っている環境では、書き込み競合によるトラブルも減らせる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-03.html">v2.1.314〜316。effort を上限超えで指定すると落ちていた不具合を自動調整に変更、ブロックされたシェル/MCP呼び出しが実行済みのように見えていた表示も修正。デスクトップ/web版の `/code-review` にも findings カードが付くように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
