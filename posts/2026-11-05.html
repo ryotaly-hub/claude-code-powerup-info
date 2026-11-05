@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.318。IDE拡張の自動インストール/更新を廃止、`claude auth status` にclaude.aiログインの期限表示、`~/.claude.json`破損時に黙ってデフォルトへ書き換える不具合を修正。mod作者向けに`$.model.fork`のeffort指定も追加｜Claude code の PowerUP info</title>
+<meta name="description" content="前号までで扱っていなかったv2.1.318の項目を5本。IDE拡張・ログイン期限・設定ファイル破損対応など、気づかずにいると地味に作業の流れが変わる変更が中心。">
+<meta property="og:title" content="v2.1.318。IDE拡張の自動インストール/更新を廃止、`claude auth status` にclaude.aiログインの期限表示、`~/.claude.json`破損時に黙ってデフォルトへ書き換える不具合を修正。mod作者向けに`$.model.fork`のeffort指定も追加｜Claude code の PowerUP info">
+<meta property="og:description" content="前号までで扱っていなかったv2.1.318の項目を5本。IDE拡張・ログイン期限・設定ファイル破損対応など、気づかずにいると地味に作業の流れが変わる変更が中心。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.47</p>
+      <div class="article__head">
+        <span class="chip">2026.11.05</span>
+        <h1>v2.1.318。IDE拡張の自動インストール/更新を廃止、`claude auth status` にclaude.aiログインの期限表示、`~/.claude.json`破損時に黙ってデフォルトへ書き換える不具合を修正。mod作者向けに`$.model.fork`のeffort指定も追加</h1>
+        <div class="article__date">2026年11月5日(木)公開 ／ VOL.47</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.47</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.05</div>
+      </div></div>
+      <p class="lead">前号までで扱っていなかったv2.1.318の項目を5本。IDE拡張・ログイン期限・設定ファイル破損対応など、気づかずにいると地味に作業の流れが変わる変更が中心。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">IDEのターミナルから起動したとき、Claude Codeが拡張機能を自動インストール/自動更新しなくなった</a></li><li><a href="#item-2">バックグラウンドサブエージェントのシェルコマンドが、3分経過すると自動でバックグラウンド実行に切り替わるように</a></li><li><a href="#item-3">`claude auth status`にclaude.aiログインの期限が表示されるようになり、`claude -p`は期限10日前から警告を出す</a></li><li><a href="#item-4">`~/.claude.json`が壊れていても黙ってデフォルトで上書きしていた不具合を修正、復旧方法を表示するように</a></li><li><a href="#item-5">mod作者向けに、`$.model.fork`のサブタスクをセッションのeffortと関係なく`low`固定で実行できるオプションを追加</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>IDEのターミナルから起動したとき、Claude Codeが拡張機能を自動インストール/自動更新しなくなった</h2>
+      <p>v2.1.318 で変更。これまでVS CodeなどのIDE内蔵ターミナルから<code>claude</code>を起動すると、そのIDE用拡張機能を自動でインストール・更新していたが、この挙動が廃止された。今後は拡張機能のインストール・更新は、IDEの外のターミナルから<code>/ide</code>を実行するか、エディタの拡張機能ビューから手動で行う必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>IDE内蔵ターミナルで<code>claude</code>を起動しても拡張機能が入らない/更新されないと感じたら、不具合ではなく仕様変更。外部ターミナルで<code>/ide</code>を実行するか、エディタの拡張機能一覧から手動更新する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>バックグラウンドサブエージェントのシェルコマンドが、3分経過すると自動でバックグラウンド実行に切り替わるように</h2>
+      <p>v2.1.318 で変更。バックグラウンドで動くサブエージェントが実行するシェルコマンドが3分を超えて動き続けている場合、プロバイダを問わず自動でバックグラウンド実行に移されるようになった。長時間コマンドの実行中にプロンプトキャッシュが切れてしまうのを防ぐための変更。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>ビルドやテストなど数分以上かかるコマンドをバックグラウンドサブエージェントに投げるケースで、以前より途中のキャッシュ切れによる無駄なトークン消費が減る見込み。特に何か設定を変える必要はない。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`claude auth status`にclaude.aiログインの期限が表示されるようになり、`claude -p`は期限10日前から警告を出す</h2>
+      <p>v2.1.318 で追加。保存されているclaude.aiのログインがいつ切れるかが、<code>claude auth status</code>の<code>loginExpiresAt</code>、および<code>claude -p</code>のJSON出力の<code>credential_expires_at</code>として確認できるようになった。加えて<code>claude -p</code>のテキスト出力では、ログイン期限の10日前から1行のstderr警告が出るようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>claude -p</code>をCIや自動化スクリプトで使っている場合、<code>claude auth status</code>を定期的に流してログイン期限を確認しておくと、期限切れによる突然の失敗を事前に察知できる。警告が出たら<code>claude auth login</code>や<code>claude setup-token</code>で再認証する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>`~/.claude.json`が壊れていても黙ってデフォルトで上書きしていた不具合を修正、復旧方法を表示するように</h2>
+      <p>v2.1.318 で修正。非対話実行（<code>claude -p</code>など）のとき、<code>~/.claude.json</code>が壊れた形式のJSONだと、これまでは黙ってデフォルトの内容で上書きしてしまい、設定が失われていた。修正後は起動自体を失敗させ、ファイルの復旧方法を表示したうえで元のファイルはそのまま残す。また、バックアップがない空の<code>~/.claude.json</code>を「破損」と誤判定していた不具合、復旧コマンドが空や壊れたバックアップを指してしまう不具合も合わせて修正された（anthropics/claude-code#87551）。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>~/.claude.json</code>が原因不明のタイミングでリセットされたような経験がある場合、v2.1.318より前のこの不具合が関係していた可能性がある。更新後は、ファイルが壊れていても設定が黒い箱に消えることはなく、復旧手順がその場で案内される。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">新機能</span>
+      <h2>mod作者向けに、`$.model.fork`のサブタスクをセッションのeffortと関係なく`low`固定で実行できるオプションを追加</h2>
+      <p>v2.1.318 で追加。Claude Codeのmod（セッション中にClaude自身が書く拡張）が<code>$.model.fork</code>でちょっとした副タスクを投げるとき、セッション全体のeffortレベルに関わらず<code>low</code>固定で実行できる<code>effort</code>オプションが追加された。実行結果には、実際に送られたeffortが報告される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>mod を書いていて、セッションが<code>high</code>や<code>xhigh</code>で動いていても軽い確認作業だけ安く済ませたい場合、<code>$.model.fork</code>呼び出しに<code>effort: &quot;low&quot;</code>を指定すればよい。mod を書かない読者には直接の影響はない。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.318)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-04.html">v2.1.317〜318。`--continue` がツール呼び出し失敗後に以前の会話を失う不具合(2.1.314のリグレッション)を修正。Ctrl+Cでプロンプトを消すとバックグラウンドエージェントまで全部止まる不具合や、Grep/Globがタイムアウト時に部分結果を完全と誤認する不具合も修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
