@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-07",
+  "headline": "v2.1.319。MCPのタスク呼び出しが自動でバックグラウンド実行になり、`permissions.denyInsteadOfPrompting`で許可プロンプト待ちを拒否に変えられるように。`/loop`のセルフペースはターン終了で自動停止、Bashサンドボックス有効時はネストしたスキルの読み込み条件も変わった",
+  "lead": "今日は v2.1.319 から、自動化と非対話実行に効く変更をまとめた。MCPのタスクはターミナルでも自動的にバックグラウンドに回るようになり、`denyInsteadOfPrompting`で許可待ちを止められる。一方で `/loop` のセルフペースはデフォルト挙動が変わっているので、定期実行を組んでいる人は要確認。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "MCPサーバーのタスク呼び出しが、ターミナルでも自動的にバックグラウンド実行になった",
+      "body": "MCPサーバーがツール呼び出しを「タスク」として実行する場合、Claude Code はそれをすぐにバックグラウンドへ回し、完了したら結果を Claude に伝えるようになった。これまでターミナルではツール呼び出し内で完了を待つ動きだったが、今回で待ち時間がブロックされなくなる。\n\n従来通り呼び出し内で待たせたい場合は、環境変数で無効化できる。",
+      "howto": [
+        "何もしなければ、時間のかかるMCPタスクは自動でバックグラウンドに回り、会話は止まらない",
+        "呼び出し完了までブロックして待たせたい場合は `CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND` を設定する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "`permissions.denyInsteadOfPrompting` で、許可プロンプト待ちのツール呼び出しを「拒否してターン続行」に変えられる",
+      "body": "この設定を有効にすると、本来なら許可プロンプトで待つはずだったツール呼び出しが、代わりにその場で拒否され、ターンはそのまま続く。ターミナルセッション、サブエージェント、teammate のいずれでも効く。\n\nCI や非対話実行で「許可待ちで止まったまま進まない」ケースを避けたいときに向く設定。",
+      "howto": [
+        "settings.json に `\"permissions\": { \"denyInsteadOfPrompting\": true }` を追加すると、許可待ちになるはずの呼び出しは拒否されてターンが続く",
+        "完全に無人実行させたいCIパイプラインやバッチ処理で、プロンプト待ちによる停止を避けたい場合に設定する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "セルフペースの `/loop` が、ターン終了時に次回起動を予約しなくなった（自動停止するように変更）",
+      "body": "間隔を指定せずに自分でペースを決める `/loop`（セルフペースモード）は、これまでターンが終わるたびに次回のフォールバック起動を自動でスケジュールしていたが、v2.1.319 からはターンが完了すると再スケジュールせずそこで終了するようになった。\n\n定期的に自分で `/loop` を使っている場合、放置すると今までより早くループが止まる可能性がある。以前の挙動（終了時に自動で次回起動を予約し続ける）を維持したい場合は環境変数で戻せる。",
+      "howto": [
+        "セルフペースの `/loop` を今まで通り「放っておいても回り続ける」運用にしたいなら `CLAUDE_CODE_LOOP_KEEPALIVE=1` を設定する",
+        "設定しない場合、ループを続けるにはタスク側で明示的に次回起動を予約する必要がある点を前提に組み直す"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Bashサンドボックス有効時、ネストした `.claude/skills` は起動フォルダかそこへの `/cd` でしか読み込まれなくなった",
+      "body": "Bash サンドボックスを有効にしている場合、起動フォルダより下の階層にある `.claude/skills` フォルダのスキルは、そのフォルダで Claude Code を起動したか、`/cd` でそこへ移動した場合にしか読み込まれなくなった。モノレポなどでサブディレクトリ限定のスキルを置いている場合、置き場所や起動ディレクトリを見直す必要がある。",
+      "howto": [
+        "サブディレクトリ専用のスキルを使っているモノレポでBashサンドボックスを有効にしている場合、そのスキルが読み込まれているか `/cd` 後に確認する",
+        "読み込まれない場合は、該当フォルダで Claude Code を起動するか、作業中に `/cd` でそのフォルダへ移動する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/tasks` に「Earlier in this session」行が増え、終了済みサブエージェントを後から開いてメッセージを送れる",
+      "body": "`/tasks` の一覧に「Earlier in this session」という行が追加され、そのセッション内で既に完了したサブエージェントがここに並ぶ。一覧から消えた後やセッションを再開した後でも、ここから開いて追加のメッセージを送れる。",
+      "howto": [
+        "サブエージェントの作業が終わって一覧から見えなくなっても、`/tasks` の「Earlier in this session」から再度開ける",
+        "完了したサブエージェントに追加の指示や質問を送りたいときは、ここから選んでメッセージを送る"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/claude-api latency-optimize` で、Claude APIコードの遅さの原因を見つけて速い設定を自分のevalで試せる",
+      "body": "`claude-api` スキルに `latency-optimize` が追加され、自分の Claude API を使ったコードのどこがレイテンシの原因になっているかを探し、より速い設定を自分の eval に対して試す、という流れを自動化できる。手元の評価セットがあれば、速度改善が実際の出力品質を落としていないかを確認しながら進められる。",
+      "howto": [
+        "Claude API を呼ぶコードが遅いと感じたら、`/claude-api latency-optimize` を実行してボトルネックの特定から始める",
+        "自前の eval（評価用の入出力セット）を用意しておくと、速くした設定が品質を落としていないかをその場で確認できる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog#2-1-319" }
+      ]
+    }
+  ]
+}

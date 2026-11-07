@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.319。MCPのタスク呼び出しが自動でバックグラウンド実行になり、`permissions.denyInsteadOfPrompting`で許可プロンプト待ちを拒否に変えられるように。`/loop`のセルフペースはターン終了で自動停止、Bashサンドボックス有効時はネストしたスキルの読み込み条件も変わった｜Claude code の PowerUP info</title>
+<meta name="description" content="今日は v2.1.319 から、自動化と非対話実行に効く変更をまとめた。MCPのタスクはターミナルでも自動的にバックグラウンドに回るようになり、`denyInsteadOfPrompting`で許可待ちを止められる。一方で `/loop` のセルフペースはデフォルト挙動が変わっているので、定期実行を組んでいる人は要確認。">
+<meta property="og:title" content="v2.1.319。MCPのタスク呼び出しが自動でバックグラウンド実行になり、`permissions.denyInsteadOfPrompting`で許可プロンプト待ちを拒否に変えられるように。`/loop`のセルフペースはターン終了で自動停止、Bashサンドボックス有効時はネストしたスキルの読み込み条件も変わった｜Claude code の PowerUP info">
+<meta property="og:description" content="今日は v2.1.319 から、自動化と非対話実行に効く変更をまとめた。MCPのタスクはターミナルでも自動的にバックグラウンドに回るようになり、`denyInsteadOfPrompting`で許可待ちを止められる。一方で `/loop` のセルフペースはデフォルト挙動が変わっているので、定期実行を組んでいる人は要確認。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.49</p>
+      <div class="article__head">
+        <span class="chip">2026.11.07</span>
+        <h1>v2.1.319。MCPのタスク呼び出しが自動でバックグラウンド実行になり、`permissions.denyInsteadOfPrompting`で許可プロンプト待ちを拒否に変えられるように。`/loop`のセルフペースはターン終了で自動停止、Bashサンドボックス有効時はネストしたスキルの読み込み条件も変わった</h1>
+        <div class="article__date">2026年11月7日(土)公開 ／ VOL.49</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.49</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.07</div>
+      </div></div>
+      <p class="lead">今日は v2.1.319 から、自動化と非対話実行に効く変更をまとめた。MCPのタスクはターミナルでも自動的にバックグラウンドに回るようになり、`denyInsteadOfPrompting`で許可待ちを止められる。一方で `/loop` のセルフペースはデフォルト挙動が変わっているので、定期実行を組んでいる人は要確認。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">MCPサーバーのタスク呼び出しが、ターミナルでも自動的にバックグラウンド実行になった</a></li><li><a href="#item-2">`permissions.denyInsteadOfPrompting` で、許可プロンプト待ちのツール呼び出しを「拒否してターン続行」に変えられる</a></li><li><a href="#item-3">セルフペースの `/loop` が、ターン終了時に次回起動を予約しなくなった（自動停止するように変更）</a></li><li><a href="#item-4">Bashサンドボックス有効時、ネストした `.claude/skills` は起動フォルダかそこへの `/cd` でしか読み込まれなくなった</a></li><li><a href="#item-5">`/tasks` に「Earlier in this session」行が増え、終了済みサブエージェントを後から開いてメッセージを送れる</a></li><li><a href="#item-6">`/claude-api latency-optimize` で、Claude APIコードの遅さの原因を見つけて速い設定を自分のevalで試せる</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>MCPサーバーのタスク呼び出しが、ターミナルでも自動的にバックグラウンド実行になった</h2>
+      <p>MCPサーバーがツール呼び出しを「タスク」として実行する場合、Claude Code はそれをすぐにバックグラウンドへ回し、完了したら結果を Claude に伝えるようになった。これまでターミナルではツール呼び出し内で完了を待つ動きだったが、今回で待ち時間がブロックされなくなる。</p>
+      <p>従来通り呼び出し内で待たせたい場合は、環境変数で無効化できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>何もしなければ、時間のかかるMCPタスクは自動でバックグラウンドに回り、会話は止まらない</li><li>呼び出し完了までブロックして待たせたい場合は <code>CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND</code> を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>`permissions.denyInsteadOfPrompting` で、許可プロンプト待ちのツール呼び出しを「拒否してターン続行」に変えられる</h2>
+      <p>この設定を有効にすると、本来なら許可プロンプトで待つはずだったツール呼び出しが、代わりにその場で拒否され、ターンはそのまま続く。ターミナルセッション、サブエージェント、teammate のいずれでも効く。</p>
+      <p>CI や非対話実行で「許可待ちで止まったまま進まない」ケースを避けたいときに向く設定。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>settings.json に <code>&quot;permissions&quot;: { &quot;denyInsteadOfPrompting&quot;: true }</code> を追加すると、許可待ちになるはずの呼び出しは拒否されてターンが続く</li><li>完全に無人実行させたいCIパイプラインやバッチ処理で、プロンプト待ちによる停止を避けたい場合に設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>セルフペースの `/loop` が、ターン終了時に次回起動を予約しなくなった（自動停止するように変更）</h2>
+      <p>間隔を指定せずに自分でペースを決める <code>/loop</code>（セルフペースモード）は、これまでターンが終わるたびに次回のフォールバック起動を自動でスケジュールしていたが、v2.1.319 からはターンが完了すると再スケジュールせずそこで終了するようになった。</p>
+      <p>定期的に自分で <code>/loop</code> を使っている場合、放置すると今までより早くループが止まる可能性がある。以前の挙動（終了時に自動で次回起動を予約し続ける）を維持したい場合は環境変数で戻せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>セルフペースの <code>/loop</code> を今まで通り「放っておいても回り続ける」運用にしたいなら <code>CLAUDE_CODE_LOOP_KEEPALIVE=1</code> を設定する</li><li>設定しない場合、ループを続けるにはタスク側で明示的に次回起動を予約する必要がある点を前提に組み直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>Bashサンドボックス有効時、ネストした `.claude/skills` は起動フォルダかそこへの `/cd` でしか読み込まれなくなった</h2>
+      <p>Bash サンドボックスを有効にしている場合、起動フォルダより下の階層にある <code>.claude/skills</code> フォルダのスキルは、そのフォルダで Claude Code を起動したか、<code>/cd</code> でそこへ移動した場合にしか読み込まれなくなった。モノレポなどでサブディレクトリ限定のスキルを置いている場合、置き場所や起動ディレクトリを見直す必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サブディレクトリ専用のスキルを使っているモノレポでBashサンドボックスを有効にしている場合、そのスキルが読み込まれているか <code>/cd</code> 後に確認する</li><li>読み込まれない場合は、該当フォルダで Claude Code を起動するか、作業中に <code>/cd</code> でそのフォルダへ移動する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>`/tasks` に「Earlier in this session」行が増え、終了済みサブエージェントを後から開いてメッセージを送れる</h2>
+      <p><code>/tasks</code> の一覧に「Earlier in this session」という行が追加され、そのセッション内で既に完了したサブエージェントがここに並ぶ。一覧から消えた後やセッションを再開した後でも、ここから開いて追加のメッセージを送れる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サブエージェントの作業が終わって一覧から見えなくなっても、<code>/tasks</code> の「Earlier in this session」から再度開ける</li><li>完了したサブエージェントに追加の指示や質問を送りたいときは、ここから選んでメッセージを送る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>`/claude-api latency-optimize` で、Claude APIコードの遅さの原因を見つけて速い設定を自分のevalで試せる</h2>
+      <p><code>claude-api</code> スキルに <code>latency-optimize</code> が追加され、自分の Claude API を使ったコードのどこがレイテンシの原因になっているかを探し、より速い設定を自分の eval に対して試す、という流れを自動化できる。手元の評価セットがあれば、速度改善が実際の出力品質を落としていないかを確認しながら進められる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude API を呼ぶコードが遅いと感じたら、<code>/claude-api latency-optimize</code> を実行してボトルネックの特定から始める</li><li>自前の eval（評価用の入出力セット）を用意しておくと、速くした設定が品質を落としていないかをその場で確認できる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-06.html">v2.1.317〜318。クラウドセッションがリポジトリ無しで起動可能に、組み込みChromiumが`google-chrome`/`CHROME_PATH`から見えるように。バックグラウンドエージェントへのSendMessageが実行中コマンドを止めずに届くようになり、Readツールの「変更なし」スタブ表示も廃止</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
