@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.319完結編。テレメトリ/フィーチャーフラグ無効時はauto modeの組み込み分類器フォールバックが廃止、自動編集中のsedコマンドが権限チェックをスキップできた不具合も修正。`/usage`に日次・週次・月次の支出表示、`/context`とモデルピッカーの表示も整理｜Claude code の PowerUP info</title>
+<meta name="description" content="3日間扱ってきたv2.1.319から、まだ載せていなかった残りの項目をまとめた。テレメトリやフィーチャーフラグを切っている環境でauto modeを使っている場合は挙動変化の確認を。セキュリティ関連の修正2件と、地味だが見やすくなった表示系の変更も合わせて紹介する。">
+<meta property="og:title" content="v2.1.319完結編。テレメトリ/フィーチャーフラグ無効時はauto modeの組み込み分類器フォールバックが廃止、自動編集中のsedコマンドが権限チェックをスキップできた不具合も修正。`/usage`に日次・週次・月次の支出表示、`/context`とモデルピッカーの表示も整理｜Claude code の PowerUP info">
+<meta property="og:description" content="3日間扱ってきたv2.1.319から、まだ載せていなかった残りの項目をまとめた。テレメトリやフィーチャーフラグを切っている環境でauto modeを使っている場合は挙動変化の確認を。セキュリティ関連の修正2件と、地味だが見やすくなった表示系の変更も合わせて紹介する。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.51</p>
+      <div class="article__head">
+        <span class="chip">2026.11.09</span>
+        <h1>v2.1.319完結編。テレメトリ/フィーチャーフラグ無効時はauto modeの組み込み分類器フォールバックが廃止、自動編集中のsedコマンドが権限チェックをスキップできた不具合も修正。`/usage`に日次・週次・月次の支出表示、`/context`とモデルピッカーの表示も整理</h1>
+        <div class="article__date">2026年11月9日(月)公開 ／ VOL.51</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.51</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.09</div>
+      </div></div>
+      <p class="lead">3日間扱ってきたv2.1.319から、まだ載せていなかった残りの項目をまとめた。テレメトリやフィーチャーフラグを切っている環境でauto modeを使っている場合は挙動変化の確認を。セキュリティ関連の修正2件と、地味だが見やすくなった表示系の変更も合わせて紹介する。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">テレメトリ/フィーチャーフラグを無効化した環境では、auto modeが組み込み分類器にフォールバックしなくなった</a></li><li><a href="#item-2">自動編集/auto modeで`sed`コマンドが権限チェックをスキップできてしまう不具合と、`/rewind`のシンボリックリンク経由のファイル復元・削除を修正</a></li><li><a href="#item-3">Claude apps gateway利用者向けに、`/usage`で当日・今週・今月の支出を表示できるように</a></li><li><a href="#item-4">ターミナルの`/context`表示が各リスト最大10行に整理、`/model`ピッカーの古いモデルは「More models」にまとめられる</a></li><li><a href="#item-5">`/clear`が実行中のバックグラウンドエージェント・チームメイト・ワークフローまで停止してしまう不具合を修正</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>テレメトリ/フィーチャーフラグを無効化した環境では、auto modeが組み込み分類器にフォールバックしなくなった</h2>
+      <p>これまでテレメトリやフィーチャーフラグを無効にした環境（LLMゲートウェイ経由を含む）でauto modeを使っていた場合、サーバー側で確認できないアクションは組み込みの分類器が代わりに判定していた。v2.1.319でこのフォールバックが廃止され、サーバー側で確認できないアクションはそのまま確認を求められるか、拒否されるようになった。Bedrock・Vertex・Foundry経由の場合は変更なし。</p>
+      <p>LLMゲートウェイ経由でサーバー側チェックを使いたい場合、<code>CLAUDE_CODE_AUTO_MODE_SERVER=1</code>を設定する必要があるが、管理設定で<code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS</code>が設定されている場合はそちらも有効になる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>テレメトリやフィーチャーフラグを切った環境でauto modeを使っている場合、更新後に確認プロンプトや拒否が増えていないか確認する</li><li>これまでの組み込み分類器による判定を維持したい場合は<code>CLAUDE_CODE_AUTO_MODE_SERVER=0</code>を設定する</li><li>LLMゲートウェイ経由でサーバー側チェックを有効にしたい場合は<code>CLAUDE_CODE_AUTO_MODE_SERVER=1</code>を設定する（<code>CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS</code>が設定済みなら必須）</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>自動編集/auto modeで`sed`コマンドが権限チェックをスキップできてしまう不具合と、`/rewind`のシンボリックリンク経由のファイル復元・削除を修正</h2>
+      <p>v2.1.319でセキュリティ関連の不具合が2件修正された。1つは、自動編集モード（acceptEdits）やauto modeが有効な状態で、<code>sed</code>コマンドの書き方次第では本来必要な権限チェックを回避できてしまう不具合。もう1つは、<code>/rewind</code>がディレクトリのシンボリックリンクを経由して、意図した範囲外のファイルを復元・削除できてしまう不具合。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自動編集モードやauto modeで<code>sed -i</code>などを多用している場合、更新すればこの回避ルートはふさがれる。特別な設定変更は不要</li><li><code>/rewind</code>でチェックポイントに戻す運用をしている場合も、更新するだけで対策になる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">新機能</span>
+      <h2>Claude apps gateway利用者向けに、`/usage`で当日・今週・今月の支出を表示できるように</h2>
+      <p>Claude apps gatewayを使っていて、個人の支出上限が設定されていない開発者向けに、<code>/usage</code>で当日・今週・今月の支出額を確認できるようになった。ゲートウェイ自体もv2.1.319以降である必要がある。合わせて、クラウドセッションでプラン上限を表示できない場合はclaude.aiのSettings → Usageへのリンクが出るようにもなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude apps gatewayを使っていて支出上限の設定がない場合、ゲートウェイ側もv2.1.319以降に更新すれば<code>/usage</code>でその日・週・月の支出が見られるようになる</li><li>個人で使う分にはゲートウェイ管理者側の対応が前提になるので、社内でゲートウェイを運用している場合はバージョンを確認するとよい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>ターミナルの`/context`表示が各リスト最大10行に整理、`/model`ピッカーの古いモデルは「More models」にまとめられる</h2>
+      <p><code>/context</code>は、Claudeが読むテーブルを短く保つように変更された。各リストは行数の大きい上位10件のみを保持し、オンデマンドで読み込まれるMCPツールは呼び出されるまでサーバーごとに1行にまとめて表示される。</p>
+      <p><code>/model</code>ピッカーも整理され、古いモデルは現在のモデルの直後に並ぶのではなく「More models」という行にまとめられるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>MCPサーバーを多数つないでいる場合、<code>/context</code>の表示がこれまでより短くなり、どこがコンテキストを食っているか見やすくなっている</li><li><code>/model</code>で古いモデルを選びたいときは、一覧の「More models」を開く</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">ワークフロー</span>
+      <h2>`/clear`が実行中のバックグラウンドエージェント・チームメイト・ワークフローまで停止してしまう不具合を修正</h2>
+      <p>これまで<code>/clear</code>を実行すると、会話の履歴を消すだけでなく、実行中のバックグラウンドエージェントやチームメイト、ワークフローのコマンド、さらにそれらが起動したフォアグラウンドのサブエージェントまで一緒に止まってしまっていた。v2.1.319でこの不具合が修正され、<code>/clear</code>は会話の履歴だけを消し、それらのバックグラウンド処理には影響しないようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数のバックグラウンドエージェントやワークフローを並行させながら、メインの会話だけ<code>/clear</code>で整理したい場合、以前は意図せず全部止めてしまっていた。更新後はそうした誤停止が起きなくなる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-319" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-08.html">v2.1.319続報。`claude -p`がauto mode拒否時に終了コード0を返していた不具合を修正、CIで終了コードだけ見ている場合は要確認。Bashの権限チェック回避とworktree作成時のサンドボックス脱出も修正済み</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
