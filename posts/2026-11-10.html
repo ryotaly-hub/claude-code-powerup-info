@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.321。デフォルトのFableモデルがClaude Fable 5.2に切り替わり1Mコンテキスト対応、保存済みの5.1選択はPro/Maxなら即時・Team/Enterpriseは組織が許可すると移行。`claude remote-control --settings`で全セッションに設定ファイルを適用できるように。mod（Claude作成の拡張機能）がauto/bypassモードで確認なしに有効化される仕様変更にも注意｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.321の内容から、明日からの作業に関わりそうなものを選んだ。モデル周りの変更とリモート運用の新オプション、そしてmodの権限周りの仕様変更とcp/mvの権限チェック強化、地味だが効くパフォーマンス改善をまとめる。">
+<meta property="og:title" content="v2.1.321。デフォルトのFableモデルがClaude Fable 5.2に切り替わり1Mコンテキスト対応、保存済みの5.1選択はPro/Maxなら即時・Team/Enterpriseは組織が許可すると移行。`claude remote-control --settings`で全セッションに設定ファイルを適用できるように。mod（Claude作成の拡張機能）がauto/bypassモードで確認なしに有効化される仕様変更にも注意｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.321の内容から、明日からの作業に関わりそうなものを選んだ。モデル周りの変更とリモート運用の新オプション、そしてmodの権限周りの仕様変更とcp/mvの権限チェック強化、地味だが効くパフォーマンス改善をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.52</p>
+      <div class="article__head">
+        <span class="chip">2026.11.10</span>
+        <h1>v2.1.321。デフォルトのFableモデルがClaude Fable 5.2に切り替わり1Mコンテキスト対応、保存済みの5.1選択はPro/Maxなら即時・Team/Enterpriseは組織が許可すると移行。`claude remote-control --settings`で全セッションに設定ファイルを適用できるように。mod（Claude作成の拡張機能）がauto/bypassモードで確認なしに有効化される仕様変更にも注意</h1>
+        <div class="article__date">2026年11月10日(火)公開 ／ VOL.52</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.52</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.10</div>
+      </div></div>
+      <p class="lead">v2.1.321の内容から、明日からの作業に関わりそうなものを選んだ。モデル周りの変更とリモート運用の新オプション、そしてmodの権限周りの仕様変更とcp/mvの権限チェック強化、地味だが効くパフォーマンス改善をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">デフォルトのFableモデルがClaude Fable 5.2に切り替わり、コンテキストウィンドウは1Mトークンに</a></li><li><a href="#item-2">`claude remote-control --settings &lt;file&gt;`で、起動する全セッションに設定ファイルを適用できるように</a></li><li><a href="#item-3">Claude作成のmodが、auto/bypassモードでは確認なしに有効化されるように仕様変更</a></li><li><a href="#item-4">`/bin/cp`のようにパスを指定した`cp`・`mv`にも、通常の`cp`・`mv`と同じ権限チェックが適用されるように</a></li><li><a href="#item-5">fast modeが不調のときはまずモデルを切り替えずに通常速度で再試行、`/model`ピッカーの「More models」は最下行に、起動も高速化</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>デフォルトのFableモデルがClaude Fable 5.2に切り替わり、コンテキストウィンドウは1Mトークンに</h2>
+      <p><code>claude-fable-5-2</code>が追加され、Fableモデルのデフォルトになった。コンテキストウィンドウは1Mトークン、価格は100万トークンあたり$8/$40（キャッシュ読み込みは$0.20/Mtok）。</p>
+      <p>保存済みのFable 5.1選択は自動的に新デフォルトの<code>fable</code>へ移行する。Pro・Maxプランでは即時、Team・Enterpriseプランでは組織側が5.2を許可した時点で移行する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特に何もしなくても、次回起動時からFableの既定は5.2になる</li><li>5.1に戻したい場合は<code>/model claude-fable-5-1</code>を実行する</li><li>Team/Enterpriseで組織的に5.2への移行を止めたい場合は管理者側の許可設定を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-321" target="_blank" rel="noopener">Claude Code changelog (v2.1.321)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude remote-control --settings &lt;file&gt;`で、起動する全セッションに設定ファイルを適用できるように</h2>
+      <p><code>claude remote-control</code>に<code>--settings &lt;file&gt;</code>オプションが追加された。指定したファイルの内容が、<code>remote-control</code>経由で起動する全セッションに適用される。ファイルを変更しても、<code>remote-control</code>を再起動するまで新しいセッションは起動しない点に注意。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数の端末やメンバーからリモートで同じ設定（権限ルールやモデル指定など）を使わせたい場合、共通の設定ファイルを用意して<code>claude remote-control --settings team-settings.json</code>のように起動する</li><li>設定ファイルを更新したときは、反映させるため<code>remote-control</code>自体を再起動する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-321" target="_blank" rel="noopener">Claude Code changelog (v2.1.321)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>Claude作成のmodが、auto/bypassモードでは確認なしに有効化されるように仕様変更</h2>
+      <p>mod（Claudeが書いたインターフェース拡張）の有効化方法が変わった。Claudeが書いたmodは、auto modeやbypassモードでは確認を挟まずに有効化されるようになった。これは管理設定で<code>allowUnsandboxedCommands: false</code>や<code>allowManagedDomainsOnly</code>が設定されていても変わらない。一方<code>dontAsk</code>モードではmod自体が読み込まれない。</p>
+      <p>またmod自身のツール呼び出し（<code>$.tool.call</code>・<code>$.mcp.call</code>）は、自分で設定したaskルールや<code>dontAsk</code>・<code>-p</code>実行下でも許可プロンプトを出さなくなった。ただしdenyルールと組織のポリシーはこれまでと同様に効く。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>auto modeやbypassモードを使っている場合、今後はmodが確認なしで有効化・動作する前提で、入れているmodの内容を把握しておく</li><li>mod呼び出しを制限したい場合はaskルールではなくdenyルールで止める必要がある</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-321" target="_blank" rel="noopener">Claude Code changelog (v2.1.321)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>`/bin/cp`のようにパスを指定した`cp`・`mv`にも、通常の`cp`・`mv`と同じ権限チェックが適用されるように</h2>
+      <p><code>cp</code>や<code>mv</code>をフルパスで呼び出した場合（<code>/bin/cp</code>など）、これまでコマンド名だけで判定していた権限チェックを素通りできる余地があったが、v2.1.321でパス指定時も通常の<code>cp</code>・<code>mv</code>と同じチェックが適用されるようになった。合わせて、ディレクトリへの<code>cp</code>・<code>mv</code>で実際に書き込まれるファイルに対しても、denyルールや保護ファイルの確認が正しく効くように修正されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>cp</code>・<code>mv</code>をdenyルールや保護ファイル設定で制限している場合、更新するだけでフルパス経由の回避ルートが塞がる。設定変更は不要</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-321" target="_blank" rel="noopener">Claude Code changelog (v2.1.321)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>fast modeが不調のときはまずモデルを切り替えずに通常速度で再試行、`/model`ピッカーの「More models」は最下行に、起動も高速化</h2>
+      <p>fast modeがレート制限・過負荷・失敗している際、これまでは返信が失われたりモデルが切り替わったり、数分単位で再試行が続くことがあったが、まず同じモデルの通常速度での実行を試すようになった。</p>
+      <p><code>/model</code>ピッカーでは「More models」が番号なしの行として一番下にまとめられ、古いモデルはそこに入る（他のモデルの番号はそのまま）。加えて<code>claude install</code>とインストールスクリプトが2〜4秒ほど短縮され、信頼済みTLS証明書の読み込み高速化により起動も速くなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>fast modeを使っていて応答が不安定だった場合、更新すればモデルが勝手に切り替わる前に同じモデルでの再試行を試してくれる</li><li><code>/model</code>で古いモデルを選びたいときは一覧の一番下の「More models」を開く</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog#2-1-321" target="_blank" rel="noopener">Claude Code changelog (v2.1.321)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-09.html">v2.1.319完結編。テレメトリ/フィーチャーフラグ無効時はauto modeの組み込み分類器フォールバックが廃止、自動編集中のsedコマンドが権限チェックをスキップできた不具合も修正。`/usage`に日次・週次・月次の支出表示、`/context`とモデルピッカーの表示も整理</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-10",
+  "headline": "v2.1.321。デフォルトのFableモデルがClaude Fable 5.2に切り替わり1Mコンテキスト対応、保存済みの5.1選択はPro/Maxなら即時・Team/Enterpriseは組織が許可すると移行。`claude remote-control --settings`で全セッションに設定ファイルを適用できるように。mod（Claude作成の拡張機能）がauto/bypassモードで確認なしに有効化される仕様変更にも注意",
+  "lead": "v2.1.321の内容から、明日からの作業に関わりそうなものを選んだ。モデル周りの変更とリモート運用の新オプション、そしてmodの権限周りの仕様変更とcp/mvの権限チェック強化、地味だが効くパフォーマンス改善をまとめる。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "デフォルトのFableモデルがClaude Fable 5.2に切り替わり、コンテキストウィンドウは1Mトークンに",
+      "body": "`claude-fable-5-2`が追加され、Fableモデルのデフォルトになった。コンテキストウィンドウは1Mトークン、価格は100万トークンあたり$8/$40（キャッシュ読み込みは$0.20/Mtok）。\n\n保存済みのFable 5.1選択は自動的に新デフォルトの`fable`へ移行する。Pro・Maxプランでは即時、Team・Enterpriseプランでは組織側が5.2を許可した時点で移行する。",
+      "howto": [
+        "特に何もしなくても、次回起動時からFableの既定は5.2になる",
+        "5.1に戻したい場合は`/model claude-fable-5-1`を実行する",
+        "Team/Enterpriseで組織的に5.2への移行を止めたい場合は管理者側の許可設定を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.321)", "url": "https://code.claude.com/docs/en/changelog#2-1-321" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude remote-control --settings <file>`で、起動する全セッションに設定ファイルを適用できるように",
+      "body": "`claude remote-control`に`--settings <file>`オプションが追加された。指定したファイルの内容が、`remote-control`経由で起動する全セッションに適用される。ファイルを変更しても、`remote-control`を再起動するまで新しいセッションは起動しない点に注意。",
+      "howto": [
+        "複数の端末やメンバーからリモートで同じ設定（権限ルールやモデル指定など）を使わせたい場合、共通の設定ファイルを用意して`claude remote-control --settings team-settings.json`のように起動する",
+        "設定ファイルを更新したときは、反映させるため`remote-control`自体を再起動する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.321)", "url": "https://code.claude.com/docs/en/changelog#2-1-321" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Claude作成のmodが、auto/bypassモードでは確認なしに有効化されるように仕様変更",
+      "body": "mod（Claudeが書いたインターフェース拡張）の有効化方法が変わった。Claudeが書いたmodは、auto modeやbypassモードでは確認を挟まずに有効化されるようになった。これは管理設定で`allowUnsandboxedCommands: false`や`allowManagedDomainsOnly`が設定されていても変わらない。一方`dontAsk`モードではmod自体が読み込まれない。\n\nまたmod自身のツール呼び出し（`$.tool.call`・`$.mcp.call`）は、自分で設定したaskルールや`dontAsk`・`-p`実行下でも許可プロンプトを出さなくなった。ただしdenyルールと組織のポリシーはこれまでと同様に効く。",
+      "howto": [
+        "auto modeやbypassモードを使っている場合、今後はmodが確認なしで有効化・動作する前提で、入れているmodの内容を把握しておく",
+        "mod呼び出しを制限したい場合はaskルールではなくdenyルールで止める必要がある"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.321)", "url": "https://code.claude.com/docs/en/changelog#2-1-321" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`/bin/cp`のようにパスを指定した`cp`・`mv`にも、通常の`cp`・`mv`と同じ権限チェックが適用されるように",
+      "body": "`cp`や`mv`をフルパスで呼び出した場合（`/bin/cp`など）、これまでコマンド名だけで判定していた権限チェックを素通りできる余地があったが、v2.1.321でパス指定時も通常の`cp`・`mv`と同じチェックが適用されるようになった。合わせて、ディレクトリへの`cp`・`mv`で実際に書き込まれるファイルに対しても、denyルールや保護ファイルの確認が正しく効くように修正されている。",
+      "howto": [
+        "`cp`・`mv`をdenyルールや保護ファイル設定で制限している場合、更新するだけでフルパス経由の回避ルートが塞がる。設定変更は不要"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.321)", "url": "https://code.claude.com/docs/en/changelog#2-1-321" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "fast modeが不調のときはまずモデルを切り替えずに通常速度で再試行、`/model`ピッカーの「More models」は最下行に、起動も高速化",
+      "body": "fast modeがレート制限・過負荷・失敗している際、これまでは返信が失われたりモデルが切り替わったり、数分単位で再試行が続くことがあったが、まず同じモデルの通常速度での実行を試すようになった。\n\n`/model`ピッカーでは「More models」が番号なしの行として一番下にまとめられ、古いモデルはそこに入る（他のモデルの番号はそのまま）。加えて`claude install`とインストールスクリプトが2〜4秒ほど短縮され、信頼済みTLS証明書の読み込み高速化により起動も速くなった。",
+      "howto": [
+        "fast modeを使っていて応答が不安定だった場合、更新すればモデルが勝手に切り替わる前に同じモデルでの再試行を試してくれる",
+        "`/model`で古いモデルを選びたいときは一覧の一番下の「More models」を開く"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.321)", "url": "https://code.claude.com/docs/en/changelog#2-1-321" }
+      ]
+    }
+  ]
+}
