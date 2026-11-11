@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-11",
+  "headline": "v2.1.321〜322。MCP OAuthでリフレッシュトークンが別ホストに漏れる不具合と、読み取り専用Bashがサンドボックスをすり抜ける不具合を修正。cp・mvでディレクトリへ書き込む際のdenyルール適用漏れ、fast modeの混雑時リトライ地獄、変数展開パスでの余計な確認も解消。Vertexのfast modeはglobal/us/euに拡大",
+  "lead": "v2.1.321（11/9）〜v2.1.322（11/10）のうち、これまでの号で扱いきれなかった修正をまとめた。MCP OAuthのシークレット漏えいとサンドボックス回避という2つの安全性に関わる修正、cp・mvの保護ファイル確認漏れ、fast modeの安定性改善、Bashの読み取りコマンドでの余計な確認解消、Vertexのfast mode拡大の6点。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "MCP OAuthで、別ホストへリダイレクトされた際にリフレッシュトークンなどのシークレットが送られてしまう不具合を修正",
+      "body": "v2.1.321で、MCPサーバーとのOAuth認証中にリダイレクトが別のホストへ向いた場合、リフレッシュトークンなどのシークレットがそのホストに送信されてしまう不具合が修正された。認証付きのMCPサーバー、特に社内ホストや自前のOAuthプロキシを経由している場合に影響しうる。",
+      "howto": [
+        "OAuth認証が必要なMCPサーバーを使っている場合は、Claude Codeをv2.1.321以降に更新する。更新前のバージョンのまま使い続けていた場合、リダイレクト先のホストに認証情報が渡っていた可能性があるため、該当するMCPサーバーのトークンを一度ローテーションしておくと安心。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "読み取り専用のBashコマンドが、確認なしでサンドボックスの外で実行されてしまうケースを修正",
+      "body": "v2.1.321で、読み取り専用と判定されたBashコマンドが、許可確認を経ずにサンドボックスの外側で実行されてしまうケースが修正された。`sandbox`機能で実行範囲を制限して運用している場合に関係する不具合。",
+      "howto": [
+        "sandboxモードを有効にして運用している場合は、v2.1.321以降に更新しておく。読み取り専用コマンドだからといって、これまで常にサンドボックスが効いていたわけではなかった点に注意する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "ディレクトリへのcp・mvで、実際に書き込まれるファイルにdenyルールや保護ファイルの確認が適用されていなかった不具合を修正",
+      "body": "v2.1.321で、`cp foo.txt dir/`のようにディレクトリへファイルをコピー・移動する場合、実際に書き込まれる先のファイルパスに対してdenyルールや保護ファイルの確認が適用されていなかった不具合が修正された。コマンド自体の引数ではなく、最終的に書き込まれるパスの判定が漏れていたケース。",
+      "howto": [
+        "`permissions.deny`などでファイル保護を設定している場合、これまでcp・mvをディレクトリに対して実行するケースでは保護が効いていなかった可能性がある。更新後は同様の操作でも正しく確認・拒否が働くことを前提にできる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "fast modeが混雑時に応答を失ったり、モデル切り替え・再試行を繰り返していた不具合を修正",
+      "body": "v2.1.321で、fast modeの高速サービングがレート制限や過負荷で失敗したとき、応答が失われたり、モデルが切り替わったり、数分間にわたって再試行を繰り返したりしていた不具合が修正された。失敗時はまず同じモデルの標準速度での実行を試すようになった。",
+      "howto": [
+        "fast modeを使っていて応答が止まったり、意図せずモデルが切り替わっていた場合、更新後は混雑時にまず同じモデルの標準速度にフォールバックするため改善が見込める。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`grep -r foo \"$PWD/src\"`のように変数展開でパスを渡す読み取りコマンドが、不要に確認を求めていた不具合を修正",
+      "body": "v2.1.321で、`$PWD`などの変数展開を使ってパスを渡す読み取り専用のBashコマンドが、同じコマンドをパスを直接書いた場合とは違って許可確認を求めてしまっていた不具合が修正された。",
+      "howto": [
+        "`$PWD`や変数展開を使ったgrep・catなどの読み取りコマンドでも、パスを直接書いた場合と同じく確認なしで実行されるようになった。普段のコマンドで余計な確認が出ていた場合は、更新後に同じ操作を試すとよい。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "Vertex AI経由のfast modeが、global・us・euの各リージョンに拡大",
+      "body": "v2.1.322で、Google Cloud Vertex AI経由でClaude Codeを使う場合のfast modeが、global・us・euの各リージョンで利用できるようになった。Vertex側がfast modeのリクエストを拒否した場合は、自動的に標準速度にフォールバックする。",
+      "howto": [
+        "Vertex AI経由でClaude Codeを使っている場合、設定変更なしでfast modeの対象リージョンが広がっている。これまでfast modeが使えなかったリージョンの環境でも、通常の操作のまま速度が改善しているか確認してみるとよい。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
