@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.311〜318の見落とし分をまとめ。Opus 4.8のfast modeは11/30に廃止、Opus 5.5へ移行が必要。`permissions.blockWritesOutsideWorkingDirectories`で作業ディレクトリ外への書き込みを拒否、バックグラウンドサブエージェントのシェルコマンドは3分でバックグラウンド化。`ultrathink`は5.xモデルでxhighエフォート実行に｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の号はv2.1.319以降を中心に扱ってきたが、その直前のv2.1.311〜318（10/26〜11/4）にも手を動かせる変更がいくつかあった。Opus 4.8のfast mode廃止期限、新しい権限設定、バックグラウンドサブエージェントの挙動変更、ultrathinkのエフォート強化の4点をまとめる。">
+<meta property="og:title" content="v2.1.311〜318の見落とし分をまとめ。Opus 4.8のfast modeは11/30に廃止、Opus 5.5へ移行が必要。`permissions.blockWritesOutsideWorkingDirectories`で作業ディレクトリ外への書き込みを拒否、バックグラウンドサブエージェントのシェルコマンドは3分でバックグラウンド化。`ultrathink`は5.xモデルでxhighエフォート実行に｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の号はv2.1.319以降を中心に扱ってきたが、その直前のv2.1.311〜318（10/26〜11/4）にも手を動かせる変更がいくつかあった。Opus 4.8のfast mode廃止期限、新しい権限設定、バックグラウンドサブエージェントの挙動変更、ultrathinkのエフォート強化の4点をまとめる。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.54</p>
+      <div class="article__head">
+        <span class="chip">2026.11.12</span>
+        <h1>v2.1.311〜318の見落とし分をまとめ。Opus 4.8のfast modeは11/30に廃止、Opus 5.5へ移行が必要。`permissions.blockWritesOutsideWorkingDirectories`で作業ディレクトリ外への書き込みを拒否、バックグラウンドサブエージェントのシェルコマンドは3分でバックグラウンド化。`ultrathink`は5.xモデルでxhighエフォート実行に</h1>
+        <div class="article__date">2026年11月12日(木)公開 ／ VOL.54</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.54</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.12</div>
+      </div></div>
+      <p class="lead">直近の号はv2.1.319以降を中心に扱ってきたが、その直前のv2.1.311〜318（10/26〜11/4）にも手を動かせる変更がいくつかあった。Opus 4.8のfast mode廃止期限、新しい権限設定、バックグラウンドサブエージェントの挙動変更、ultrathinkのエフォート強化の4点をまとめる。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Opus 4.8のfast modeは2026年11月30日に廃止。Opus 5.5への移行が必要</a></li><li><a href="#item-2">`permissions.blockWritesOutsideWorkingDirectories`で、作業ディレクトリ外への書き込みをどの権限モードでも拒否できる</a></li><li><a href="#item-3">バックグラウンドサブエージェントのシェルコマンドは、3分経つと自動でバックグラウンド化される</a></li><li><a href="#item-4">`ultrathink`がOpus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1でxhighエフォート実行に</a></li><li><a href="#item-5">Webやシェルのツール呼び出しがアカウントのメールアドレスをネットワークに送る前に、確認が入るように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>Opus 4.8のfast modeは2026年11月30日に廃止。Opus 5.5への移行が必要</h2>
+      <p>v2.1.316で、Opus 4.8のfast modeが2026年10月30日付で非推奨になった。2026年11月30日に完全に削除され、削除後はOpus 4.8へのfast modeリクエストがエラーを返すようになる（標準速度へのフォールバックはしない）。fast modeの高速さを維持したい場合はOpus 5.5へ移行する必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/model</code>でOpus 4.8のfast modeを使っている場合は、11月30日より前にOpus 5.5に切り替えておく。</li><li>CI・自動化スクリプトでモデルをハードコードしている場合は、Opus 4.8 fast mode指定を洗い出して更新する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>`permissions.blockWritesOutsideWorkingDirectories`で、作業ディレクトリ外への書き込みをどの権限モードでも拒否できる</h2>
+      <p>v2.1.314で追加された設定。有効にすると、Write・Edit・NotebookEditが作業ディレクトリ（複数指定している場合はそのいずれか）の外のパスへの書き込みを、auto modeやbypassモードを含むすべての権限モードで拒否するようになる。意図しないディレクトリへの書き込みを構造的に防げる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>設定ファイルに<code>&quot;permissions&quot;: { &quot;blockWritesOutsideWorkingDirectories&quot;: true }</code>を追加すると、作業ディレクトリ外への書き込みが常にブロックされる。</li><li>複数リポジトリを横断して作業させたいセッションでは、意図せず他ディレクトリへの書き込みが止まる点に注意。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>バックグラウンドサブエージェントのシェルコマンドは、3分経つと自動でバックグラウンド化される</h2>
+      <p>v2.1.318の変更。バックグラウンドで動くサブエージェントが実行するシェルコマンドは、プロバイダーを問わず3分経過すると自動的にバックグラウンド実行に切り替わるようになった。長時間のビルドやテストを待っている間にプロンプトキャッシュが切れてコストが増えるのを防ぐための挙動。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サブエージェントに長時間コマンドを投げるワークフローでは、3分を境にコマンドの扱いが変わる前提で結果の受け取り方（ポーリングや通知）を考えておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`ultrathink`がOpus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1でxhighエフォート実行に</h2>
+      <p>v2.1.311で、インタラクティブターミナルでの<code>ultrathink</code>が、Anthropic API経由のOpus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1においてそのターンをxhighエフォートで実行するようになった。Claudeが作業中にタイプすると、そのターンの残りのエフォートも引き上げられる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>対応モデルで難しいタスクに当たったら、プロンプトに<code>ultrathink</code>と書くだけでそのターンをxhighエフォートに引き上げられる。</li><li>作業中に効果を感じない場合は、Claudeがまだ動いている間に<code>ultrathink</code>と打ち込んで残りのターンのエフォートを上げる、という使い方もできる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>Webやシェルのツール呼び出しがアカウントのメールアドレスをネットワークに送る前に、確認が入るように</h2>
+      <p>v2.1.317の変更。WebFetchやBashなどのツール呼び出しが、ユーザーのアカウントのメールアドレスを外部ネットワークに送信しようとする場合に、事前に確認を求めるチェックが追加された。個人情報が意図せず外部サービスに渡るのを防ぐための安全対策。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自動化スクリプトやhookでメールアドレスを扱っている場合、auto modeやbypassモードでもこの確認がどう扱われるかを一度確かめておくとよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-11.html">v2.1.321〜322。MCP OAuthでリフレッシュトークンが別ホストに漏れる不具合と、読み取り専用Bashがサンドボックスをすり抜ける不具合を修正。cp・mvでディレクトリへ書き込む際のdenyルール適用漏れ、fast modeの混雑時リトライ地獄、変数展開パスでの余計な確認も解消。Vertexのfast modeはglobal/us/euに拡大</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

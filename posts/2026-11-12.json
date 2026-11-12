@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-12",
+  "headline": "v2.1.311〜318の見落とし分をまとめ。Opus 4.8のfast modeは11/30に廃止、Opus 5.5へ移行が必要。`permissions.blockWritesOutsideWorkingDirectories`で作業ディレクトリ外への書き込みを拒否、バックグラウンドサブエージェントのシェルコマンドは3分でバックグラウンド化。`ultrathink`は5.xモデルでxhighエフォート実行に",
+  "lead": "直近の号はv2.1.319以降を中心に扱ってきたが、その直前のv2.1.311〜318（10/26〜11/4）にも手を動かせる変更がいくつかあった。Opus 4.8のfast mode廃止期限、新しい権限設定、バックグラウンドサブエージェントの挙動変更、ultrathinkのエフォート強化の4点をまとめる。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "Opus 4.8のfast modeは2026年11月30日に廃止。Opus 5.5への移行が必要",
+      "body": "v2.1.316で、Opus 4.8のfast modeが2026年10月30日付で非推奨になった。2026年11月30日に完全に削除され、削除後はOpus 4.8へのfast modeリクエストがエラーを返すようになる（標準速度へのフォールバックはしない）。fast modeの高速さを維持したい場合はOpus 5.5へ移行する必要がある。",
+      "howto": [
+        "`/model`でOpus 4.8のfast modeを使っている場合は、11月30日より前にOpus 5.5に切り替えておく。",
+        "CI・自動化スクリプトでモデルをハードコードしている場合は、Opus 4.8 fast mode指定を洗い出して更新する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "`permissions.blockWritesOutsideWorkingDirectories`で、作業ディレクトリ外への書き込みをどの権限モードでも拒否できる",
+      "body": "v2.1.314で追加された設定。有効にすると、Write・Edit・NotebookEditが作業ディレクトリ（複数指定している場合はそのいずれか）の外のパスへの書き込みを、auto modeやbypassモードを含むすべての権限モードで拒否するようになる。意図しないディレクトリへの書き込みを構造的に防げる。",
+      "howto": [
+        "設定ファイルに`\"permissions\": { \"blockWritesOutsideWorkingDirectories\": true }`を追加すると、作業ディレクトリ外への書き込みが常にブロックされる。",
+        "複数リポジトリを横断して作業させたいセッションでは、意図せず他ディレクトリへの書き込みが止まる点に注意。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "バックグラウンドサブエージェントのシェルコマンドは、3分経つと自動でバックグラウンド化される",
+      "body": "v2.1.318の変更。バックグラウンドで動くサブエージェントが実行するシェルコマンドは、プロバイダーを問わず3分経過すると自動的にバックグラウンド実行に切り替わるようになった。長時間のビルドやテストを待っている間にプロンプトキャッシュが切れてコストが増えるのを防ぐための挙動。",
+      "howto": [
+        "サブエージェントに長時間コマンドを投げるワークフローでは、3分を境にコマンドの扱いが変わる前提で結果の受け取り方（ポーリングや通知）を考えておく。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`ultrathink`がOpus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1でxhighエフォート実行に",
+      "body": "v2.1.311で、インタラクティブターミナルでの`ultrathink`が、Anthropic API経由のOpus 5.5・Sonnet 5.5・Haiku 5.5・Fable 5.1においてそのターンをxhighエフォートで実行するようになった。Claudeが作業中にタイプすると、そのターンの残りのエフォートも引き上げられる。",
+      "howto": [
+        "対応モデルで難しいタスクに当たったら、プロンプトに`ultrathink`と書くだけでそのターンをxhighエフォートに引き上げられる。",
+        "作業中に効果を感じない場合は、Claudeがまだ動いている間に`ultrathink`と打ち込んで残りのターンのエフォートを上げる、という使い方もできる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Webやシェルのツール呼び出しがアカウントのメールアドレスをネットワークに送る前に、確認が入るように",
+      "body": "v2.1.317の変更。WebFetchやBashなどのツール呼び出しが、ユーザーのアカウントのメールアドレスを外部ネットワークに送信しようとする場合に、事前に確認を求めるチェックが追加された。個人情報が意図せず外部サービスに渡るのを防ぐための安全対策。",
+      "howto": [
+        "自動化スクリプトやhookでメールアドレスを扱っている場合、auto modeやbypassモードでもこの確認がどう扱われるかを一度確かめておくとよい。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
