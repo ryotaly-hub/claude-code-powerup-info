@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-13",
+  "headline": "v2.1.319の見落とし分。MCPのツール呼び出しがタスク化され自動でバックグラウンド実行に、`permissions.denyInsteadOfPrompting`で許可待ちせず拒否して続行できるように。`/tasks`に終了済みサブエージェントへ後からメッセージできる行が追加。`/loop`のセルフペースはターン終了で自動停止するよう仕様変更、継続には`CLAUDE_CODE_LOOP_KEEPALIVE=1`が必要",
+  "lead": "v2.1.319（11月6日）には、ここ数号で紹介した権限修正やauto mode関連以外にも実用的な変更が入っている。MCPタスクの自動バックグラウンド化、CI向けの新しい権限設定、`/tasks`の使い勝手改善、そして`/loop`を使っている人は要注意の仕様変更をまとめた。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "MCPサーバーのツール呼び出しが「タスク」として自動でバックグラウンド実行に",
+      "body": "MCPサーバーが対応していれば、ツール呼び出しをタスクとして実行した時点でClaude Codeがすぐバックグラウンドに回し、完了したらClaudeに結果を知らせるようになった。これまでは呼び出し中ターミナルがブロックされていたケースがある。\n\n待ちたくない場合は環境変数`CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND`で、ツール呼び出し内で完了を待つ従来の動作に戻せる。",
+      "howto": [
+        "時間がかかるMCPツール（検索・ビルド・外部API呼び出しなど）を使うなら、特に何もしなくてもターミナルが固まらなくなる",
+        "完了を待って逐次処理させたい場合だけ`CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND=1`を設定する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "`permissions.denyInsteadOfPrompting`で許可待ちの代わりに拒否して続行できる",
+      "body": "この設定を有効にすると、本来なら許可プロンプトで止まるはずのツール呼び出しが、待たずにその場で拒否されてターンが継続する。ターミナルセッションだけでなくサブエージェントやチームメイトにも適用される。CIやヘッドレス実行で誰も確認に答えられず止まってしまうケースの回避に向いている。",
+      "howto": [
+        "`settings.json`に`\"permissions\": { \"denyInsteadOfPrompting\": true }`を追加する",
+        "`-p`での自動実行やサブエージェントが多いワークフローで、確認待ちのまま止まるのを避けたいときに設定する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/tasks`の「Earlier in this session」から終了済みサブエージェントに後から話しかけられる",
+      "body": "`/tasks`に「Earlier in this session」という行が増え、一覧からすでに外れた完了済みサブエージェントや、セッションを再起動した後のサブエージェントも再び開いてメッセージを送れるようになった。終わったはずのサブタスクに後から追加の指示を出したいときに使える。",
+      "howto": [
+        "`/tasks`を開き「Earlier in this session」から目的のサブエージェントを選んで再度メッセージを送る",
+        "「さっき終わったあのサブエージェントに追加確認したい」というときに、新規に作り直さず続きから聞ける"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "セルフペースの`/loop`がデフォルトで「ターン終了＝停止」に変更",
+      "body": "間隔を省略して自動ペースさせる`/loop`は、これまでターンが終わるたびに次回の起動を自動でスケジュールし続けていたが、v2.1.319以降はターンが何もスケジュールせずに終わると、そこでループが止まる仕様になった。従来通り動かし続けたい場合は環境変数`CLAUDE_CODE_LOOP_KEEPALIVE=1`を設定する必要がある。",
+      "howto": [
+        "既存のセルフペース`/loop`を長時間動かしっぱなしにしている場合は、途中で止まっていないか確認する",
+        "止めたくない常駐ループには`CLAUDE_CODE_LOOP_KEEPALIVE=1`を設定してから起動する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "MonitorでwatchしているBashコマンドにも、通常の許可ルールが適用されるように",
+      "body": "Monitorツールでバックグラウンド実行中のWebSocketなどをwatchしている場合、そこから発行されるBashコマンドにも通常のルールが適用されるようになった。denyルールに一致すれば拒否され、askルールが付いていればMonitor経由・bypassモード・auto modeであっても確認プロンプトがスキップされなくなった。",
+      "howto": [
+        "Monitorでログを継続監視させるワークフローを組んでいる場合、watch対象から実行されるBashコマンドが想定通り許可・拒否されるか確認する",
+        "bypass/auto modeだからといってMonitor経由のBashコマンドが無条件に通るとは考えない"
+      ],
+      "links": [
+        { "label": "Claude Code changelog (v2.1.319)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

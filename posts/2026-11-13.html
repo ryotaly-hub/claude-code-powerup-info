@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.319の見落とし分。MCPのツール呼び出しがタスク化され自動でバックグラウンド実行に、`permissions.denyInsteadOfPrompting`で許可待ちせず拒否して続行できるように。`/tasks`に終了済みサブエージェントへ後からメッセージできる行が追加。`/loop`のセルフペースはターン終了で自動停止するよう仕様変更、継続には`CLAUDE_CODE_LOOP_KEEPALIVE=1`が必要｜Claude code の PowerUP info</title>
+<meta name="description" content="v2.1.319（11月6日）には、ここ数号で紹介した権限修正やauto mode関連以外にも実用的な変更が入っている。MCPタスクの自動バックグラウンド化、CI向けの新しい権限設定、`/tasks`の使い勝手改善、そして`/loop`を使っている人は要注意の仕様変更をまとめた。">
+<meta property="og:title" content="v2.1.319の見落とし分。MCPのツール呼び出しがタスク化され自動でバックグラウンド実行に、`permissions.denyInsteadOfPrompting`で許可待ちせず拒否して続行できるように。`/tasks`に終了済みサブエージェントへ後からメッセージできる行が追加。`/loop`のセルフペースはターン終了で自動停止するよう仕様変更、継続には`CLAUDE_CODE_LOOP_KEEPALIVE=1`が必要｜Claude code の PowerUP info">
+<meta property="og:description" content="v2.1.319（11月6日）には、ここ数号で紹介した権限修正やauto mode関連以外にも実用的な変更が入っている。MCPタスクの自動バックグラウンド化、CI向けの新しい権限設定、`/tasks`の使い勝手改善、そして`/loop`を使っている人は要注意の仕様変更をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.55</p>
+      <div class="article__head">
+        <span class="chip">2026.11.13</span>
+        <h1>v2.1.319の見落とし分。MCPのツール呼び出しがタスク化され自動でバックグラウンド実行に、`permissions.denyInsteadOfPrompting`で許可待ちせず拒否して続行できるように。`/tasks`に終了済みサブエージェントへ後からメッセージできる行が追加。`/loop`のセルフペースはターン終了で自動停止するよう仕様変更、継続には`CLAUDE_CODE_LOOP_KEEPALIVE=1`が必要</h1>
+        <div class="article__date">2026年11月13日(金)公開 ／ VOL.55</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.55</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.13</div>
+      </div></div>
+      <p class="lead">v2.1.319（11月6日）には、ここ数号で紹介した権限修正やauto mode関連以外にも実用的な変更が入っている。MCPタスクの自動バックグラウンド化、CI向けの新しい権限設定、`/tasks`の使い勝手改善、そして`/loop`を使っている人は要注意の仕様変更をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">MCPサーバーのツール呼び出しが「タスク」として自動でバックグラウンド実行に</a></li><li><a href="#item-2">`permissions.denyInsteadOfPrompting`で許可待ちの代わりに拒否して続行できる</a></li><li><a href="#item-3">`/tasks`の「Earlier in this session」から終了済みサブエージェントに後から話しかけられる</a></li><li><a href="#item-4">セルフペースの`/loop`がデフォルトで「ターン終了＝停止」に変更</a></li><li><a href="#item-5">MonitorでwatchしているBashコマンドにも、通常の許可ルールが適用されるように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>MCPサーバーのツール呼び出しが「タスク」として自動でバックグラウンド実行に</h2>
+      <p>MCPサーバーが対応していれば、ツール呼び出しをタスクとして実行した時点でClaude Codeがすぐバックグラウンドに回し、完了したらClaudeに結果を知らせるようになった。これまでは呼び出し中ターミナルがブロックされていたケースがある。</p>
+      <p>待ちたくない場合は環境変数<code>CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND</code>で、ツール呼び出し内で完了を待つ従来の動作に戻せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>時間がかかるMCPツール（検索・ビルド・外部API呼び出しなど）を使うなら、特に何もしなくてもターミナルが固まらなくなる</li><li>完了を待って逐次処理させたい場合だけ<code>CLAUDE_CODE_DISABLE_MCP_TASK_BACKGROUND=1</code>を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>`permissions.denyInsteadOfPrompting`で許可待ちの代わりに拒否して続行できる</h2>
+      <p>この設定を有効にすると、本来なら許可プロンプトで止まるはずのツール呼び出しが、待たずにその場で拒否されてターンが継続する。ターミナルセッションだけでなくサブエージェントやチームメイトにも適用される。CIやヘッドレス実行で誰も確認に答えられず止まってしまうケースの回避に向いている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>settings.json</code>に<code>&quot;permissions&quot;: { &quot;denyInsteadOfPrompting&quot;: true }</code>を追加する</li><li><code>-p</code>での自動実行やサブエージェントが多いワークフローで、確認待ちのまま止まるのを避けたいときに設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>`/tasks`の「Earlier in this session」から終了済みサブエージェントに後から話しかけられる</h2>
+      <p><code>/tasks</code>に「Earlier in this session」という行が増え、一覧からすでに外れた完了済みサブエージェントや、セッションを再起動した後のサブエージェントも再び開いてメッセージを送れるようになった。終わったはずのサブタスクに後から追加の指示を出したいときに使える。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/tasks</code>を開き「Earlier in this session」から目的のサブエージェントを選んで再度メッセージを送る</li><li>「さっき終わったあのサブエージェントに追加確認したい」というときに、新規に作り直さず続きから聞ける</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>セルフペースの`/loop`がデフォルトで「ターン終了＝停止」に変更</h2>
+      <p>間隔を省略して自動ペースさせる<code>/loop</code>は、これまでターンが終わるたびに次回の起動を自動でスケジュールし続けていたが、v2.1.319以降はターンが何もスケジュールせずに終わると、そこでループが止まる仕様になった。従来通り動かし続けたい場合は環境変数<code>CLAUDE_CODE_LOOP_KEEPALIVE=1</code>を設定する必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>既存のセルフペース<code>/loop</code>を長時間動かしっぱなしにしている場合は、途中で止まっていないか確認する</li><li>止めたくない常駐ループには<code>CLAUDE_CODE_LOOP_KEEPALIVE=1</code>を設定してから起動する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>MonitorでwatchしているBashコマンドにも、通常の許可ルールが適用されるように</h2>
+      <p>Monitorツールでバックグラウンド実行中のWebSocketなどをwatchしている場合、そこから発行されるBashコマンドにも通常のルールが適用されるようになった。denyルールに一致すれば拒否され、askルールが付いていればMonitor経由・bypassモード・auto modeであっても確認プロンプトがスキップされなくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Monitorでログを継続監視させるワークフローを組んでいる場合、watch対象から実行されるBashコマンドが想定通り許可・拒否されるか確認する</li><li>bypass/auto modeだからといってMonitor経由のBashコマンドが無条件に通るとは考えない</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog (v2.1.319)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-12.html">v2.1.311〜318の見落とし分をまとめ。Opus 4.8のfast modeは11/30に廃止、Opus 5.5へ移行が必要。`permissions.blockWritesOutsideWorkingDirectories`で作業ディレクトリ外への書き込みを拒否、バックグラウンドサブエージェントのシェルコマンドは3分でバックグラウンド化。`ultrathink`は5.xモデルでxhighエフォート実行に</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
