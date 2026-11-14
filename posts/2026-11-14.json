@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-14",
+  "headline": "v2.1.323・v2.1.325。サンドボックス化されたBashコマンドが通常の権限フローに従うようになり、スケジュールタスクと`/loop`は`allowed-tools`・hooks付きスキルの実行前に確認が入るように。実験的な「Code Mode」（JavaScriptでツールを呼び出す）が追加、セッション間メッセージングの上限は20通から100,000通に拡大",
+  "lead": "v2.1.323（11/12）とv2.1.325（11/13）の変更から、自動化やスキル運用に直結するものを中心に6本選んだ。サンドボックス化Bashコマンドとスケジュールタスク/`/loop`の権限確認の変更は、無人実行の設定を見直す必要があるため最初に扱う。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "サンドボックス化されたBashコマンドが、デフォルトで通常の権限フローに従うようになった",
+      "body": "v2.1.325の変更。これまでサンドボックス内で実行されるBashコマンドは確認なしで動いていたが、デフォルトでは他のツール呼び出しと同じ通常の権限フロー（許可プロンプト）に従うようになった。以前の「確認なしで実行」という挙動を維持したい場合は、設定で明示的にオプトインする必要がある。",
+      "howto": [
+        "設定ファイルに`\"sandbox\": { \"autoAllowBashIfSandboxed\": true }`を追加すると、サンドボックス化されたBashコマンドを確認なしで実行する以前の挙動に戻せる。",
+        "サンドボックスを多用する自動化・CIでは、この設定を入れていないと確認プロンプトで止まるようになる点に注意。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "スケジュールタスクや`/loop`が、`allowed-tools`やhooksを宣言するスキルの実行前に確認を求めるようになった",
+      "body": "v2.1.325の変更。スケジュールされたタスクや`/loop`が、`allowed-tools`やhooksを宣言しているスキルを実行する前に、確認を求めるようになった。無人で実行させたい場合は、そのスキルを明示的に許可リストに加える必要がある。",
+      "howto": [
+        "無人実行させたいスキルがある場合、設定の`permissions.allow`に`Skill(<スキル名>)`を追加しておく。",
+        "日次で自動実行しているルーティンやcronタスクが、`allowed-tools`やhooksを持つスキルを呼んでいる場合は、この変更後に確認待ちで止まっていないか確認する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "実験的な「Code Mode」。ClaudeがJavaScriptのコードを書いてツールを呼び出すようになる",
+      "body": "v2.1.323で追加された、オプトインの実験的機能。有効にすると、Claudeは個々のツール呼び出しを1つずつ出す代わりに、JavaScriptコードを書いてまとめてツールを呼び出すようになる。",
+      "howto": [
+        "オン/オフの手順はドキュメントで確認する。組織単位でオフにすることもできる。",
+        "まだ実験的機能なので、本番のワークフローに組み込む前に手元のタスクで挙動を確かめておくとよい。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" },
+        { "label": "Code Mode", "url": "https://code.claude.com/docs/en/code-mode" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "同じマシン上のセッション間メッセージングの上限が、20通から100,000通に拡大",
+      "body": "v2.1.323の変更。同じマシン上で動くClaude Codeセッション同士が、確認なしで送り合えるメッセージ数の上限が、約20通から100,000通に大きく拡大された。",
+      "howto": [
+        "複数セッションをまたいで検出結果や指示を頻繁にやり取りするワークフロー・エージェント間連携でも、確認プロンプトで止められにくくなる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "VS Code統合ターミナルに次のプロンプト候補が表示されるようになり、`Tab`で受け入れられる",
+      "body": "v2.1.325の変更。VS Code拡張で、ターミナルが次のプロンプト候補を表示できる場所ならどこでも提案が出るようになった。`Tab`キーで提案を受け入れられる。",
+      "howto": [
+        "不要な場合は、settings.jsonの`\"promptSuggestionEnabled\": false`で無効化できる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`CLAUDE_CODE_DISABLE_AGENT_PROGRESS_SUMMARIES=1`で、サブエージェントの進捗要約とそのためのリクエストを止められる",
+      "body": "v2.1.318から使える環境変数だが、v2.1.323のchangelogで改めて記載された。`CLAUDE_CODE_DISABLE_AGENT_PROGRESS_SUMMARIES`を`1`に設定すると、サブエージェントの進捗要約の表示と、それを生成するためのリクエスト自体を止められる。",
+      "howto": [
+        "サブエージェントを多数走らせるワークフローでトークン消費や表示のノイズを減らしたい場合、この環境変数を`1`に設定する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
