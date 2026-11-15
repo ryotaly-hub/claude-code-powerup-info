@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-15",
+  "headline": "v2.1.319・v2.1.323の見落とし分。プラグインの`plugin.json`に`engines[\"claude-code\"]`で対応バージョン範囲を宣言できるように、`subagentStatusLine`設定は削除。未知のモデルIDのコンテキストウィンドウ既定値は200Kから1Mに変更、`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`で復元可能。VS Code拡張はBash・PowerShellの実行結果をチャットにライブ表示、`claude -p`/SDKのフック実行には30秒おきの進捗表示が追加",
+  "lead": "プラグインのバージョン範囲指定や、見落としがちな設定削除・既定値変更の注意点、VS CodeとCLIの地味だが効く改善をまとめた。",
+  "items": [
+    {
+      "category": "エコシステム",
+      "title": "`plugin.json`の`engines[\"claude-code\"]`で、プラグインの対応バージョンを宣言できるように",
+      "body": "v2.1.323で、プラグインの`plugin.json`に`engines[\"claude-code\"]`フィールドを追加できるようになった。対応するClaude Codeのバージョン範囲を書いておくと、範囲外のバージョンではそのプラグインがインストールされず、更新や読み込みも行われない。\n\n`claude plugin validate`も、プラグインが提供するTypeScript製のhooksモジュールに対して型チェックを行うようになった。",
+      "howto": [
+        "配布するプラグインの`plugin.json`に`engines: { \"claude-code\": \">=2.1.323\" }`のような範囲を追加しておくと、古いバージョンのClaude Codeで動かずにユーザーが困る事故を防げる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "設定`subagentStatusLine`が削除された",
+      "body": "v2.1.323で、サブエージェントの表示をカスタマイズする`subagentStatusLine`設定が削除された。この設定を`settings.json`やプラグインで指定していた場合、アップデート後は単に無視されるようになる。",
+      "howto": [
+        "`settings.json`や配布しているプラグインの設定に`subagentStatusLine`が残っていないか確認し、残っていれば削除する。代替の表示手段は現時点でアナウンスされていない。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "未知のモデルIDのコンテキストウィンドウ既定値が200Kから1Mに変更",
+      "body": "v2.1.323で、Claude Codeが認識しないモデルIDを指定したときに想定するコンテキストウィンドウの既定値が、200Kトークンから1Mトークンに変わった。サードパーティのプロバイダー経由で未対応のモデルを使っている場合、この既定値をもとにコンテキスト使用量の見積もりが変わる。",
+      "howto": [
+        "環境変数`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`を設定すると、以前の200Kトークンの既定値に戻せる。カスタムモデルを使っていて挙動が変わったと感じたら、まずこれを試す。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "VS Code拡張で、実行中のBash・PowerShellコマンドの出力がチャットにライブ表示されるように",
+      "body": "v2.1.323のVS Code拡張で、Claudeが実行しているBashやPowerShellのコマンドの出力が、完了を待たずにチャット上にリアルタイムで流れるようになった。長くかかるビルドやテストの進み具合を、チャット画面を離れずに確認できる。",
+      "howto": [
+        "VS Code拡張を最新版に更新するだけで有効になる。特別な設定は不要。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`claude -p`とSDKで、フックの実行が長引くと30秒ごとに進捗が表示されるように",
+      "body": "v2.1.323で、`claude -p`（ヘッドレスモード）やAgent SDKを使ったセッションでhooksの実行が長くかかっている場合、30秒おきに進捗のハートビートが出力されるようになった。これまではhooksが重い処理をしていても、完了まで画面に何も出ず止まっているように見えた。",
+      "howto": [
+        "重いpre-commit系のhookをスクリプトやCIから`claude -p`で呼んでいる場合、ログに30秒おきの進捗が出るので、ハングしているのか処理中なのかの判断がしやすくなる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/claude-api latency-optimize`で、Claude APIコードのレイテンシの原因箇所を調べられる",
+      "body": "v2.1.319で追加されたコマンド。自分のリポジトリにあるClaude API（Messages API）の呼び出しコードを対象に、どこがレスポンスを遅くしているかをClaude Code自身に調べてもらえる。",
+      "howto": [
+        "Claude APIを直接呼び出しているコードがあるリポジトリで`/claude-api latency-optimize`を実行すると、キャッシュの使い方やストリーミングの有無など、待ち時間に関わる箇所を指摘してもらえる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
