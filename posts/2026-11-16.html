@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正｜Claude code の PowerUP info</title>
+<meta name="description" content="11月上旬〜中旬のリリースに紛れていた変更を拾う。Vertex AI利用者向けの速度改善、プラグイン開発者向けの型チェック、そして普段の運用で地味に効く確認ダイアログの仕様変化が中心。">
+<meta property="og:title" content="v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正｜Claude code の PowerUP info">
+<meta property="og:description" content="11月上旬〜中旬のリリースに紛れていた変更を拾う。Vertex AI利用者向けの速度改善、プラグイン開発者向けの型チェック、そして普段の運用で地味に効く確認ダイアログの仕様変化が中心。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.58</p>
+      <div class="article__head">
+        <span class="chip">2026.11.16</span>
+        <h1>v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正</h1>
+        <div class="article__date">2026年11月16日(月)公開 ／ VOL.58</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.58</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.16</div>
+      </div></div>
+      <p class="lead">11月上旬〜中旬のリリースに紛れていた変更を拾う。Vertex AI利用者向けの速度改善、プラグイン開発者向けの型チェック、そして普段の運用で地味に効く確認ダイアログの仕様変化が中心。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Vertex AI経由の利用で、fast modeがglobal/us/euリージョンに拡大</a></li><li><a href="#item-2">信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように</a></li><li><a href="#item-3">`claude plugin validate`がプラグインのTypeScript製hooksを型チェック、`--strict`で失敗させられる</a></li><li><a href="#item-4">`claude agents`で`--verbose`等と併用時に`--permission-mode`・`--model`・`--effort`・`--agent`が無視される不具合が修正</a></li><li><a href="#item-5">`/security-review`が実行前に確認を求めるようになった</a></li><li><a href="#item-6">バックグラウンドセッションで`/logout`すると、同じマシン上の全セッションがログアウトされる</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Vertex AI経由の利用で、fast modeがglobal/us/euリージョンに拡大</h2>
+      <p>v2.1.322で、Google Cloud Vertex AI経由でClaude Codeを使う場合に、fast modeが<code>global</code>・<code>us</code>・<code>eu</code>の各リージョンで利用できるようになった。Vertex側がfast modeのリクエストを受け付けない場合は、Claude Codeが自動で通常速度にフォールバックする。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Vertex AI経由でClaude Codeを使っている場合、特別な設定変更をしなくても、該当リージョンであればfast modeの速度向上がそのまま効くようになる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように</h2>
+      <p>v2.1.325から、今のプロジェクトでも<code>--add-dir</code>で信頼済みに登録した追加ディレクトリでもないリポジトリに対して<code>git log</code>や<code>git show</code>のような読み取り専用コマンドを実行する際も、確認が求められるようになった。これまでは読み取り専用であることを理由に確認なしで実行されていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数リポジトリを横断して調べ物をする運用がある場合、確認ダイアログを都度閉じる代わりに、起動時の<code>--add-dir &lt;path&gt;</code>でそのリポジトリを追加ディレクトリとして登録しておくと確認なしで読み取り専用コマンドが動く。設定ファイルの<code>additionalDirectories</code>では同じ扱いにならない点に注意。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">エコシステム</span>
+      <h2>`claude plugin validate`がプラグインのTypeScript製hooksを型チェック、`--strict`で失敗させられる</h2>
+      <p>v2.1.323で、<code>claude plugin validate</code>がプラグインの提供するTypeScript製hooksモジュールに対して型チェックを行うようになった。<code>--strict</code>を付けると、型エラーが見つかった時点でコマンド自体が失敗する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>プラグインを配布する前にCIで検証している場合は、<code>claude plugin validate --strict</code>を組み込むと、hooksの型の不整合を実行時エラーになる前にCIで止められる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>`claude agents`で`--verbose`等と併用時に`--permission-mode`・`--model`・`--effort`・`--agent`が無視される不具合が修正</h2>
+      <p>v2.1.321で、<code>claude agents</code>コマンドに<code>--verbose</code>のような別のフラグを同時に指定すると、<code>--permission-mode</code>・<code>--model</code>・<code>--effort</code>・<code>--agent</code>の指定が無視されてしまう不具合が修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>これまで<code>claude agents --model opus --verbose</code>のような組み合わせでモデル指定が効いていなかった場合、v2.1.321以降では直っているので、同じ使い方をしているスクリプトがあれば一度動作を確認しておくとよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`/security-review`が実行前に確認を求めるようになった</h2>
+      <p>v2.1.323から、<code>/security-review</code>コマンドは実行前にユーザーの確認を求めるようになった。これまでは確認なしにそのまま実行されていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CIやスケジュールタスクなど無人環境で<code>/security-review</code>を自動実行している場合、この確認待ちで処理が止まる可能性がある点に注意する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>バックグラウンドセッションで`/logout`すると、同じマシン上の全セッションがログアウトされる</h2>
+      <p>v2.1.323から、バックグラウンドセッションで<code>/logout</code>を実行すると、同じマシン上で動いているすべてのセッションがログアウトされるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数セッションを同じマシンで並行させている場合、そのうち1つだけをログアウトしたいつもりで<code>/logout</code>を打つと他のセッションも巻き込まれる。実行前に影響範囲を把握しておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-15.html">v2.1.319・v2.1.323の見落とし分。プラグインの`plugin.json`に`engines[&quot;claude-code&quot;]`で対応バージョン範囲を宣言できるように、`subagentStatusLine`設定は削除。未知のモデルIDのコンテキストウィンドウ既定値は200Kから1Mに変更、`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`で復元可能。VS Code拡張はBash・PowerShellの実行結果をチャットにライブ表示、`claude -p`/SDKのフック実行には30秒おきの進捗表示が追加</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

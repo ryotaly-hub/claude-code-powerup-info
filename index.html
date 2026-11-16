@@ -29,22 +29,33 @@
 
   <div class="wrap">
     <section class="hero">
-      <a class="hero__thumb" href="posts/2026-11-15.html"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+      <a class="hero__thumb" href="posts/2026-11-16.html"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
         <div class="thumb__deco"></div>
-        <div class="thumb__issue">POWERUP INFO / VOL.57</div>
-        <div class="thumb__date" style="font-size:38px">2026.11.15</div>
+        <div class="thumb__issue">POWERUP INFO / VOL.58</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.16</div>
       </div></a>
       <div class="hero__body">
         <span class="chip">最新号</span>
-        <h1>v2.1.319・v2.1.323の見落とし分。プラグインの`plugin.json`に`engines[&quot;claude-code&quot;]`で対応バージョン範囲を宣言できるように、`subagentStatusLine`設定は削除。未知のモデルIDのコンテキストウィンドウ既定値は200Kから1Mに変更、`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`で復元可能。VS Code拡張はBash・PowerShellの実行結果をチャットにライブ表示、`claude -p`/SDKのフック実行には30秒おきの進捗表示が追加</h1>
-        <p>プラグインのバージョン範囲指定や、見落としがちな設定削除・既定値変更の注意点、VS CodeとCLIの地味だが効く改善をまとめた。</p>
-        <a class="readmore" href="posts/2026-11-15.html">この号を読む</a>
+        <h1>v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正</h1>
+        <p>11月上旬〜中旬のリリースに紛れていた変更を拾う。Vertex AI利用者向けの速度改善、プラグイン開発者向けの型チェック、そして普段の運用で地味に効く確認ダイアログの仕様変化が中心。</p>
+        <a class="readmore" href="posts/2026-11-16.html">この号を読む</a>
       </div>
     </section>
   </div>
   <div class="wrap">
     <div class="section-head"><h2>バックナンバー</h2><span>ARCHIVE</span></div>
     <div class="cards">
+      <a class="card" href="posts/2026-11-15.html">
+        <div class="card__thumb"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.57</div>
+        <div class="thumb__date">2026.11.15</div>
+      </div></div>
+        <span class="chip">VOL.57</span>
+        <div class="card__title">v2.1.319・v2.1.323の見落とし分。プラグインの`plugin.json`に`engines[&quot;claude-code&quot;]`で対応バージョン範囲を宣言できるように、`subagentStatusLine`設定は削除。未知のモデルIDのコンテキストウィンドウ既定値は200Kから1Mに変更、`CLAUDE_CODE_DISABLE_1M_CONTEXT=1`で復元可能。VS Code拡張はBash・PowerShellの実行結果をチャットにライブ表示、`claude -p`/SDKのフック実行には30秒おきの進捗表示が追加</div>
+        <p class="card__excerpt">プラグインのバージョン範囲指定や、見落としがちな設定削除・既定値変更の注意点、VS CodeとCLIの地味だが効く改善をまとめた。…</p>
+        <div class="card__meta">2026年11月15日(日)</div>
+      </a>
       <a class="card" href="posts/2026-11-14.html">
         <div class="card__thumb"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
         <div class="thumb__deco"></div>

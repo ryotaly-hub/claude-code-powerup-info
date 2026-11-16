@@ -1,0 +1,73 @@
+{
+  "date": "2026-11-16",
+  "headline": "v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正",
+  "lead": "11月上旬〜中旬のリリースに紛れていた変更を拾う。Vertex AI利用者向けの速度改善、プラグイン開発者向けの型チェック、そして普段の運用で地味に効く確認ダイアログの仕様変化が中心。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "Vertex AI経由の利用で、fast modeがglobal/us/euリージョンに拡大",
+      "body": "v2.1.322で、Google Cloud Vertex AI経由でClaude Codeを使う場合に、fast modeが`global`・`us`・`eu`の各リージョンで利用できるようになった。Vertex側がfast modeのリクエストを受け付けない場合は、Claude Codeが自動で通常速度にフォールバックする。",
+      "howto": [
+        "Vertex AI経由でClaude Codeを使っている場合、特別な設定変更をしなくても、該当リージョンであればfast modeの速度向上がそのまま効くようになる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように",
+      "body": "v2.1.325から、今のプロジェクトでも`--add-dir`で信頼済みに登録した追加ディレクトリでもないリポジトリに対して`git log`や`git show`のような読み取り専用コマンドを実行する際も、確認が求められるようになった。これまでは読み取り専用であることを理由に確認なしで実行されていた。",
+      "howto": [
+        "複数リポジトリを横断して調べ物をする運用がある場合、確認ダイアログを都度閉じる代わりに、起動時の`--add-dir <path>`でそのリポジトリを追加ディレクトリとして登録しておくと確認なしで読み取り専用コマンドが動く。設定ファイルの`additionalDirectories`では同じ扱いにならない点に注意。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "`claude plugin validate`がプラグインのTypeScript製hooksを型チェック、`--strict`で失敗させられる",
+      "body": "v2.1.323で、`claude plugin validate`がプラグインの提供するTypeScript製hooksモジュールに対して型チェックを行うようになった。`--strict`を付けると、型エラーが見つかった時点でコマンド自体が失敗する。",
+      "howto": [
+        "プラグインを配布する前にCIで検証している場合は、`claude plugin validate --strict`を組み込むと、hooksの型の不整合を実行時エラーになる前にCIで止められる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`claude agents`で`--verbose`等と併用時に`--permission-mode`・`--model`・`--effort`・`--agent`が無視される不具合が修正",
+      "body": "v2.1.321で、`claude agents`コマンドに`--verbose`のような別のフラグを同時に指定すると、`--permission-mode`・`--model`・`--effort`・`--agent`の指定が無視されてしまう不具合が修正された。",
+      "howto": [
+        "これまで`claude agents --model opus --verbose`のような組み合わせでモデル指定が効いていなかった場合、v2.1.321以降では直っているので、同じ使い方をしているスクリプトがあれば一度動作を確認しておくとよい。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`/security-review`が実行前に確認を求めるようになった",
+      "body": "v2.1.323から、`/security-review`コマンドは実行前にユーザーの確認を求めるようになった。これまでは確認なしにそのまま実行されていた。",
+      "howto": [
+        "CIやスケジュールタスクなど無人環境で`/security-review`を自動実行している場合、この確認待ちで処理が止まる可能性がある点に注意する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "バックグラウンドセッションで`/logout`すると、同じマシン上の全セッションがログアウトされる",
+      "body": "v2.1.323から、バックグラウンドセッションで`/logout`を実行すると、同じマシン上で動いているすべてのセッションがログアウトされるようになった。",
+      "howto": [
+        "複数セッションを同じマシンで並行させている場合、そのうち1つだけをログアウトしたいつもりで`/logout`を打つと他のセッションも巻き込まれる。実行前に影響範囲を把握しておく。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
