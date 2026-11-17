@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.326。bypass permissionsモードでも一部のツール呼び出しは確認・拒否されるようになり、サンドボックス化コマンドはホーム配下の機微なフォルダへの書き込みがデフォルトで拒否に。VS Codeに`claudeCode.promptSuggestions`設定、`/plugin`のアンインストール確認は矢印キー+Enter方式に変更、プラグインアンインストール時にMCPバンドルの展開ファイルも削除されるように｜Claude code の PowerUP info</title>
+<meta name="description" content="11月16日リリースのv2.1.326から、無人実行や自動化に影響する権限・サンドボックスの仕様変更を中心に選んだ。bypassモードやサンドボックスを使った自動化を組んでいる場合は、動作確認をおすすめする。">
+<meta property="og:title" content="v2.1.326。bypass permissionsモードでも一部のツール呼び出しは確認・拒否されるようになり、サンドボックス化コマンドはホーム配下の機微なフォルダへの書き込みがデフォルトで拒否に。VS Codeに`claudeCode.promptSuggestions`設定、`/plugin`のアンインストール確認は矢印キー+Enter方式に変更、プラグインアンインストール時にMCPバンドルの展開ファイルも削除されるように｜Claude code の PowerUP info">
+<meta property="og:description" content="11月16日リリースのv2.1.326から、無人実行や自動化に影響する権限・サンドボックスの仕様変更を中心に選んだ。bypassモードやサンドボックスを使った自動化を組んでいる場合は、動作確認をおすすめする。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.59</p>
+      <div class="article__head">
+        <span class="chip">2026.11.17</span>
+        <h1>v2.1.326。bypass permissionsモードでも一部のツール呼び出しは確認・拒否されるようになり、サンドボックス化コマンドはホーム配下の機微なフォルダへの書き込みがデフォルトで拒否に。VS Codeに`claudeCode.promptSuggestions`設定、`/plugin`のアンインストール確認は矢印キー+Enter方式に変更、プラグインアンインストール時にMCPバンドルの展開ファイルも削除されるように</h1>
+        <div class="article__date">2026年11月17日(火)公開 ／ VOL.59</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.59</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.17</div>
+      </div></div>
+      <p class="lead">11月16日リリースのv2.1.326から、無人実行や自動化に影響する権限・サンドボックスの仕様変更を中心に選んだ。bypassモードやサンドボックスを使った自動化を組んでいる場合は、動作確認をおすすめする。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">bypass permissionsモードでも、一部のツール呼び出しは確認を求められる・拒否されるようになった</a></li><li><a href="#item-2">サンドボックス化されたコマンドが、ホーム配下の機微なフォルダへの書き込みをデフォルトで拒否するようになった</a></li><li><a href="#item-3">VS Code拡張に`claudeCode.promptSuggestions`設定が追加され、プロンプト提案をオフにできる</a></li><li><a href="#item-4">`/plugin`のアンインストール・削除・切り替えの確認が、矢印キー+Enterで選ぶリスト形式に変更</a></li><li><a href="#item-5">プラグインのアンインストール時、MCPバンドル（`.mcpb`・`.dxt`）から展開されたファイルも削除されるように</a></li><li><a href="#item-6">`--allowedTools`・`--disallowedTools`・`--tools`の値に不完全なルールがあると、起動時に警告が出るように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>bypass permissionsモードでも、一部のツール呼び出しは確認を求められる・拒否されるようになった</h2>
+      <p>v2.1.326で、bypass permissionsモード（<code>--dangerously-skip-permissions</code>など）で動かしている場合でも、一部のツール呼び出しについては承認を求められるようになった。誰も確認に答えられない無人実行の環境では、そのまま拒否される。これまではbypassモードであれば原則すべてのツール呼び出しが無条件に通っていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>bypassモードでCI・スケジュールタスク・バックグラウンドエージェントなどを無人実行している場合、これまで通らなかった確認待ち・拒否で処理が止まっていないか、次の実行結果を確認する。</li><li>止まっていた場合は、該当のツール呼び出しを<code>permissions.allow</code>に個別に許可ルールとして追加する必要がある。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>サンドボックス化されたコマンドが、ホーム配下の機微なフォルダへの書き込みをデフォルトで拒否するようになった</h2>
+      <p>v2.1.326で、macOS・Linux・WSL上でサンドボックス化されたコマンドが、ホームディレクトリ配下の一部の機微なフォルダに書き込めなくなった。これまで動いていたサンドボックス内のスクリプトが、該当フォルダへの書き込みで失敗するようになる可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サンドボックス内のコマンドが特定のホーム配下フォルダへの書き込みで失敗するようになった場合、user設定またはmanaged設定の<code>sandbox.filesystem.allowWrite</code>にそのパスを追加すると書き込みを許可できる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>VS Code拡張に`claudeCode.promptSuggestions`設定が追加され、プロンプト提案をオフにできる</h2>
+      <p>v2.1.325で追加された、<code>Tab</code>キーで次のプロンプト候補を受け入れられる機能に対して、v2.1.326でVS Code拡張に<code>claudeCode.promptSuggestions</code>設定が追加された。これをオフにすると、プロンプト提案の表示自体を止められる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Codeの<code>settings.json</code>に<code>&quot;claudeCode.promptSuggestions&quot;: false</code>を追加すると、入力中にプロンプト候補が出なくなる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`/plugin`のアンインストール・削除・切り替えの確認が、矢印キー+Enterで選ぶリスト形式に変更</h2>
+      <p>v2.1.326で、<code>/plugin</code>のアンインストール・削除・マーケットプレイス切り替えの確認が、矢印キーとEnterで選ぶリスト形式に変わった。これまで使えた<code>y</code>・<code>n</code>・<code>u</code>のキー入力では答えられなくなっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/plugin</code>でプラグインをアンインストールや切り替えをする際は、キーボードの<code>y</code>/<code>n</code>/<code>u</code>ではなく矢印キーで選択肢を選び、Enterで確定する。Escでキャンセルできる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>プラグインのアンインストール時、MCPバンドル（`.mcpb`・`.dxt`）から展開されたファイルも削除されるように</h2>
+      <p>v2.1.326で、プラグインをアンインストールすると、そのプラグインが持つMCPバンドル（<code>.mcpb</code>・<code>.dxt</code>）から展開されたファイルも一緒に削除されるようになった。ただし、同じバンドルを別のプラグインも使っている場合は削除されない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特別な操作は不要。プラグインを入れ替えたり整理したりする運用でも、MCPバンドルの展開ファイルがディスクに残り続ける心配が減る。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>`--allowedTools`・`--disallowedTools`・`--tools`の値に不完全なルールがあると、起動時に警告が出るように</h2>
+      <p>v2.1.326で、<code>--allowedTools</code>・<code>--disallowedTools</code>・<code>--tools</code>に渡した値の中に、完全なルールの形になっていないエントリがあると、起動時に警告が表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CLIフラグでツールの許可・拒否リストを渡しているスクリプトがある場合、起動時にこの警告が出たら、該当エントリが<code>Tool</code>や<code>Tool(param:value)</code>のような完全な形式になっているか見直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-16.html">v2.1.321〜325の見落とし分。Vertex AI経由の利用でfast modeがglobal/us/euリージョンに拡大。信頼していないリポジトリへの読み取り専用gitコマンドも確認を求めるように（`--add-dir`で登録すれば確認なしに）、`/security-review`も実行前確認が必須に。`claude plugin validate --strict`でプラグインのTypeScript hooksを型チェックできるようになり、`claude agents`で`--verbose`等と併用時に`--model`等のフラグが無視される不具合も修正</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
