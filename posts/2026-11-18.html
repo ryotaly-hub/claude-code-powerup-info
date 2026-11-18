@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.327。`claude mcp add-json &lt;name&gt; -`でMCPサーバーのJSONをstdinから渡せるようになりトークンがコマンド履歴に残らなくなった。`/status`に設定・フックの診断項目が追加され、`.mcp.json`を壊さない安全策や、Bashの初回実行を速くする`CLAUDE_CODE_DISABLE_SHELL_HEAD_START`も登場｜Claude code の PowerUP info</title>
+<meta name="description" content="11月17日リリースのv2.1.327から、設定ファイルの安全性と診断系の改善を中心に選んだ。MCPサーバーをスクリプトから登録している場合や、`.mcp.json`をプロジェクトで共有している場合は特に関係が深い。">
+<meta property="og:title" content="v2.1.327。`claude mcp add-json &lt;name&gt; -`でMCPサーバーのJSONをstdinから渡せるようになりトークンがコマンド履歴に残らなくなった。`/status`に設定・フックの診断項目が追加され、`.mcp.json`を壊さない安全策や、Bashの初回実行を速くする`CLAUDE_CODE_DISABLE_SHELL_HEAD_START`も登場｜Claude code の PowerUP info">
+<meta property="og:description" content="11月17日リリースのv2.1.327から、設定ファイルの安全性と診断系の改善を中心に選んだ。MCPサーバーをスクリプトから登録している場合や、`.mcp.json`をプロジェクトで共有している場合は特に関係が深い。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.60</p>
+      <div class="article__head">
+        <span class="chip">2026.11.18</span>
+        <h1>v2.1.327。`claude mcp add-json &lt;name&gt; -`でMCPサーバーのJSONをstdinから渡せるようになりトークンがコマンド履歴に残らなくなった。`/status`に設定・フックの診断項目が追加され、`.mcp.json`を壊さない安全策や、Bashの初回実行を速くする`CLAUDE_CODE_DISABLE_SHELL_HEAD_START`も登場</h1>
+        <div class="article__date">2026年11月18日(水)公開 ／ VOL.60</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.60</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.18</div>
+      </div></div>
+      <p class="lead">11月17日リリースのv2.1.327から、設定ファイルの安全性と診断系の改善を中心に選んだ。MCPサーバーをスクリプトから登録している場合や、`.mcp.json`をプロジェクトで共有している場合は特に関係が深い。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`claude mcp add-json &lt;name&gt; -`で、MCPサーバーのJSON設定をstdinから渡せるように</a></li><li><a href="#item-2">`/status`が、壊れたagent・skill・command・output styleファイルやフックの不備も一覧表示するように</a></li><li><a href="#item-3">`claude mcp add`/`remove`のproject scopeが、`.mcp.json`の他の設定を壊さなくなった</a></li><li><a href="#item-4">Bashの初回コマンド実行が高速化。シェルの起動ファイルが承認前に走ることがある</a></li><li><a href="#item-5">未知のモデルでの長い応答が、32,000トークンでなく128,000トークンまで継続されるように</a></li><li><a href="#item-6">VS Code拡張のExplorer右クリックメニューに「Claude Code: Add to Chat」が追加</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`claude mcp add-json &lt;name&gt; -`で、MCPサーバーのJSON設定をstdinから渡せるように</h2>
+      <p>v2.1.327で、<code>claude mcp add-json</code>にハイフン（<code>-</code>）を渡すと、サーバー設定のJSONを標準入力から読み込めるようになった。これまではJSONをコマンドライン引数に直接書く必要があり、APIキーなどのトークンがシェルの履歴やプロセス一覧に残ってしまう問題があった。なお、セッション内（対話中のClaude Codeから）では使えない。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>echo '{&quot;command&quot;:&quot;npx&quot;,&quot;args&quot;:[&quot;-y&quot;,&quot;some-mcp-server&quot;],&quot;env&quot;:{&quot;API_KEY&quot;:&quot;...&quot;}}' | claude mcp add-json myserver -</code> のように、設定ファイルやパイプからJSONを渡して登録する。</li><li>既存のスクリプトでトークンを引数に直書きしている箇所があれば、stdin経由に切り替えるとシェル履歴への露出を避けられる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/status`が、壊れたagent・skill・command・output styleファイルやフックの不備も一覧表示するように</h2>
+      <p>v2.1.327で<code>/status</code>の出力が拡充され、壊れているagent・skill・command・output styleファイル、キーバインドのエラー、使えなくなっているサンドボックス、無視されている権限設定、一度もマッチしないフックのmatcherまで一覧できるようになった。カスタム設定が増えてくると、どこが読み込めていないか気づきにくくなっていたための改善。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>プラグインやカスタムagent・skillを多く入れている場合は、<code>/status</code>を実行して「読み込めていない設定」や「マッチしないフック」が出ていないか一度確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>`claude mcp add`/`remove`のproject scopeが、`.mcp.json`の他の設定を壊さなくなった</h2>
+      <p>v2.1.327で、<code>claude mcp add --scope project</code>・<code>claude mcp remove --scope project</code>が、<code>.mcp.json</code>内の<code>mcpServers</code>以外のトップレベルキーを誤って消していた不具合が修正された。さらに、<code>.mcp.json</code>がトップレベルに直接サーバーのリストを書く古い形式（<code>mcpServers</code>キーがない形式）になっている場合は、上書きせずに処理を停止するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>チームで<code>.mcp.json</code>を共有している場合、<code>claude mcp add</code>/<code>remove</code>をproject scopeで実行してもファイル内の他設定が消えなくなったので、更新後にdiffで変更範囲を確認する運用を続けるとよい。</li><li>古い形式の<code>.mcp.json</code>を使っている場合は、停止時のメッセージに従って<code>mcpServers</code>キーを持つ形式に手動で直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>Bashの初回コマンド実行が高速化。シェルの起動ファイルが承認前に走ることがある</h2>
+      <p>v2.1.327で、最初のBashコマンド実行が速くなった。シェルの起動ファイル（<code>.bashrc</code>など）が、ユーザーの承認が出るより前に実行され始めることがあるためで、承認前に副作用のあるコマンドが走る可能性がある。環境変数<code>CLAUDE_CODE_DISABLE_SHELL_HEAD_START=1</code>を設定すると、この先行実行を無効化できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>シェル起動ファイルに重い処理や副作用のあるコマンドを書いている場合は、承認前に実行されても問題ないか確認する。</li><li>問題がある場合は環境変数<code>CLAUDE_CODE_DISABLE_SHELL_HEAD_START=1</code>をセットして、この高速化を無効にする。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>未知のモデルでの長い応答が、32,000トークンでなく128,000トークンまで継続されるように</h2>
+      <p>v2.1.327で、認識されていないモデルIDで応答が長くなった場合の自動継続の上限が、32,000トークンから128,000トークンに上がった。これまでは32,000トークンに達した時点で応答が途中で止まってしまうことがあった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>カスタムモデルやプロバイダー経由でClaude Codeを使っていて長い出力が途中で切れていた場合、この変更により途中で止まりにくくなる。特別な設定変更は不要。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">エコシステム</span>
+      <h2>VS Code拡張のExplorer右クリックメニューに「Claude Code: Add to Chat」が追加</h2>
+      <p>v2.1.327で、VS Code拡張のファイルエクスプローラーの右クリックメニューに「Claude Code: Add to Chat」が追加された。ファイルをドラッグ&amp;ドロップしたりパスを手打ちしたりしなくても、右クリックから直接チャットにファイルを追加できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Codeのエクスプローラーでファイルやフォルダを右クリックし、「Claude Code: Add to Chat」を選ぶと、そのパスがチャット欄に追加される。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-17.html">v2.1.326。bypass permissionsモードでも一部のツール呼び出しは確認・拒否されるようになり、サンドボックス化コマンドはホーム配下の機微なフォルダへの書き込みがデフォルトで拒否に。VS Codeに`claudeCode.promptSuggestions`設定、`/plugin`のアンインストール確認は矢印キー+Enter方式に変更、プラグインアンインストール時にMCPバンドルの展開ファイルも削除されるように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

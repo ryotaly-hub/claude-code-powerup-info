@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-18",
+  "headline": "v2.1.327。`claude mcp add-json <name> -`でMCPサーバーのJSONをstdinから渡せるようになりトークンがコマンド履歴に残らなくなった。`/status`に設定・フックの診断項目が追加され、`.mcp.json`を壊さない安全策や、Bashの初回実行を速くする`CLAUDE_CODE_DISABLE_SHELL_HEAD_START`も登場",
+  "lead": "11月17日リリースのv2.1.327から、設定ファイルの安全性と診断系の改善を中心に選んだ。MCPサーバーをスクリプトから登録している場合や、`.mcp.json`をプロジェクトで共有している場合は特に関係が深い。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`claude mcp add-json <name> -`で、MCPサーバーのJSON設定をstdinから渡せるように",
+      "body": "v2.1.327で、`claude mcp add-json`にハイフン（`-`）を渡すと、サーバー設定のJSONを標準入力から読み込めるようになった。これまではJSONをコマンドライン引数に直接書く必要があり、APIキーなどのトークンがシェルの履歴やプロセス一覧に残ってしまう問題があった。なお、セッション内（対話中のClaude Codeから）では使えない。",
+      "howto": [
+        "`echo '{\"command\":\"npx\",\"args\":[\"-y\",\"some-mcp-server\"],\"env\":{\"API_KEY\":\"...\"}}' | claude mcp add-json myserver -` のように、設定ファイルやパイプからJSONを渡して登録する。",
+        "既存のスクリプトでトークンを引数に直書きしている箇所があれば、stdin経由に切り替えるとシェル履歴への露出を避けられる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/status`が、壊れたagent・skill・command・output styleファイルやフックの不備も一覧表示するように",
+      "body": "v2.1.327で`/status`の出力が拡充され、壊れているagent・skill・command・output styleファイル、キーバインドのエラー、使えなくなっているサンドボックス、無視されている権限設定、一度もマッチしないフックのmatcherまで一覧できるようになった。カスタム設定が増えてくると、どこが読み込めていないか気づきにくくなっていたための改善。",
+      "howto": [
+        "プラグインやカスタムagent・skillを多く入れている場合は、`/status`を実行して「読み込めていない設定」や「マッチしないフック」が出ていないか一度確認する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`claude mcp add`/`remove`のproject scopeが、`.mcp.json`の他の設定を壊さなくなった",
+      "body": "v2.1.327で、`claude mcp add --scope project`・`claude mcp remove --scope project`が、`.mcp.json`内の`mcpServers`以外のトップレベルキーを誤って消していた不具合が修正された。さらに、`.mcp.json`がトップレベルに直接サーバーのリストを書く古い形式（`mcpServers`キーがない形式）になっている場合は、上書きせずに処理を停止するようになった。",
+      "howto": [
+        "チームで`.mcp.json`を共有している場合、`claude mcp add`/`remove`をproject scopeで実行してもファイル内の他設定が消えなくなったので、更新後にdiffで変更範囲を確認する運用を続けるとよい。",
+        "古い形式の`.mcp.json`を使っている場合は、停止時のメッセージに従って`mcpServers`キーを持つ形式に手動で直す。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Bashの初回コマンド実行が高速化。シェルの起動ファイルが承認前に走ることがある",
+      "body": "v2.1.327で、最初のBashコマンド実行が速くなった。シェルの起動ファイル（`.bashrc`など）が、ユーザーの承認が出るより前に実行され始めることがあるためで、承認前に副作用のあるコマンドが走る可能性がある。環境変数`CLAUDE_CODE_DISABLE_SHELL_HEAD_START=1`を設定すると、この先行実行を無効化できる。",
+      "howto": [
+        "シェル起動ファイルに重い処理や副作用のあるコマンドを書いている場合は、承認前に実行されても問題ないか確認する。",
+        "問題がある場合は環境変数`CLAUDE_CODE_DISABLE_SHELL_HEAD_START=1`をセットして、この高速化を無効にする。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "未知のモデルでの長い応答が、32,000トークンでなく128,000トークンまで継続されるように",
+      "body": "v2.1.327で、認識されていないモデルIDで応答が長くなった場合の自動継続の上限が、32,000トークンから128,000トークンに上がった。これまでは32,000トークンに達した時点で応答が途中で止まってしまうことがあった。",
+      "howto": [
+        "カスタムモデルやプロバイダー経由でClaude Codeを使っていて長い出力が途中で切れていた場合、この変更により途中で止まりにくくなる。特別な設定変更は不要。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "VS Code拡張のExplorer右クリックメニューに「Claude Code: Add to Chat」が追加",
+      "body": "v2.1.327で、VS Code拡張のファイルエクスプローラーの右クリックメニューに「Claude Code: Add to Chat」が追加された。ファイルをドラッグ&ドロップしたりパスを手打ちしたりしなくても、右クリックから直接チャットにファイルを追加できる。",
+      "howto": [
+        "VS Codeのエクスプローラーでファイルやフォルダを右クリックし、「Claude Code: Add to Chat」を選ぶと、そのパスがチャット欄に追加される。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.327)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
