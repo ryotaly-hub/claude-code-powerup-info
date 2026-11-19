@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.326〜327の見落とし分。WebFetchは2,000文字を超えるURLを確認前に拒否するようになり、PowerShellツールはルールで許可済みでも確認を求める場面が増加。autoモードのフォールバック分類器リクエストは将来廃止予定で、Claude in Chromeは一部の資格情報ファイルのアップロードを拒否。`/tui classic`が正式名称になり、リモートMCPサーバーは長時間の切断後も自動で再接続を試みるように｜Claude code の PowerUP info</title>
+<meta name="description" content="11月16日・17日リリースのv2.1.326・v2.1.327から、これまでの号で触れていなかった項目を拾った。権限確認とサンドボックスが厳しくなる方向の変更が続くので、autoモードやPowerShellを使っている場合は特に確認しておきたい。">
+<meta property="og:title" content="v2.1.326〜327の見落とし分。WebFetchは2,000文字を超えるURLを確認前に拒否するようになり、PowerShellツールはルールで許可済みでも確認を求める場面が増加。autoモードのフォールバック分類器リクエストは将来廃止予定で、Claude in Chromeは一部の資格情報ファイルのアップロードを拒否。`/tui classic`が正式名称になり、リモートMCPサーバーは長時間の切断後も自動で再接続を試みるように｜Claude code の PowerUP info">
+<meta property="og:description" content="11月16日・17日リリースのv2.1.326・v2.1.327から、これまでの号で触れていなかった項目を拾った。権限確認とサンドボックスが厳しくなる方向の変更が続くので、autoモードやPowerShellを使っている場合は特に確認しておきたい。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.61</p>
+      <div class="article__head">
+        <span class="chip">2026.11.19</span>
+        <h1>v2.1.326〜327の見落とし分。WebFetchは2,000文字を超えるURLを確認前に拒否するようになり、PowerShellツールはルールで許可済みでも確認を求める場面が増加。autoモードのフォールバック分類器リクエストは将来廃止予定で、Claude in Chromeは一部の資格情報ファイルのアップロードを拒否。`/tui classic`が正式名称になり、リモートMCPサーバーは長時間の切断後も自動で再接続を試みるように</h1>
+        <div class="article__date">2026年11月19日(木)公開 ／ VOL.61</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.61</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.19</div>
+      </div></div>
+      <p class="lead">11月16日・17日リリースのv2.1.326・v2.1.327から、これまでの号で触れていなかった項目を拾った。権限確認とサンドボックスが厳しくなる方向の変更が続くので、autoモードやPowerShellを使っている場合は特に確認しておきたい。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">WebFetchが2,000文字を超えるURLを、権限確認プロンプトより前に拒否するように</a></li><li><a href="#item-2">autoモードのフォールバック分類器リクエストは、将来のリリースで廃止予定</a></li><li><a href="#item-3">PowerShellツールは、ルールで許可済みのコマンドでも確認を求める場面が増えた</a></li><li><a href="#item-4">Claude in Chromeが一部の資格情報ファイルのアップロードを拒否するように</a></li><li><a href="#item-5">`/tui classic`が、従来の非フルスクリーン描画モードの正式名称になった</a></li><li><a href="#item-6">VPN切断などで切れたリモートMCPサーバーへの接続が、約1日間バックグラウンドで再接続を試みるように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>WebFetchが2,000文字を超えるURLを、権限確認プロンプトより前に拒否するように</h2>
+      <p>v2.1.327で、WebFetchツールに渡したURLが2,000文字を超えている場合、権限の確認プロンプトを出す前に拒否されるようになった。クエリパラメータが長いドキュメントページや検索結果URLをそのまま渡すと、確認する間もなく失敗する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>WebFetchがURLを渡した直後に失敗する場合は、まずURLの長さを数える。</li><li>長いURLはクエリパラメータを削るか、短縮・正規化したURLに置き換えてから渡す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>autoモードのフォールバック分類器リクエストは、将来のリリースで廃止予定</h2>
+      <p>v2.1.326で、autoモードが権限チェックをローカル分類器ではなくAPI経由の課金対象リクエストにフォールバックした際の通知文が変更され、今後のリリースでこのフォールバック自体を廃止すると明記された。廃止後は、これまでフォールバックで処理されていたアクションは、確認を求められるか拒否されるようになる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>autoモードを使っている場合、今の時点でフォールバック通知が頻発していないか<code>/status</code>などで確認しておく。</li><li>将来のアップデートで確認や拒否が増える可能性を想定し、よく使う操作は事前にallowルールを整理しておくとよい。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>PowerShellツールは、ルールで許可済みのコマンドでも確認を求める場面が増えた</h2>
+      <p>v2.1.327で、PowerShellツールは個々のコマンドを許可するルールがあっても、追加でもう一度確認を求める場面が増えるよう変更された。確認に誰も応答しない場合、ツール全体を許可するルール・autoモード・bypass permissionsモードのいずれかがない限り、そのコマンドは拒否される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Windows上でPowerShellコマンドを多用するワークフローでは、確認が増えることを前提に進める。</li><li>確認を省きたい場合は、個別コマンドのルールではなくPowerShellツール全体を許可するルールか、autoモードの利用を検討する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">エコシステム</span>
+      <h2>Claude in Chromeが一部の資格情報ファイルのアップロードを拒否するように</h2>
+      <p>v2.1.327で、ブラウザ拡張のClaude in Chromeは、認証情報を含むとみなされる一部のファイルをWebページにアップロードすることを拒否するよう変更された。そうしたファイルをサイトに渡す必要がある場合は、ユーザー自身の操作で添付する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Claude in Chromeでファイルアップロードが拒否されたら、アップロード対象が資格情報ファイルに該当していないか確認する。</li><li>業務上どうしても必要な場合は、該当ファイルを自分の手で選択してアップロードする。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">新機能</span>
+      <h2>`/tui classic`が、従来の非フルスクリーン描画モードの正式名称になった</h2>
+      <p>v2.1.327で、これまで名前のなかった従来の非フルスクリーン描画モードが<code>/tui classic</code>と呼べるようになった。フルスクリーン描画を指す<code>/tui default</code>は引き続き使える。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>フルスクリーン描画で画面の乱れや表示崩れが出る場合、<code>/tui classic</code>を実行して従来の描画モードに切り替える。</li><li>元のモードに戻すには<code>/tui default</code>を実行する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>VPN切断などで切れたリモートMCPサーバーへの接続が、約1日間バックグラウンドで再接続を試みるように</h2>
+      <p>v2.1.326で、VPNの切断など長時間の障害でリモートMCPサーバーへの接続が切れたままになる不具合が修正された。ホスト名でhttps経由で到達するほとんどのリモートMCPサーバーは、接続が切れても約1日間はバックグラウンドで再接続が試行され続ける。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VPNが一時的に切れてMCPサーバーが使えなくなっても、すぐに<code>claude mcp remove</code>/<code>add</code>し直さず、少し待ってから<code>/mcp</code>で接続状態を確認する。</li><li>1日以上経っても再接続されない場合は、サーバー側の設定や認証情報を見直す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-18.html">v2.1.327。`claude mcp add-json &lt;name&gt; -`でMCPサーバーのJSONをstdinから渡せるようになりトークンがコマンド履歴に残らなくなった。`/status`に設定・フックの診断項目が追加され、`.mcp.json`を壊さない安全策や、Bashの初回実行を速くする`CLAUDE_CODE_DISABLE_SHELL_HEAD_START`も登場</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
