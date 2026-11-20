@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.328〜329。`/code-review`は既定でバグとCLAUDE.md違反のみを報告しブランチ全体を見るようになり、権限モード未指定のセッションは既定でautoモードで起動するように。`/tasks`でスケジュールタスク・`/loop`・ゴール・フォークを一覧でき、Code ModeのフックエラーもonFailure指定がないと素通りするように変更｜Claude code の PowerUP info</title>
+<meta name="description" content="11月19日リリースのv2.1.328・v2.1.329から、`/code-review`とauto modeの既定動作に関わる変更を中心に選んだ。どちらも「これまでの挙動を知らずに使うと驚く」種類の変更なので、CIスクリプトや無人実行の運用をしている場合は特に確認しておきたい。">
+<meta property="og:title" content="v2.1.328〜329。`/code-review`は既定でバグとCLAUDE.md違反のみを報告しブランチ全体を見るようになり、権限モード未指定のセッションは既定でautoモードで起動するように。`/tasks`でスケジュールタスク・`/loop`・ゴール・フォークを一覧でき、Code ModeのフックエラーもonFailure指定がないと素通りするように変更｜Claude code の PowerUP info">
+<meta property="og:description" content="11月19日リリースのv2.1.328・v2.1.329から、`/code-review`とauto modeの既定動作に関わる変更を中心に選んだ。どちらも「これまでの挙動を知らずに使うと驚く」種類の変更なので、CIスクリプトや無人実行の運用をしている場合は特に確認しておきたい。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.62</p>
+      <div class="article__head">
+        <span class="chip">2026.11.20</span>
+        <h1>v2.1.328〜329。`/code-review`は既定でバグとCLAUDE.md違反のみを報告しブランチ全体を見るようになり、権限モード未指定のセッションは既定でautoモードで起動するように。`/tasks`でスケジュールタスク・`/loop`・ゴール・フォークを一覧でき、Code ModeのフックエラーもonFailure指定がないと素通りするように変更</h1>
+        <div class="article__date">2026年11月20日(金)公開 ／ VOL.62</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.62</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.20</div>
+      </div></div>
+      <p class="lead">11月19日リリースのv2.1.328・v2.1.329から、`/code-review`とauto modeの既定動作に関わる変更を中心に選んだ。どちらも「これまでの挙動を知らずに使うと驚く」種類の変更なので、CIスクリプトや無人実行の運用をしている場合は特に確認しておきたい。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`/tasks`に、セッションのスケジュールタスク・`/loop`のウェイクアップ・ゴール・フォークが一覧表示されるように</a></li><li><a href="#item-2">`/code-review`は既定でバグとCLAUDE.md違反のみを報告し、ターゲット未指定だとブランチ全体をレビューするように</a></li><li><a href="#item-3">権限モードを指定していないインタラクティブセッションが、既定でautoモードで起動するように</a></li><li><a href="#item-4">`max_tokens`到達時の自動リトライが廃止。サードパーティゲートウェイ向けに`CLAUDE_CODE_MAX_OUTPUT_TOKENS`が登場</a></li><li><a href="#item-5">Code Mode内のスクリプトは、PreToolUseフックがエラーを返しても既定では止まらなくなった</a></li><li><a href="#item-6">auto modeが`git status`の実行回数を減らし、大きいリポジトリでの待ち時間が短縮</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>`/tasks`に、セッションのスケジュールタスク・`/loop`のウェイクアップ・ゴール・フォークが一覧表示されるように</h2>
+      <p>v2.1.329で、<code>/tasks</code>にそのセッションのスケジュールタスク、<code>/loop</code>のウェイクアップ、ゴール、この会話からのフォークが表示されるようになった。これまでは種類ごとに別々のコマンドで確認する必要があったものが、1つの一覧でまとまって見られる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>バックグラウンドのフォークや<code>/loop</code>、スケジュールタスクを同時に走らせている場合は、<code>/tasks</code>を実行すると今動いているものを一覧で確認できる。</li><li>不要になったタスクは一覧から<code>x</code>で停止できる（確認が入る）。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>`/code-review`は既定でバグとCLAUDE.md違反のみを報告し、ターゲット未指定だとブランチ全体をレビューするように</h2>
+      <p>v2.1.328で、<code>/code-review</code>はほとんどのモデルでバグとCLAUDE.md違反のみを報告するようになった。再利用・簡略化・効率化といった指摘は対象から外れたので、そちらが欲しい場合は<code>/simplify</code>を使う。各所見はImportant・Pre-existing・Nitのいずれかに分類され、末尾に修正案がつくようになり、問題がなければ一覧は「Code review found no issues.」と表示される。さらにv2.1.329で、ターゲットを指定せずに実行した場合はほとんどのモデルで直前の差分だけでなくブランチ全体をデフォルトブランチと比較してレビューするようになり、複数コミットのブランチで差分を見失う不具合も修正された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>バグやCLAUDE.md違反を知りたいときは<code>/code-review</code>、重複・簡略化・効率化などの整理を見たいときは<code>/simplify</code>と使い分ける。</li><li>ターゲットを指定せずに<code>/code-review</code>を実行すると今はブランチ全体を見るので、直前の差分だけ見たいときはレビュー対象（コミットやブランチ名など）を明示的に渡す。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.328)</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>権限モードを指定していないインタラクティブセッションが、既定でautoモードで起動するように</h2>
+      <p>v2.1.328で、auto modeがClaude Opus 4.6・Sonnet 4.6でAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・Claude apps gatewayでも使えるようになった。これに合わせて、起動時に権限モードを明示的に指定していないインタラクティブセッションは、既定でauto modeで起動するようになった。これまで確認プロンプトが都度出る前提で運用していた場合、挙動が変わる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>従来どおり確認プロンプトを都度出したい場合は、起動時に<code>--permission-mode default</code>などで権限モードを明示的に指定する。</li><li>今のセッションがどの権限モードで動いているかは<code>/status</code>で確認できる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.328)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>`max_tokens`到達時の自動リトライが廃止。サードパーティゲートウェイ向けに`CLAUDE_CODE_MAX_OUTPUT_TOKENS`が登場</h2>
+      <p>v2.1.329で、v2.1.326から入っていた「<code>max_tokens</code>エラーの上限に達したときに自動でリトライする」挙動が削除された。サードパーティのゲートウェイ経由でモデルが受け付ける出力トークン数がClaude Code側の既定より少ない場合は、環境変数<code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code>にその上限値を設定して対応する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サードパーティゲートウェイ経由でClaude Codeを使っていて、長い応答が<code>max_tokens</code>エラーで止まるようになった場合は、<code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code>環境変数にゲートウェイ側モデルの出力上限トークン数を設定する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>Code Mode内のスクリプトは、PreToolUseフックがエラーを返しても既定では止まらなくなった</h2>
+      <p>v2.1.329で、Code Mode内のスクリプトはPreToolUseフックがエラーを返しても、既定では拒否されずに実行が続くようになった（これまではフックのエラーでスクリプトが止まっていた）。拒否する挙動を保ちたい場合は、そのフックの設定に<code>&quot;onFailure&quot;: &quot;block&quot;</code>を指定する。この<code>onFailure: &quot;block&quot;</code>オプションはv2.1.328で<code>mcp_tool</code>フックにも追加され、コマンド・HTTPフックと同じ指定ができるようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Code Modeでフックのエラーをスクリプト停止のトリガーとして使っている場合は、該当フックの設定に<code>&quot;onFailure&quot;: &quot;block&quot;</code>を追加しないと、エラーが出ても処理が継続する点に注意する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.328)</a></li><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>auto modeが`git status`の実行回数を減らし、大きいリポジトリでの待ち時間が短縮</h2>
+      <p>v2.1.329で、auto modeが安全確認のために<code>git status</code>を実行する頻度が減り、大きいリポジトリでほとんどのリクエストの待ち時間が短くなった。一方で、変更を破棄するgitコマンドは、作業ツリーの状態を確認できるまでブロックされる場合がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>大きいリポジトリでauto modeのリクエストごとの待ち時間が気になっていた場合、この変更で改善されているはずなので特別な設定は不要。</li><li><code>git reset --hard</code>など変更を破棄するコマンドがauto modeで一時的にブロックされた場合は、作業ツリーに未保存の変更がないか確認してから再試行する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-19.html">v2.1.326〜327の見落とし分。WebFetchは2,000文字を超えるURLを確認前に拒否するようになり、PowerShellツールはルールで許可済みでも確認を求める場面が増加。autoモードのフォールバック分類器リクエストは将来廃止予定で、Claude in Chromeは一部の資格情報ファイルのアップロードを拒否。`/tui classic`が正式名称になり、リモートMCPサーバーは長時間の切断後も自動で再接続を試みるように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

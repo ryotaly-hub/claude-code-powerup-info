@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-20",
+  "headline": "v2.1.328〜329。`/code-review`は既定でバグとCLAUDE.md違反のみを報告しブランチ全体を見るようになり、権限モード未指定のセッションは既定でautoモードで起動するように。`/tasks`でスケジュールタスク・`/loop`・ゴール・フォークを一覧でき、Code ModeのフックエラーもonFailure指定がないと素通りするように変更",
+  "lead": "11月19日リリースのv2.1.328・v2.1.329から、`/code-review`とauto modeの既定動作に関わる変更を中心に選んだ。どちらも「これまでの挙動を知らずに使うと驚く」種類の変更なので、CIスクリプトや無人実行の運用をしている場合は特に確認しておきたい。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "`/tasks`に、セッションのスケジュールタスク・`/loop`のウェイクアップ・ゴール・フォークが一覧表示されるように",
+      "body": "v2.1.329で、`/tasks`にそのセッションのスケジュールタスク、`/loop`のウェイクアップ、ゴール、この会話からのフォークが表示されるようになった。これまでは種類ごとに別々のコマンドで確認する必要があったものが、1つの一覧でまとまって見られる。",
+      "howto": [
+        "バックグラウンドのフォークや`/loop`、スケジュールタスクを同時に走らせている場合は、`/tasks`を実行すると今動いているものを一覧で確認できる。",
+        "不要になったタスクは一覧から`x`で停止できる（確認が入る）。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.329)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "`/code-review`は既定でバグとCLAUDE.md違反のみを報告し、ターゲット未指定だとブランチ全体をレビューするように",
+      "body": "v2.1.328で、`/code-review`はほとんどのモデルでバグとCLAUDE.md違反のみを報告するようになった。再利用・簡略化・効率化といった指摘は対象から外れたので、そちらが欲しい場合は`/simplify`を使う。各所見はImportant・Pre-existing・Nitのいずれかに分類され、末尾に修正案がつくようになり、問題がなければ一覧は「Code review found no issues.」と表示される。さらにv2.1.329で、ターゲットを指定せずに実行した場合はほとんどのモデルで直前の差分だけでなくブランチ全体をデフォルトブランチと比較してレビューするようになり、複数コミットのブランチで差分を見失う不具合も修正された。",
+      "howto": [
+        "バグやCLAUDE.md違反を知りたいときは`/code-review`、重複・簡略化・効率化などの整理を見たいときは`/simplify`と使い分ける。",
+        "ターゲットを指定せずに`/code-review`を実行すると今はブランチ全体を見るので、直前の差分だけ見たいときはレビュー対象（コミットやブランチ名など）を明示的に渡す。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.328)", "url": "https://code.claude.com/docs/en/changelog" },
+        { "label": "Claude Code Changelog (v2.1.329)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "権限モードを指定していないインタラクティブセッションが、既定でautoモードで起動するように",
+      "body": "v2.1.328で、auto modeがClaude Opus 4.6・Sonnet 4.6でAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・Claude apps gatewayでも使えるようになった。これに合わせて、起動時に権限モードを明示的に指定していないインタラクティブセッションは、既定でauto modeで起動するようになった。これまで確認プロンプトが都度出る前提で運用していた場合、挙動が変わる。",
+      "howto": [
+        "従来どおり確認プロンプトを都度出したい場合は、起動時に`--permission-mode default`などで権限モードを明示的に指定する。",
+        "今のセッションがどの権限モードで動いているかは`/status`で確認できる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.328)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`max_tokens`到達時の自動リトライが廃止。サードパーティゲートウェイ向けに`CLAUDE_CODE_MAX_OUTPUT_TOKENS`が登場",
+      "body": "v2.1.329で、v2.1.326から入っていた「`max_tokens`エラーの上限に達したときに自動でリトライする」挙動が削除された。サードパーティのゲートウェイ経由でモデルが受け付ける出力トークン数がClaude Code側の既定より少ない場合は、環境変数`CLAUDE_CODE_MAX_OUTPUT_TOKENS`にその上限値を設定して対応する。",
+      "howto": [
+        "サードパーティゲートウェイ経由でClaude Codeを使っていて、長い応答が`max_tokens`エラーで止まるようになった場合は、`CLAUDE_CODE_MAX_OUTPUT_TOKENS`環境変数にゲートウェイ側モデルの出力上限トークン数を設定する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.329)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Code Mode内のスクリプトは、PreToolUseフックがエラーを返しても既定では止まらなくなった",
+      "body": "v2.1.329で、Code Mode内のスクリプトはPreToolUseフックがエラーを返しても、既定では拒否されずに実行が続くようになった（これまではフックのエラーでスクリプトが止まっていた）。拒否する挙動を保ちたい場合は、そのフックの設定に`\"onFailure\": \"block\"`を指定する。この`onFailure: \"block\"`オプションはv2.1.328で`mcp_tool`フックにも追加され、コマンド・HTTPフックと同じ指定ができるようになっている。",
+      "howto": [
+        "Code Modeでフックのエラーをスクリプト停止のトリガーとして使っている場合は、該当フックの設定に`\"onFailure\": \"block\"`を追加しないと、エラーが出ても処理が継続する点に注意する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.328)", "url": "https://code.claude.com/docs/en/changelog" },
+        { "label": "Claude Code Changelog (v2.1.329)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "auto modeが`git status`の実行回数を減らし、大きいリポジトリでの待ち時間が短縮",
+      "body": "v2.1.329で、auto modeが安全確認のために`git status`を実行する頻度が減り、大きいリポジトリでほとんどのリクエストの待ち時間が短くなった。一方で、変更を破棄するgitコマンドは、作業ツリーの状態を確認できるまでブロックされる場合がある。",
+      "howto": [
+        "大きいリポジトリでauto modeのリクエストごとの待ち時間が気になっていた場合、この変更で改善されているはずなので特別な設定は不要。",
+        "`git reset --hard`など変更を破棄するコマンドがauto modeで一時的にブロックされた場合は、作業ツリーに未保存の変更がないか確認してから再試行する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.329)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
