@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-21",
+  "headline": "v2.1.330。MCPのメトリクス結果などに自動でチャートを描く新モッド「easel」が追加され、`/config`でオフにできる。v2.1.329で廃止された`max_tokens`到達時の自動リトライは撤回されて復活。定期スケジュールタスクと`/loop`の継続期間は7日から30日に延長され、root・home・トップレベルを狙う`rm`コマンドへの確認要求も拡大。VS Code拡張には`/fork`・`/workflows`コマンドと3つの新設定が追加された",
+  "lead": "11月20日リリースのv2.1.330から、実際の作業に効いてくるものを選んだ。特にmax_tokensの自動リトライは前日分の記事で「廃止」と書いた直後に撤回されており、ゲートウェイ経由で運用している場合は挙動が再び変わる点に注意したい。",
+  "items": [
+    {
+      "category": "新機能",
+      "title": "自動でチャートを描く新モッド「easel」が追加。Pro・Max・（一部）Team・Enterprise、macOS/Linuxで利用可能",
+      "body": "v2.1.330で、ビルトインのmod「easel」が追加された。チャートを頼んだときや、MCPツールがメトリクス結果を返したときに、自動でグラフを描く。現時点ではmacOS/Linuxで、Pro・Maxプラン、および一部のTeam・Enterpriseプランで利用できる。",
+      "howto": [
+        "数値データをMCPツールから受け取ったときやチャートを頼んだときに、何もしなくても自動でグラフが表示されるようになる。",
+        "自動描画が不要な場合は`/config`から easel の自動チャート機能をオフにできる。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`max_tokens`到達時の自動リトライ廃止が撤回され、v2.1.330で元の挙動に復活",
+      "body": "v2.1.329で削除された「`max_tokens`エラーの上限に達したときに自動でリトライする」挙動が、v2.1.330で撤回され元どおり復活した。サードパーティゲートウェイ向けに使っていた環境変数`CLAUDE_CODE_MAX_OUTPUT_TOKENS`自体は引き続き使えるが、自動リトライが戻ったことで、必須だった設定が不要になるケースがある。",
+      "howto": [
+        "v2.1.329のタイミングで`CLAUDE_CODE_MAX_OUTPUT_TOKENS`を設定して回避策を入れていた場合、v2.1.330では自動リトライが復活しているので、設定を外しても問題ないか確認する。",
+        "長い応答が`max_tokens`エラーで止まる症状が再発していないか、v2.1.330にアップデート後に一度確認しておく。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "定期スケジュールタスクと`/loop`の継続期間が7日から30日に延長",
+      "body": "v2.1.330で、セッションが起動し続けている限り、定期実行のスケジュールタスクと`/loop`は最長7日ではなく最長30日まで動くようになった。終了が近づくとその旨が表示される。なお、このリリースより前に作成済みのタスクは従来どおり7日で終了する。",
+      "howto": [
+        "長期間回したい定期タスクや`/loop`は、v2.1.330以降で新しく作成すれば再スケジュールの手間が月1回程度に減る。",
+        "既存の定期タスクを30日仕様にしたい場合は、一度停止して新規に作り直す必要がある。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "root・home・トップレベル・作業フォルダそのものを狙う`rm`コマンドへの確認要求が拡大",
+      "body": "v2.1.330で、ルートディレクトリやホームディレクトリ、トップレベルフォルダ、作業フォルダ自体を対象にした`rm`コマンドについて、確認を求められる場面が増えた。確認に答えられない環境（無人実行など）では、該当コマンドは拒否されるようになっている。",
+      "howto": [
+        "CIやスケジュールタスクなど無人実行のスクリプトで大きめの`rm`を使っている場合、v2.1.330以降は拒否される可能性があるので、対象パスをより具体的に絞るか、事前に許可ルールを設定しておく。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "VS Code拡張に`/fork`（会話をフォーク）と`/workflows`（実行中のワークフロー一覧）が追加",
+      "body": "v2.1.330で、VS Code拡張に`/fork`コマンドが追加された。直前の返信のあとで会話をフォークできる。また`/workflows`コマンドも追加され、実行中のワークフローを表示するagent mapを開ける。",
+      "howto": [
+        "VS Code拡張で今の会話から別の調査や実装を分岐させたいときは、`/fork`で直前の返信以降をフォークして並行して進められる。",
+        "複数のワークフローを動かしているときは`/workflows`で進行状況をまとめて確認する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "VS Code拡張に`claudeCode.escapeStopsClaude`・`claudeCode.pinPrompt`・`claudeCode.contextUsageThreshold`設定が追加",
+      "body": "v2.1.330で、VS Code拡張の設定が3つ増えた。`claudeCode.escapeStopsClaude`をオフにするとEscapeキーでClaudeを止めなくなる。`claudeCode.pinPrompt`をオフにすると自分のメッセージを画面上部に固定せず、スクロールで流れるようにできる。`claudeCode.contextUsageThreshold`は、コンテキスト使用量インジケーターを表示し始めるしきい値を設定する。",
+      "howto": [
+        "作業中にEscapeで誤ってClaudeを止めてしまう場合は`claudeCode.escapeStopsClaude`をオフにする。",
+        "長い会話で自分のメッセージが常に上部に固定されるのが煩わしい場合は`claudeCode.pinPrompt`をオフにする。",
+        "コンテキスト使用量の表示をもっと早め（または遅め）に出したい場合は`claudeCode.contextUsageThreshold`を調整する。"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

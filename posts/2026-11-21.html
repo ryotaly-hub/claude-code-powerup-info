@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.330。MCPのメトリクス結果などに自動でチャートを描く新モッド「easel」が追加され、`/config`でオフにできる。v2.1.329で廃止された`max_tokens`到達時の自動リトライは撤回されて復活。定期スケジュールタスクと`/loop`の継続期間は7日から30日に延長され、root・home・トップレベルを狙う`rm`コマンドへの確認要求も拡大。VS Code拡張には`/fork`・`/workflows`コマンドと3つの新設定が追加された｜Claude code の PowerUP info</title>
+<meta name="description" content="11月20日リリースのv2.1.330から、実際の作業に効いてくるものを選んだ。特にmax_tokensの自動リトライは前日分の記事で「廃止」と書いた直後に撤回されており、ゲートウェイ経由で運用している場合は挙動が再び変わる点に注意したい。">
+<meta property="og:title" content="v2.1.330。MCPのメトリクス結果などに自動でチャートを描く新モッド「easel」が追加され、`/config`でオフにできる。v2.1.329で廃止された`max_tokens`到達時の自動リトライは撤回されて復活。定期スケジュールタスクと`/loop`の継続期間は7日から30日に延長され、root・home・トップレベルを狙う`rm`コマンドへの確認要求も拡大。VS Code拡張には`/fork`・`/workflows`コマンドと3つの新設定が追加された｜Claude code の PowerUP info">
+<meta property="og:description" content="11月20日リリースのv2.1.330から、実際の作業に効いてくるものを選んだ。特にmax_tokensの自動リトライは前日分の記事で「廃止」と書いた直後に撤回されており、ゲートウェイ経由で運用している場合は挙動が再び変わる点に注意したい。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.63</p>
+      <div class="article__head">
+        <span class="chip">2026.11.21</span>
+        <h1>v2.1.330。MCPのメトリクス結果などに自動でチャートを描く新モッド「easel」が追加され、`/config`でオフにできる。v2.1.329で廃止された`max_tokens`到達時の自動リトライは撤回されて復活。定期スケジュールタスクと`/loop`の継続期間は7日から30日に延長され、root・home・トップレベルを狙う`rm`コマンドへの確認要求も拡大。VS Code拡張には`/fork`・`/workflows`コマンドと3つの新設定が追加された</h1>
+        <div class="article__date">2026年11月21日(土)公開 ／ VOL.63</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.63</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.21</div>
+      </div></div>
+      <p class="lead">11月20日リリースのv2.1.330から、実際の作業に効いてくるものを選んだ。特にmax_tokensの自動リトライは前日分の記事で「廃止」と書いた直後に撤回されており、ゲートウェイ経由で運用している場合は挙動が再び変わる点に注意したい。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">自動でチャートを描く新モッド「easel」が追加。Pro・Max・（一部）Team・Enterprise、macOS/Linuxで利用可能</a></li><li><a href="#item-2">`max_tokens`到達時の自動リトライ廃止が撤回され、v2.1.330で元の挙動に復活</a></li><li><a href="#item-3">定期スケジュールタスクと`/loop`の継続期間が7日から30日に延長</a></li><li><a href="#item-4">root・home・トップレベル・作業フォルダそのものを狙う`rm`コマンドへの確認要求が拡大</a></li><li><a href="#item-5">VS Code拡張に`/fork`（会話をフォーク）と`/workflows`（実行中のワークフロー一覧）が追加</a></li><li><a href="#item-6">VS Code拡張に`claudeCode.escapeStopsClaude`・`claudeCode.pinPrompt`・`claudeCode.contextUsageThreshold`設定が追加</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>自動でチャートを描く新モッド「easel」が追加。Pro・Max・（一部）Team・Enterprise、macOS/Linuxで利用可能</h2>
+      <p>v2.1.330で、ビルトインのmod「easel」が追加された。チャートを頼んだときや、MCPツールがメトリクス結果を返したときに、自動でグラフを描く。現時点ではmacOS/Linuxで、Pro・Maxプラン、および一部のTeam・Enterpriseプランで利用できる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>数値データをMCPツールから受け取ったときやチャートを頼んだときに、何もしなくても自動でグラフが表示されるようになる。</li><li>自動描画が不要な場合は<code>/config</code>から easel の自動チャート機能をオフにできる。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>`max_tokens`到達時の自動リトライ廃止が撤回され、v2.1.330で元の挙動に復活</h2>
+      <p>v2.1.329で削除された「<code>max_tokens</code>エラーの上限に達したときに自動でリトライする」挙動が、v2.1.330で撤回され元どおり復活した。サードパーティゲートウェイ向けに使っていた環境変数<code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code>自体は引き続き使えるが、自動リトライが戻ったことで、必須だった設定が不要になるケースがある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>v2.1.329のタイミングで<code>CLAUDE_CODE_MAX_OUTPUT_TOKENS</code>を設定して回避策を入れていた場合、v2.1.330では自動リトライが復活しているので、設定を外しても問題ないか確認する。</li><li>長い応答が<code>max_tokens</code>エラーで止まる症状が再発していないか、v2.1.330にアップデート後に一度確認しておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>定期スケジュールタスクと`/loop`の継続期間が7日から30日に延長</h2>
+      <p>v2.1.330で、セッションが起動し続けている限り、定期実行のスケジュールタスクと<code>/loop</code>は最長7日ではなく最長30日まで動くようになった。終了が近づくとその旨が表示される。なお、このリリースより前に作成済みのタスクは従来どおり7日で終了する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>長期間回したい定期タスクや<code>/loop</code>は、v2.1.330以降で新しく作成すれば再スケジュールの手間が月1回程度に減る。</li><li>既存の定期タスクを30日仕様にしたい場合は、一度停止して新規に作り直す必要がある。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>root・home・トップレベル・作業フォルダそのものを狙う`rm`コマンドへの確認要求が拡大</h2>
+      <p>v2.1.330で、ルートディレクトリやホームディレクトリ、トップレベルフォルダ、作業フォルダ自体を対象にした<code>rm</code>コマンドについて、確認を求められる場面が増えた。確認に答えられない環境（無人実行など）では、該当コマンドは拒否されるようになっている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CIやスケジュールタスクなど無人実行のスクリプトで大きめの<code>rm</code>を使っている場合、v2.1.330以降は拒否される可能性があるので、対象パスをより具体的に絞るか、事前に許可ルールを設定しておく。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">新機能</span>
+      <h2>VS Code拡張に`/fork`（会話をフォーク）と`/workflows`（実行中のワークフロー一覧）が追加</h2>
+      <p>v2.1.330で、VS Code拡張に<code>/fork</code>コマンドが追加された。直前の返信のあとで会話をフォークできる。また<code>/workflows</code>コマンドも追加され、実行中のワークフローを表示するagent mapを開ける。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Code拡張で今の会話から別の調査や実装を分岐させたいときは、<code>/fork</code>で直前の返信以降をフォークして並行して進められる。</li><li>複数のワークフローを動かしているときは<code>/workflows</code>で進行状況をまとめて確認する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>VS Code拡張に`claudeCode.escapeStopsClaude`・`claudeCode.pinPrompt`・`claudeCode.contextUsageThreshold`設定が追加</h2>
+      <p>v2.1.330で、VS Code拡張の設定が3つ増えた。<code>claudeCode.escapeStopsClaude</code>をオフにするとEscapeキーでClaudeを止めなくなる。<code>claudeCode.pinPrompt</code>をオフにすると自分のメッセージを画面上部に固定せず、スクロールで流れるようにできる。<code>claudeCode.contextUsageThreshold</code>は、コンテキスト使用量インジケーターを表示し始めるしきい値を設定する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>作業中にEscapeで誤ってClaudeを止めてしまう場合は<code>claudeCode.escapeStopsClaude</code>をオフにする。</li><li>長い会話で自分のメッセージが常に上部に固定されるのが煩わしい場合は<code>claudeCode.pinPrompt</code>をオフにする。</li><li>コンテキスト使用量の表示をもっと早め（または遅め）に出したい場合は<code>claudeCode.contextUsageThreshold</code>を調整する。</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-20.html">v2.1.328〜329。`/code-review`は既定でバグとCLAUDE.md違反のみを報告しブランチ全体を見るようになり、権限モード未指定のセッションは既定でautoモードで起動するように。`/tasks`でスケジュールタスク・`/loop`・ゴール・フォークを一覧でき、Code ModeのフックエラーもonFailure指定がないと素通りするように変更</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
