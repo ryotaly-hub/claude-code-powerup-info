@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.327〜330の見落とし分。信頼ダイアログがフックの宣言場所を警告するようになり、`/mcp`はリモートMCPサーバーが接続拒否した理由を「Server message」で表示。`ExitWorktree`は未保存の作業があるworktreeを消す前に確認し、`/install-github-app`もリポジトリ変更前に確認が入るように。`deniedMcpServers`は名前指定だと該当コネクタのみを隠す仕様に、`Ctrl+O`で起動時の隠れた通知も見られる｜Claude code の PowerUP info</title>
+<meta name="description" content="Claude Codeの公式changelog(v2.1.327〜330)から、これまでの号で取り上げていない項目をまとめた。worktreeの誤削除やMCPサーバーの接続拒否、設定の隠れた通知など、気づきにくいが知っておくと事故を防げる変更が中心。">
+<meta property="og:title" content="v2.1.327〜330の見落とし分。信頼ダイアログがフックの宣言場所を警告するようになり、`/mcp`はリモートMCPサーバーが接続拒否した理由を「Server message」で表示。`ExitWorktree`は未保存の作業があるworktreeを消す前に確認し、`/install-github-app`もリポジトリ変更前に確認が入るように。`deniedMcpServers`は名前指定だと該当コネクタのみを隠す仕様に、`Ctrl+O`で起動時の隠れた通知も見られる｜Claude code の PowerUP info">
+<meta property="og:description" content="Claude Codeの公式changelog(v2.1.327〜330)から、これまでの号で取り上げていない項目をまとめた。worktreeの誤削除やMCPサーバーの接続拒否、設定の隠れた通知など、気づきにくいが知っておくと事故を防げる変更が中心。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.64</p>
+      <div class="article__head">
+        <span class="chip">2026.11.22</span>
+        <h1>v2.1.327〜330の見落とし分。信頼ダイアログがフックの宣言場所を警告するようになり、`/mcp`はリモートMCPサーバーが接続拒否した理由を「Server message」で表示。`ExitWorktree`は未保存の作業があるworktreeを消す前に確認し、`/install-github-app`もリポジトリ変更前に確認が入るように。`deniedMcpServers`は名前指定だと該当コネクタのみを隠す仕様に、`Ctrl+O`で起動時の隠れた通知も見られる</h1>
+        <div class="article__date">2026年11月22日(日)公開 ／ VOL.64</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.64</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.22</div>
+      </div></div>
+      <p class="lead">Claude Codeの公式changelog(v2.1.327〜330)から、これまでの号で取り上げていない項目をまとめた。worktreeの誤削除やMCPサーバーの接続拒否、設定の隠れた通知など、気づきにくいが知っておくと事故を防げる変更が中心。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">信頼ダイアログが、未信頼フォルダのフックがどこで宣言されているかを警告するように</a></li><li><a href="#item-2">`/mcp`に、リモートMCPサーバーが接続を拒否したときの「Server message」が表示されるように</a></li><li><a href="#item-3">`/install-github-app`がリポジトリを変更する前に、確認を求めるようになった</a></li><li><a href="#item-4">`ExitWorktree`が、未保存の作業が残っているworktreeを削除する前に確認するように</a></li><li><a href="#item-5">`Ctrl+O`で、起動時に隠れた通知を表示できる</a></li><li><a href="#item-6">`deniedMcpServers`の名前指定は、該当コネクタ1件だけを隠す仕様に変更</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">Tips</span>
+      <h2>信頼ダイアログが、未信頼フォルダのフックがどこで宣言されているかを警告するように</h2>
+      <p>未信頼のフォルダを開いたとき表示される信頼確認ダイアログに、そのフォルダにhooksが設定されている場合はその宣言場所（プロジェクト設定か管理設定かなど）を示す警告が追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>知らないリポジトリを開いて信頼確認が出たとき、hooksの警告が出たら内容を<code>.claude/settings.json</code>などで確認してから信頼する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/mcp`に、リモートMCPサーバーが接続を拒否したときの「Server message」が表示されるように</h2>
+      <p>リモートHTTPのMCPサーバーが接続を拒否した場合、<code>/mcp</code>の表示にサーバー側が返したメッセージが「Server message」として出るようになった。認証エラーなど拒否理由がそのまま見える。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>リモートMCPサーバーに接続できないときは、まず<code>/mcp</code>を開いてServer messageを確認する。認証トークンの期限切れなど原因が特定しやすい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.329)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>`/install-github-app`がリポジトリを変更する前に、確認を求めるようになった</h2>
+      <p><code>/install-github-app</code>実行時、GitHub Appのインストールやリポジトリ設定の変更を加える直前に確認プロンプトが入るようになった。それまでは確認なしで変更されていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>CI連携などのためにGitHub Appを導入するときは、確認内容を読んでから進める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>`ExitWorktree`が、未保存の作業が残っているworktreeを削除する前に確認するように</h2>
+      <p>worktreeを終了・削除する<code>ExitWorktree</code>が、コミットされていない変更が残っている可能性があるworktreeに対しては、削除前に確認を求めるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数worktreeを並行して使っているとき、確認が出たらコミットかstashを済ませてから削除する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.327)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>`Ctrl+O`で、起動時に隠れた通知を表示できる</h2>
+      <p>起動時に表示される通知のうち、画面に出てこなかったものを<code>Ctrl+O</code>で後から確認できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>起動直後に何か表示が流れた気がしたら<code>Ctrl+O</code>を押す</li><li>権限モードの自動選択や設定の読み込みエラーなど、気づきにくい通知を見逃さずに済む</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.326)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">注意点</span>
+      <h2>`deniedMcpServers`の名前指定は、該当コネクタ1件だけを隠す仕様に変更</h2>
+      <p>設定<code>deniedMcpServers</code>に<code>claude.ai &lt;名前&gt;</code>のようにコネクタ名で指定した場合、そのコネクタだけが隠れるようになった。同じURLの他のコネクタまでまとめて隠したい場合は、名前の代わりに正確なURLを指定して拒否する必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>deniedMcpServers</code>でコネクタをブロックする設定をしている場合、名前指定では漏れがあるかもしれないので、URL単位で止めたいものはURLで指定し直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-21.html">v2.1.330。MCPのメトリクス結果などに自動でチャートを描く新モッド「easel」が追加され、`/config`でオフにできる。v2.1.329で廃止された`max_tokens`到達時の自動リトライは撤回されて復活。定期スケジュールタスクと`/loop`の継続期間は7日から30日に延長され、root・home・トップレベルを狙う`rm`コマンドへの確認要求も拡大。VS Code拡張には`/fork`・`/workflows`コマンドと3つの新設定が追加された</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
