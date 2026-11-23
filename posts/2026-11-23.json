@@ -1,0 +1,77 @@
+{
+  "date": "2026-11-23",
+  "headline": "v2.1.330のさらに見落とし分。`claude --teleport`は環境によってgit操作を実行せず表示のみになり、Skillの`model`設定がサブエージェント・フォーク・compaction・`/recap`にも引き継がれるように。Prompt hooksの`model`欄に`haiku`・`sonnet`のエイリアスが使えるようになった",
+  "lead": "11/18〜22号で取り上げてきたv2.1.326〜330には、まだ拾っていない変更が残っている。モデル指定とgit操作周りを中心に、知らないと挙動の変化に戸惑いそうな6本をまとめた。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "`claude --teleport`が一部の環境では、gitコマンドを実行せず表示するだけになった",
+      "body": "worktreeなどブランチを切り替える`--teleport`は、セットアップによっては実際にgitコマンドを実行せず、実行すべきコマンドを表示するだけの動作に変わった。`-p`（非対話）モードで使っている場合、ユーザーが実際にブランチを切り替えるまで終了コードが1を返す。",
+      "howto": [
+        "`--teleport`を使った自動化スクリプトがあるなら、ブランチ切り替えが自動で完了しない前提に直し、表示されたgitコマンドを手動で実行する手順を挟む",
+        "CIなど`-p`で使っている場合は終了コード1をハンドリングするようにする"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "Skillの`model`設定が、以後のサブエージェント・フォーク・compaction・`/recap`にも引き継がれる",
+      "body": "frontmatterで`model`を指定したSkillを実行すると、そのモデルがそのセッションの以後の処理（サブエージェント起動、フォーク、要約=compaction、`/recap`）でも維持されるようになった。`context: fork`のSkillはこの挙動の対象外。",
+      "howto": [
+        "特定のSkillだけ軽いモデル（例: haiku）で動かすつもりでfrontmatterに`model: haiku`と書いた場合、以後の処理も含めてそのモデルのまま動くことを想定しておく",
+        "フォーク先だけ別モデルにしたいなら、そのSkillは`context: fork`にする"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "Prompt hooksの`model`欄に`haiku`・`sonnet`などのエイリアスが使えるように",
+      "body": "フック設定でモデルを指定するとき、`claude-haiku-4-5`のようなフルのモデルIDを書かなくても、`haiku`や`sonnet`といった短いエイリアスで指定できるようになった。",
+      "howto": [
+        "既存のprompt hooksの`model`欄がフルIDで書かれているなら、`haiku`や`sonnet`に書き換えて短くできる"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "認識できないモデル名に`sonnet`・`haiku`が含まれると、短縮版のシステムプロンプトが使われる",
+      "body": "サードパーティのプロキシやカスタムエンドポイント経由などでClaude Codeが認識しないモデル名を使う場合、その名前に`sonnet`または`haiku`という文字列が含まれていると、短い系統のシステムプロンプトが使われるようになった。",
+      "howto": [
+        "カスタムのモデル名・エイリアスに`sonnet`/`haiku`という文字列が入っていると挙動が変わりうることを把握しておく",
+        "フルのシステムプロンプトを使わせたい場合は`CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0`を設定する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "VS Code拡張の「Open in Side Bar」に`prompt`引数、セッショングループに並び替えが追加",
+      "body": "VS Code拡張で、セッションをサイドバーで開く「Open in Side Bar」操作に最初のプロンプトを渡す`prompt`引数が加わった。また、セッショングループのメニューからMove up / Move downで並び順を変更できるようになった。",
+      "howto": [
+        "サイドバーで新規セッションを開くときに最初のプロンプトまで一緒に渡せるようになったので、よく使う指示はコマンド登録しておくと呼び出しが速くなる",
+        "複数セッションをグループ化して使っているなら、Move up / Move downで並び順を整理する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`CLAUDE_CODE_FULL_SIGN_IN_LINK=1`で、省略されないサインインリンクを表示できる",
+      "body": "ターミナルに表示されるサインインリンクは短縮表示になることがあるが、この環境変数を立てて起動すると、省略されない完全なリンクがそのまま出力される。",
+      "howto": [
+        "SSH先やログ経由でリンクをコピーする必要があるときは`CLAUDE_CODE_FULL_SIGN_IN_LINK=1 claude`で起動する"
+      ],
+      "links": [
+        { "label": "Claude Code Changelog (v2.1.330)", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}

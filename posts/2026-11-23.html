@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.330のさらに見落とし分。`claude --teleport`は環境によってgit操作を実行せず表示のみになり、Skillの`model`設定がサブエージェント・フォーク・compaction・`/recap`にも引き継がれるように。Prompt hooksの`model`欄に`haiku`・`sonnet`のエイリアスが使えるようになった｜Claude code の PowerUP info</title>
+<meta name="description" content="11/18〜22号で取り上げてきたv2.1.326〜330には、まだ拾っていない変更が残っている。モデル指定とgit操作周りを中心に、知らないと挙動の変化に戸惑いそうな6本をまとめた。">
+<meta property="og:title" content="v2.1.330のさらに見落とし分。`claude --teleport`は環境によってgit操作を実行せず表示のみになり、Skillの`model`設定がサブエージェント・フォーク・compaction・`/recap`にも引き継がれるように。Prompt hooksの`model`欄に`haiku`・`sonnet`のエイリアスが使えるようになった｜Claude code の PowerUP info">
+<meta property="og:description" content="11/18〜22号で取り上げてきたv2.1.326〜330には、まだ拾っていない変更が残っている。モデル指定とgit操作周りを中心に、知らないと挙動の変化に戸惑いそうな6本をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.65</p>
+      <div class="article__head">
+        <span class="chip">2026.11.23</span>
+        <h1>v2.1.330のさらに見落とし分。`claude --teleport`は環境によってgit操作を実行せず表示のみになり、Skillの`model`設定がサブエージェント・フォーク・compaction・`/recap`にも引き継がれるように。Prompt hooksの`model`欄に`haiku`・`sonnet`のエイリアスが使えるようになった</h1>
+        <div class="article__date">2026年11月23日(月)公開 ／ VOL.65</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f172a 0%,#475569 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.65</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.23</div>
+      </div></div>
+      <p class="lead">11/18〜22号で取り上げてきたv2.1.326〜330には、まだ拾っていない変更が残っている。モデル指定とgit操作周りを中心に、知らないと挙動の変化に戸惑いそうな6本をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`claude --teleport`が一部の環境では、gitコマンドを実行せず表示するだけになった</a></li><li><a href="#item-2">Skillの`model`設定が、以後のサブエージェント・フォーク・compaction・`/recap`にも引き継がれる</a></li><li><a href="#item-3">Prompt hooksの`model`欄に`haiku`・`sonnet`などのエイリアスが使えるように</a></li><li><a href="#item-4">認識できないモデル名に`sonnet`・`haiku`が含まれると、短縮版のシステムプロンプトが使われる</a></li><li><a href="#item-5">VS Code拡張の「Open in Side Bar」に`prompt`引数、セッショングループに並び替えが追加</a></li><li><a href="#item-6">`CLAUDE_CODE_FULL_SIGN_IN_LINK=1`で、省略されないサインインリンクを表示できる</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>`claude --teleport`が一部の環境では、gitコマンドを実行せず表示するだけになった</h2>
+      <p>worktreeなどブランチを切り替える<code>--teleport</code>は、セットアップによっては実際にgitコマンドを実行せず、実行すべきコマンドを表示するだけの動作に変わった。<code>-p</code>（非対話）モードで使っている場合、ユーザーが実際にブランチを切り替えるまで終了コードが1を返す。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>--teleport</code>を使った自動化スクリプトがあるなら、ブランチ切り替えが自動で完了しない前提に直し、表示されたgitコマンドを手動で実行する手順を挟む</li><li>CIなど<code>-p</code>で使っている場合は終了コード1をハンドリングするようにする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">ワークフロー</span>
+      <h2>Skillの`model`設定が、以後のサブエージェント・フォーク・compaction・`/recap`にも引き継がれる</h2>
+      <p>frontmatterで<code>model</code>を指定したSkillを実行すると、そのモデルがそのセッションの以後の処理（サブエージェント起動、フォーク、要約=compaction、<code>/recap</code>）でも維持されるようになった。<code>context: fork</code>のSkillはこの挙動の対象外。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>特定のSkillだけ軽いモデル（例: haiku）で動かすつもりでfrontmatterに<code>model: haiku</code>と書いた場合、以後の処理も含めてそのモデルのまま動くことを想定しておく</li><li>フォーク先だけ別モデルにしたいなら、そのSkillは<code>context: fork</code>にする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">Tips</span>
+      <h2>Prompt hooksの`model`欄に`haiku`・`sonnet`などのエイリアスが使えるように</h2>
+      <p>フック設定でモデルを指定するとき、<code>claude-haiku-4-5</code>のようなフルのモデルIDを書かなくても、<code>haiku</code>や<code>sonnet</code>といった短いエイリアスで指定できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>既存のprompt hooksの<code>model</code>欄がフルIDで書かれているなら、<code>haiku</code>や<code>sonnet</code>に書き換えて短くできる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>認識できないモデル名に`sonnet`・`haiku`が含まれると、短縮版のシステムプロンプトが使われる</h2>
+      <p>サードパーティのプロキシやカスタムエンドポイント経由などでClaude Codeが認識しないモデル名を使う場合、その名前に<code>sonnet</code>または<code>haiku</code>という文字列が含まれていると、短い系統のシステムプロンプトが使われるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>カスタムのモデル名・エイリアスに<code>sonnet</code>/<code>haiku</code>という文字列が入っていると挙動が変わりうることを把握しておく</li><li>フルのシステムプロンプトを使わせたい場合は<code>CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT=0</code>を設定する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>VS Code拡張の「Open in Side Bar」に`prompt`引数、セッショングループに並び替えが追加</h2>
+      <p>VS Code拡張で、セッションをサイドバーで開く「Open in Side Bar」操作に最初のプロンプトを渡す<code>prompt</code>引数が加わった。また、セッショングループのメニューからMove up / Move downで並び順を変更できるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サイドバーで新規セッションを開くときに最初のプロンプトまで一緒に渡せるようになったので、よく使う指示はコマンド登録しておくと呼び出しが速くなる</li><li>複数セッションをグループ化して使っているなら、Move up / Move downで並び順を整理する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">Tips</span>
+      <h2>`CLAUDE_CODE_FULL_SIGN_IN_LINK=1`で、省略されないサインインリンクを表示できる</h2>
+      <p>ターミナルに表示されるサインインリンクは短縮表示になることがあるが、この環境変数を立てて起動すると、省略されない完全なリンクがそのまま出力される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>SSH先やログ経由でリンクをコピーする必要があるときは<code>CLAUDE_CODE_FULL_SIGN_IN_LINK=1 claude</code>で起動する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog (v2.1.330)</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-22.html">v2.1.327〜330の見落とし分。信頼ダイアログがフックの宣言場所を警告するようになり、`/mcp`はリモートMCPサーバーが接続拒否した理由を「Server message」で表示。`ExitWorktree`は未保存の作業があるworktreeを消す前に確認し、`/install-github-app`もリポジトリ変更前に確認が入るように。`deniedMcpServers`は名前指定だと該当コネクタのみを隠す仕様に、`Ctrl+O`で起動時の隠れた通知も見られる</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
