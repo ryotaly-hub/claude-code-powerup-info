@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.331。Code ModeがAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・AWS上のClaude Platformのターミナルセッションでも使えるようになり、`claude doctor`にAPI接続状況を報告する新セクションが追加。圧縮レスポンスを途中で切ってしまうプロキシ向けに`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`が登場し、サブエージェントの確認ダイアログは選択肢の並びがYes先頭に変わった（既定カーソルはNoのまま）。VS Code拡張にはSource Controlの「Add to Chat」や「Fix with Claude Code」などが追加され、11/30からはmanaged設定のプラグインマーケットプレイスが既定で自動更新されるように｜Claude code の PowerUP info</title>
+<meta name="description" content="11/23リリースのv2.1.331から、サードパーティ環境でのCode Mode対応拡大とVS Code拡張の新機能、そして11/30から効いてくる設定変更をまとめた。">
+<meta property="og:title" content="v2.1.331。Code ModeがAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・AWS上のClaude Platformのターミナルセッションでも使えるようになり、`claude doctor`にAPI接続状況を報告する新セクションが追加。圧縮レスポンスを途中で切ってしまうプロキシ向けに`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`が登場し、サブエージェントの確認ダイアログは選択肢の並びがYes先頭に変わった（既定カーソルはNoのまま）。VS Code拡張にはSource Controlの「Add to Chat」や「Fix with Claude Code」などが追加され、11/30からはmanaged設定のプラグインマーケットプレイスが既定で自動更新されるように｜Claude code の PowerUP info">
+<meta property="og:description" content="11/23リリースのv2.1.331から、サードパーティ環境でのCode Mode対応拡大とVS Code拡張の新機能、そして11/30から効いてくる設定変更をまとめた。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.66</p>
+      <div class="article__head">
+        <span class="chip">2026.11.24</span>
+        <h1>v2.1.331。Code ModeがAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・AWS上のClaude Platformのターミナルセッションでも使えるようになり、`claude doctor`にAPI接続状況を報告する新セクションが追加。圧縮レスポンスを途中で切ってしまうプロキシ向けに`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`が登場し、サブエージェントの確認ダイアログは選択肢の並びがYes先頭に変わった（既定カーソルはNoのまま）。VS Code拡張にはSource Controlの「Add to Chat」や「Fix with Claude Code」などが追加され、11/30からはmanaged設定のプラグインマーケットプレイスが既定で自動更新されるように</h1>
+        <div class="article__date">2026年11月24日(火)公開 ／ VOL.66</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#e6002d 0%,#7a0038 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.66</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.24</div>
+      </div></div>
+      <p class="lead">11/23リリースのv2.1.331から、サードパーティ環境でのCode Mode対応拡大とVS Code拡張の新機能、そして11/30から効いてくる設定変更をまとめた。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Code Modeが、Bedrock・Agent Platform・Foundry・AWS上のClaude Platformのターミナルセッションでも使えるように</a></li><li><a href="#item-2">`claude doctor`に、APIへの接続状況を報告する新セクションが追加</a></li><li><a href="#item-3">`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`で、モデル応答の圧縮を無効化できる</a></li><li><a href="#item-4">サブエージェントの確認ダイアログは選択肢がYes先頭の並びに変わったが、カーソルの初期位置は依然No</a></li><li><a href="#item-5">VS Code拡張に「Fix with Claude Code」「Add to Chat」「Resolve Merge Conflicts」などが追加</a></li><li><a href="#item-6">11/30以降、managed設定のプラグインマーケットプレイスは既定で自動更新されるように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">新機能</span>
+      <h2>Code Modeが、Bedrock・Agent Platform・Foundry・AWS上のClaude Platformのターミナルセッションでも使えるように</h2>
+      <p>v2.1.331で、Code Mode（スクリプトからツールを呼び出す実行モード）がターミナルセッションでも Amazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・AWS上のClaude Platform で使えるようになった。これまで対応環境が限られていたため、サードパーティ基盤でCode Modeの恩恵をそのまま受けられる範囲が広がった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>社内でBedrock/Agent Platform/Foundryを使っている場合、ターミナルセッションからCode Modeを有効化してスクリプト経由のツール呼び出しに切り替えられる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`claude doctor`に、APIへの接続状況を報告する新セクションが追加</h2>
+      <p><code>claude doctor</code>の出力に、APIへ到達できているかどうかをHTTPステータスやエラー内容と一緒に報告する「API connectivity」セクションが加わった。プロキシ経由の接続不良やネットワーク設定の問題を、まずここで切り分けられる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>APIに繋がらない・応答がないといった症状に遭遇したら、まず<code>claude doctor</code>を実行してAPI connectivityの行を確認する</li><li>HTTPステータスが表示されれば、社内プロキシ側の問題かAnthropic側の問題かの当たりがつけやすい</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`で、モデル応答の圧縮を無効化できる</h2>
+      <p>圧縮されたモデルの応答を途中で打ち切ってしまうプロキシの背後でClaude Codeを使っている場合、環境変数<code>CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION</code>を設定すると非圧縮のレスポンスを要求できるようになった。ストリーミングが不自然に途切れる・ハングするといった症状の切り分けに使える。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>社内プロキシ経由でストリーミング応答が途中で切れる場合、<code>CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION=1</code>を設定して症状が解消するか確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>サブエージェントの確認ダイアログは選択肢がYes先頭の並びに変わったが、カーソルの初期位置は依然No</h2>
+      <p>サブエージェントのビューで出る<code>/ide</code>の自動接続プロンプトや、<code>/clear</code>・<code>/compact</code>・<code>/rewind</code>の確認ダイアログは、選択肢の並び順が「Yes」が先頭に来るよう変更された。ただしデフォルトのカーソル位置は変わらず「No」のままなので、何も押さずにEnterを押せば引き続きNoが選ばれる。Yesを選ぶには明示的に上キーで移動する必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>サブエージェントの確認ダイアログでは、迷わずそのままEnterを押せばNo側で確定できる（並びがYes先頭になった後も挙動は変わらない）</li><li>Yesを選びたいときだけ、上キーで一度移動してからEnterを押す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">エコシステム</span>
+      <h2>VS Code拡張に「Fix with Claude Code」「Add to Chat」「Resolve Merge Conflicts」などが追加</h2>
+      <p>VS Code拡張がv2.1.331で複数の統合を追加した。Source Controlビューの変更には「Add to Chat」で会話にそのまま渡せるボタンがつき、エディタのエラーに表示されるクイックフィックスから「Fix with Claude Code」を呼び出せるようになった。マージコンフリクトが出たファイルでは「Resolve Merge Conflicts」から解決を依頼でき、Notebookのセルも「Add Cell to Chat」で渡せる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>差分レビュー中に気になる変更があれば、Source Controlの「Add to Chat」から直接質問・修正依頼する</li><li>エディタの赤波線エラーに出るクイックフィックス一覧から「Fix with Claude Code」を選ぶと、そのまま修正を依頼できる</li><li>マージコンフリクトが出たファイルでは、クイックフィックスの「Resolve Merge Conflicts」を試す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">注意点</span>
+      <h2>11/30以降、managed設定のプラグインマーケットプレイスは既定で自動更新されるように</h2>
+      <p>2026年11月30日以降、管理者側の設定（<code>managed-settings.json</code>）の<code>extraKnownMarketplaces</code>に登録したプラグインマーケットプレイスは、デフォルトで自動更新されるようになる。意図しないバージョンアップを避けたい場合は、該当エントリに<code>&quot;autoUpdate&quot;: false</code>を明示しておく必要がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>組織の<code>managed-settings.json</code>で<code>extraKnownMarketplaces</code>を使っている場合、11/30までに各エントリの自動更新を許容するか判断し、避けたいものには<code>&quot;autoUpdate&quot;: false</code>を追加しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-23.html">v2.1.330のさらに見落とし分。`claude --teleport`は環境によってgit操作を実行せず表示のみになり、Skillの`model`設定がサブエージェント・フォーク・compaction・`/recap`にも引き継がれるように。Prompt hooksの`model`欄に`haiku`・`sonnet`のエイリアスが使えるようになった</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
