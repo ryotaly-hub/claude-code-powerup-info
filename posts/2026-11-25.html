@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.329〜331の見落とし分。長い会話を`/compact`した直後に数分間フリーズする不具合とWebFetchのハングが修正され、プラグインの`plugin.json`に`optionalDependencies`が追加された。Code Modeの暴走ループ対策と`PermissionDenied`フックの`retry: true`の意味変更にも注意｜Claude code の PowerUP info</title>
+<meta name="description" content="直近の変更点から、まだ取り上げていなかった実務寄りの修正と変更を4本。長い会話の圧縮やWebFetchで固まった経験がある人、プラグインやフックを自作している人向け。">
+<meta property="og:title" content="v2.1.329〜331の見落とし分。長い会話を`/compact`した直後に数分間フリーズする不具合とWebFetchのハングが修正され、プラグインの`plugin.json`に`optionalDependencies`が追加された。Code Modeの暴走ループ対策と`PermissionDenied`フックの`retry: true`の意味変更にも注意｜Claude code の PowerUP info">
+<meta property="og:description" content="直近の変更点から、まだ取り上げていなかった実務寄りの修正と変更を4本。長い会話の圧縮やWebFetchで固まった経験がある人、プラグインやフックを自作している人向け。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.67</p>
+      <div class="article__head">
+        <span class="chip">2026.11.25</span>
+        <h1>v2.1.329〜331の見落とし分。長い会話を`/compact`した直後に数分間フリーズする不具合とWebFetchのハングが修正され、プラグインの`plugin.json`に`optionalDependencies`が追加された。Code Modeの暴走ループ対策と`PermissionDenied`フックの`retry: true`の意味変更にも注意</h1>
+        <div class="article__date">2026年11月25日(水)公開 ／ VOL.67</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#1b3a7a 0%,#0c9bd6 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.67</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.25</div>
+      </div></div>
+      <p class="lead">直近の変更点から、まだ取り上げていなかった実務寄りの修正と変更を4本。長い会話の圧縮やWebFetchで固まった経験がある人、プラグインやフックを自作している人向け。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">非常に長い会話を`/compact`した直後に数分間フリーズする不具合が修正</a></li><li><a href="#item-2">WebFetchが一部のページでセッションをハングさせたり空の結果を返す不具合が修正</a></li><li><a href="#item-3">プラグインの`plugin.json`に`optionalDependencies`が追加</a></li><li><a href="#item-4">Code Mode内のスクリプトが暴走してメモリを食い尽くすバグが修正</a></li><li><a href="#item-5">`PermissionDenied`フックの`retry: true`の意味が変更</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">ワークフロー</span>
+      <h2>非常に長い会話を`/compact`した直後に数分間フリーズする不具合が修正</h2>
+      <p>会話が長くなった状態で <code>/compact</code> を実行すると、圧縮直後にClaude Codeが最大で数分間フリーズする不具合があった。v2.1.330で修正されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>最新版に更新していれば、長い会話を圧縮した直後に固まる現象は解消されている</li><li>まだ発生する場合は <code>claude update</code> などでバージョンを確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>WebFetchが一部のページでセッションをハングさせたり空の結果を返す不具合が修正</h2>
+      <p>WebFetchツールが特定のページを読み込むと数分間セッションごと固まったり、何も取れずに空の結果を返したりする不具合があった。v2.1.330で修正されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>WebFetchが固まる・空の結果になるという報告があった場合は、まずバージョンを最新にして様子を見る</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">エコシステム</span>
+      <h2>プラグインの`plugin.json`に`optionalDependencies`が追加</h2>
+      <p>プラグインのマニフェストに <code>optionalDependencies</code> フィールドが加わった。そこに列挙した依存プラグインは本体と一緒にインストールされるが、本体とは別に無効化・アンインストールできる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>自作プラグインで「あれば便利だが必須ではない」依存を配るなら、<code>dependencies</code> ではなく <code>optionalDependencies</code> に書く</li><li>利用者はそのサブプラグインだけを個別にオフ・削除できるようになる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>Code Mode内のスクリプトが暴走してメモリを食い尽くすバグが修正</h2>
+      <p>Code Mode内で実行されるスクリプトが暴走し、マシンのメモリを使い果たしてしまうバグがあった。v2.1.329で、一定の上限に達すると停止するようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Code Modeで長時間走るスクリプトを書く場合でも、暴走によるメモリ枯渇の心配は減ったが、ループの終了条件は自分でも確認しておく</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>`PermissionDenied`フックの`retry: true`の意味が変更</h2>
+      <p><code>PermissionDenied</code> フックが <code>retry: true</code> を返したときの挙動が変わった。以前は拒否された呼び出しを無条件に再試行させていたが、v2.1.331からは、ユーザー自身がその呼び出しを求めていた場合のみ再試行する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>PermissionDenied</code> フックで <code>retry: true</code> を使っている場合、ユーザーが明示的に頼んでいない呼び出しを自動再試行させる用途には使えなくなった点を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-24.html">v2.1.331。Code ModeがAmazon Bedrock・Google CloudのAgent Platform・Microsoft Foundry・AWS上のClaude Platformのターミナルセッションでも使えるようになり、`claude doctor`にAPI接続状況を報告する新セクションが追加。圧縮レスポンスを途中で切ってしまうプロキシ向けに`CLAUDE_CODE_DISABLE_RESPONSE_COMPRESSION`が登場し、サブエージェントの確認ダイアログは選択肢の並びがYes先頭に変わった（既定カーソルはNoのまま）。VS Code拡張にはSource Controlの「Add to Chat」や「Fix with Claude Code」などが追加され、11/30からはmanaged設定のプラグインマーケットプレイスが既定で自動更新されるように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

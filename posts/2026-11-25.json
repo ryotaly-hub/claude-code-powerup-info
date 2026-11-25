@@ -1,0 +1,64 @@
+{
+  "date": "2026-11-25",
+  "headline": "v2.1.329〜331の見落とし分。長い会話を`/compact`した直後に数分間フリーズする不具合とWebFetchのハングが修正され、プラグインの`plugin.json`に`optionalDependencies`が追加された。Code Modeの暴走ループ対策と`PermissionDenied`フックの`retry: true`の意味変更にも注意",
+  "lead": "直近の変更点から、まだ取り上げていなかった実務寄りの修正と変更を4本。長い会話の圧縮やWebFetchで固まった経験がある人、プラグインやフックを自作している人向け。",
+  "items": [
+    {
+      "category": "ワークフロー",
+      "title": "非常に長い会話を`/compact`した直後に数分間フリーズする不具合が修正",
+      "body": "会話が長くなった状態で `/compact` を実行すると、圧縮直後にClaude Codeが最大で数分間フリーズする不具合があった。v2.1.330で修正されている。",
+      "howto": [
+        "最新版に更新していれば、長い会話を圧縮した直後に固まる現象は解消されている",
+        "まだ発生する場合は `claude update` などでバージョンを確認する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "WebFetchが一部のページでセッションをハングさせたり空の結果を返す不具合が修正",
+      "body": "WebFetchツールが特定のページを読み込むと数分間セッションごと固まったり、何も取れずに空の結果を返したりする不具合があった。v2.1.330で修正されている。",
+      "howto": [
+        "WebFetchが固まる・空の結果になるという報告があった場合は、まずバージョンを最新にして様子を見る"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "エコシステム",
+      "title": "プラグインの`plugin.json`に`optionalDependencies`が追加",
+      "body": "プラグインのマニフェストに `optionalDependencies` フィールドが加わった。そこに列挙した依存プラグインは本体と一緒にインストールされるが、本体とは別に無効化・アンインストールできる。",
+      "howto": [
+        "自作プラグインで「あれば便利だが必須ではない」依存を配るなら、`dependencies` ではなく `optionalDependencies` に書く",
+        "利用者はそのサブプラグインだけを個別にオフ・削除できるようになる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "Code Mode内のスクリプトが暴走してメモリを食い尽くすバグが修正",
+      "body": "Code Mode内で実行されるスクリプトが暴走し、マシンのメモリを使い果たしてしまうバグがあった。v2.1.329で、一定の上限に達すると停止するようになった。",
+      "howto": [
+        "Code Modeで長時間走るスクリプトを書く場合でも、暴走によるメモリ枯渇の心配は減ったが、ループの終了条件は自分でも確認しておく"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "`PermissionDenied`フックの`retry: true`の意味が変更",
+      "body": "`PermissionDenied` フックが `retry: true` を返したときの挙動が変わった。以前は拒否された呼び出しを無条件に再試行させていたが、v2.1.331からは、ユーザー自身がその呼び出しを求めていた場合のみ再試行する。",
+      "howto": [
+        "`PermissionDenied` フックで `retry: true` を使っている場合、ユーザーが明示的に頼んでいない呼び出しを自動再試行させる用途には使えなくなった点を確認する"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
