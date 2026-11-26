@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Opus 4.8のfast modeは11/30に削除されるため早めの切替が必要。v2.1.332ではMCPサーバー提供のSkillが`server:skill`表示でbeta対応し、Skillのインラインシェルコマンドを拒否できる`PreSkillShellCommand`フックが追加。`/permissions`は起動時に無視されるルールを拒否するようになり、computer use有効時は`computer-use`という名前のSkill・コマンドが予約語に｜Claude code の PowerUP info</title>
+<meta name="description" content="11/25リリースのv2.1.332の変更と、Opus 4.8のfast mode終了という期限付きの注意点を合わせて6本。fast modeを使っている人は11/30までの対応が必要。">
+<meta property="og:title" content="Opus 4.8のfast modeは11/30に削除されるため早めの切替が必要。v2.1.332ではMCPサーバー提供のSkillが`server:skill`表示でbeta対応し、Skillのインラインシェルコマンドを拒否できる`PreSkillShellCommand`フックが追加。`/permissions`は起動時に無視されるルールを拒否するようになり、computer use有効時は`computer-use`という名前のSkill・コマンドが予約語に｜Claude code の PowerUP info">
+<meta property="og:description" content="11/25リリースのv2.1.332の変更と、Opus 4.8のfast mode終了という期限付きの注意点を合わせて6本。fast modeを使っている人は11/30までの対応が必要。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.68</p>
+      <div class="article__head">
+        <span class="chip">2026.11.26</span>
+        <h1>Opus 4.8のfast modeは11/30に削除されるため早めの切替が必要。v2.1.332ではMCPサーバー提供のSkillが`server:skill`表示でbeta対応し、Skillのインラインシェルコマンドを拒否できる`PreSkillShellCommand`フックが追加。`/permissions`は起動時に無視されるルールを拒否するようになり、computer use有効時は`computer-use`という名前のSkill・コマンドが予約語に</h1>
+        <div class="article__date">2026年11月26日(木)公開 ／ VOL.68</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#0f6b52 0%,#57b894 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.68</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.26</div>
+      </div></div>
+      <p class="lead">11/25リリースのv2.1.332の変更と、Opus 4.8のfast mode終了という期限付きの注意点を合わせて6本。fast modeを使っている人は11/30までの対応が必要。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">Opus 4.8のfast modeは2026年11月30日に削除される</a></li><li><a href="#item-2">MCPサーバー提供のSkillが使えるようになった（beta）</a></li><li><a href="#item-3">新しいフックイベント`PreSkillShellCommand`が追加</a></li><li><a href="#item-4">`/permissions`が、起動時に無視されるルールの追加を拒否するように改善</a></li><li><a href="#item-5">computer useが有効なMacでは、`computer-use`という名前のSkill・コマンドが予約語になった</a></li><li><a href="#item-6">VS Codeで、`/rewind`による会話復元が実行中のself-paced `/loop`を止める場合に警告が表示されるように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>Opus 4.8のfast modeは2026年11月30日に削除される</h2>
+      <p>公式ドキュメントによると、Opus 4.8のfast modeは2026年10月30日付けで非推奨となっており、2026年11月30日に削除される。削除後もOpus 4.8でfast modeをオンにしたままだと、APIがリクエストを拒否するようになる。</p>
+      <p>速度を維持したい場合はOpus 5.5へ切り替えるのが案内されている。Opus 4.8を標準速度のまま使い続けるだけなら<code>/fast off</code>でよい。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Opus 4.8でfast modeをオンにして使っている場合、11/30までに<code>/model</code>でOpus 5.5に切り替えるか、<code>/fast off</code>でfast modeを切っておく</li><li>Opus 5.5への切り替えにはClaude Code v2.1.280以降が必要</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/fast-mode" target="_blank" rel="noopener">Speed up responses with fast mode</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">新機能</span>
+      <h2>MCPサーバー提供のSkillが使えるようになった（beta）</h2>
+      <p>v2.1.332で、MCPサーバーが提供するSkillを使えるようになった（beta）。こうしたSkillは<code>/</code>メニューに<code>server:skill</code>の形式で表示され、通常のSkillは今までどおりの名前のまま表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>MCPサーバーがSkillを提供している場合、<code>/</code>メニューに<code>サーバー名:スキル名</code>の形式で現れるので、通常のSkillと見分けて呼び出せる</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">ワークフロー</span>
+      <h2>新しいフックイベント`PreSkillShellCommand`が追加</h2>
+      <p>Skillやコマンドのロード時にインラインのシェルコマンドが実行される場面で、それを拒否できるフックイベント<code>PreSkillShellCommand</code>がv2.1.332で追加された。v2.1.331以前では、設定ファイルでこのイベント名を指定すると起動時にダイアログが出てしまっていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>SkillやコマンドのインラインシェルコマンドをCIなどで制限したい場合、<code>PreSkillShellCommand</code>フックを設定して拒否条件を書く</li><li>v2.1.332より前のバージョンで同名のフックを設定ファイルに書いていた場合は、起動時にダイアログが出ていた不具合なので更新してから使う</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">Tips</span>
+      <h2>`/permissions`が、起動時に無視されるルールの追加を拒否するように改善</h2>
+      <p><code>/permissions</code>で、起動時に実際には適用されないルールを登録しようとすると拒否され、理由が表示されるようになった。例えばツール名を指定しない<code>rm -rf</code>のような書き方が対象になる。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>パーミッションルールを追加しようとして<code>/permissions</code>に拒否された場合、ツール名の指定漏れなど、起動時に無視される書き方になっていないか見直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>computer useが有効なMacでは、`computer-use`という名前のSkill・コマンドが予約語になった</h2>
+      <p>Macでcomputer useが有効な場合、<code>computer-use</code>という名前は予約済みとなり、同名の自作Skillやコマンドは読み込まれなくなった。該当する場合は起動時にリネームを促す通知が表示される。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Macでcomputer useを使っていて、<code>computer-use</code>という名前のSkillやコマンドを自作している場合、起動時の通知に従って別名にリネームする</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>VS Codeで、`/rewind`による会話復元が実行中のself-paced `/loop`を止める場合に警告が表示されるように</h2>
+      <p>VS Code拡張のサイドバーから<code>/rewind</code>で会話を復元する操作が、間隔指定なし（self-paced）で動かしている<code>/loop</code>を停止させてしまう場合に、その旨の警告が追加された。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>VS Codeで間隔指定なしの<code>/loop</code>を動かしている最中に<code>/rewind</code>で会話を戻す場合は、loopが止まる可能性があるという警告を確認してから進める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-25.html">v2.1.329〜331の見落とし分。長い会話を`/compact`した直後に数分間フリーズする不具合とWebFetchのハングが修正され、プラグインの`plugin.json`に`optionalDependencies`が追加された。Code Modeの暴走ループ対策と`PermissionDenied`フックの`retry: true`の意味変更にも注意</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>

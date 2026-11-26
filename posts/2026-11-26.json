@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-26",
+  "headline": "Opus 4.8のfast modeは11/30に削除されるため早めの切替が必要。v2.1.332ではMCPサーバー提供のSkillが`server:skill`表示でbeta対応し、Skillのインラインシェルコマンドを拒否できる`PreSkillShellCommand`フックが追加。`/permissions`は起動時に無視されるルールを拒否するようになり、computer use有効時は`computer-use`という名前のSkill・コマンドが予約語に",
+  "lead": "11/25リリースのv2.1.332の変更と、Opus 4.8のfast mode終了という期限付きの注意点を合わせて6本。fast modeを使っている人は11/30までの対応が必要。",
+  "items": [
+    {
+      "category": "注意点",
+      "title": "Opus 4.8のfast modeは2026年11月30日に削除される",
+      "body": "公式ドキュメントによると、Opus 4.8のfast modeは2026年10月30日付けで非推奨となっており、2026年11月30日に削除される。削除後もOpus 4.8でfast modeをオンにしたままだと、APIがリクエストを拒否するようになる。\n\n速度を維持したい場合はOpus 5.5へ切り替えるのが案内されている。Opus 4.8を標準速度のまま使い続けるだけなら`/fast off`でよい。",
+      "howto": [
+        "Opus 4.8でfast modeをオンにして使っている場合、11/30までに`/model`でOpus 5.5に切り替えるか、`/fast off`でfast modeを切っておく",
+        "Opus 5.5への切り替えにはClaude Code v2.1.280以降が必要"
+      ],
+      "links": [
+        { "label": "Speed up responses with fast mode", "url": "https://code.claude.com/docs/en/fast-mode" }
+      ]
+    },
+    {
+      "category": "新機能",
+      "title": "MCPサーバー提供のSkillが使えるようになった（beta）",
+      "body": "v2.1.332で、MCPサーバーが提供するSkillを使えるようになった（beta）。こうしたSkillは`/`メニューに`server:skill`の形式で表示され、通常のSkillは今までどおりの名前のまま表示される。",
+      "howto": [
+        "MCPサーバーがSkillを提供している場合、`/`メニューに`サーバー名:スキル名`の形式で現れるので、通常のSkillと見分けて呼び出せる"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "新しいフックイベント`PreSkillShellCommand`が追加",
+      "body": "Skillやコマンドのロード時にインラインのシェルコマンドが実行される場面で、それを拒否できるフックイベント`PreSkillShellCommand`がv2.1.332で追加された。v2.1.331以前では、設定ファイルでこのイベント名を指定すると起動時にダイアログが出てしまっていた。",
+      "howto": [
+        "SkillやコマンドのインラインシェルコマンドをCIなどで制限したい場合、`PreSkillShellCommand`フックを設定して拒否条件を書く",
+        "v2.1.332より前のバージョンで同名のフックを設定ファイルに書いていた場合は、起動時にダイアログが出ていた不具合なので更新してから使う"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "Tips",
+      "title": "`/permissions`が、起動時に無視されるルールの追加を拒否するように改善",
+      "body": "`/permissions`で、起動時に実際には適用されないルールを登録しようとすると拒否され、理由が表示されるようになった。例えばツール名を指定しない`rm -rf`のような書き方が対象になる。",
+      "howto": [
+        "パーミッションルールを追加しようとして`/permissions`に拒否された場合、ツール名の指定漏れなど、起動時に無視される書き方になっていないか見直す"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "注意点",
+      "title": "computer useが有効なMacでは、`computer-use`という名前のSkill・コマンドが予約語になった",
+      "body": "Macでcomputer useが有効な場合、`computer-use`という名前は予約済みとなり、同名の自作Skillやコマンドは読み込まれなくなった。該当する場合は起動時にリネームを促す通知が表示される。",
+      "howto": [
+        "Macでcomputer useを使っていて、`computer-use`という名前のSkillやコマンドを自作している場合、起動時の通知に従って別名にリネームする"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    },
+    {
+      "category": "ワークフロー",
+      "title": "VS Codeで、`/rewind`による会話復元が実行中のself-paced `/loop`を止める場合に警告が表示されるように",
+      "body": "VS Code拡張のサイドバーから`/rewind`で会話を復元する操作が、間隔指定なし（self-paced）で動かしている`/loop`を停止させてしまう場合に、その旨の警告が追加された。",
+      "howto": [
+        "VS Codeで間隔指定なしの`/loop`を動かしている最中に`/rewind`で会話を戻す場合は、loopが止まる可能性があるという警告を確認してから進める"
+      ],
+      "links": [
+        { "label": "Claude Code changelog", "url": "https://code.claude.com/docs/en/changelog" }
+      ]
+    }
+  ]
+}
