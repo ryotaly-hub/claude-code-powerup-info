@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.332のさらに見落とし分。`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合と、Readツールが名前付きパイプの読み込みでハングする不具合、SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正された。他セッションからの保留メッセージには「Always deliver」オプションが追加され、`--model default`は指定モデルが使えない場合エラーではなく利用可能な旧モデルへ自動フォールバックするように｜Claude code の PowerUP info</title>
+<meta name="description" content="11/25リリースのv2.1.332から、これまでの号で取り上げていなかった修正とワークフロー周りの変更を5本。認証・MCP・モデル指定に関わる地味だが実用的な内容が中心。">
+<meta property="og:title" content="v2.1.332のさらに見落とし分。`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合と、Readツールが名前付きパイプの読み込みでハングする不具合、SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正された。他セッションからの保留メッセージには「Always deliver」オプションが追加され、`--model default`は指定モデルが使えない場合エラーではなく利用可能な旧モデルへ自動フォールバックするように｜Claude code の PowerUP info">
+<meta property="og:description" content="11/25リリースのv2.1.332から、これまでの号で取り上げていなかった修正とワークフロー周りの変更を5本。認証・MCP・モデル指定に関わる地味だが実用的な内容が中心。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.69</p>
+      <div class="article__head">
+        <span class="chip">2026.11.27</span>
+        <h1>v2.1.332のさらに見落とし分。`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合と、Readツールが名前付きパイプの読み込みでハングする不具合、SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正された。他セッションからの保留メッセージには「Always deliver」オプションが追加され、`--model default`は指定モデルが使えない場合エラーではなく利用可能な旧モデルへ自動フォールバックするように</h1>
+        <div class="article__date">2026年11月27日(金)公開 ／ VOL.69</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#4b2a7a 0%,#a35bd1 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.69</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.27</div>
+      </div></div>
+      <p class="lead">11/25リリースのv2.1.332から、これまでの号で取り上げていなかった修正とワークフロー周りの変更を5本。認証・MCP・モデル指定に関わる地味だが実用的な内容が中心。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合が修正</a></li><li><a href="#item-2">Readツールが名前付きパイプ(named pipe)を読もうとしてハングする不具合が修正</a></li><li><a href="#item-3">SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正</a></li><li><a href="#item-4">他セッションからの保留メッセージに「Always deliver」オプションが追加</a></li><li><a href="#item-5">`--model default`で指定モデルが使えない場合、エラーではなく利用可能な旧モデルへ自動フォールバックするように</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">注意点</span>
+      <h2>`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合が修正</h2>
+      <p>v2.1.332で、<code>claude auth login</code>の不具合が修正された。これまでは認証情報の保存自体に失敗していても、コマンドは成功したかのように表示してしまっていた。保存に失敗した状態で使い続けると、次回起動時に再ログインを求められたり、セッションが突然切れたりする原因になっていた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>最近<code>claude auth login</code>後に原因不明の再ログインや認証切れが起きていた場合、v2.1.332以降に更新すれば保存失敗が成功と誤表示されることはなくなる</li><li>更新後も再ログインが頻発する場合は、保存先（Keychainなど）の権限自体を確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">注意点</span>
+      <h2>Readツールが名前付きパイプ(named pipe)を読もうとしてハングする不具合が修正</h2>
+      <p>v2.1.332で、Readツールが名前付きパイプ（FIFO）をファイルとして読み込もうとした際にハングしてしまう不具合が修正された。<code>/dev/fd/*</code>やプロセス間通信用のパイプをパスとして渡してしまうケースで発生していた。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>スクリプトの出力をパイプ経由でClaude Codeに読ませるような構成を組んでいて以前フリーズしたことがある場合、v2.1.332以降なら解消されている</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正</h2>
+      <p>v2.1.332で、SSE（Server-Sent Events）方式のMCPサーバーが、ネットワークの切断などでストリームが途切れた後もハングし続ける不具合が修正された。それまではセッション側がタイムアウトせず、該当のMCPツールが使えない状態のまま固まってしまうことがあった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>SSE方式のリモートMCPサーバーを使っていて、接続が不安定な環境でセッションがハングした経験があるなら、v2.1.332への更新で改善が見込める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">ワークフロー</span>
+      <h2>他セッションからの保留メッセージに「Always deliver」オプションが追加</h2>
+      <p>v2.1.332で、別のClaude Codeセッションから届いた保留中のメッセージに「Always deliver」オプションが追加された。選ぶと、以後同じ送り主からのメッセージは確認なしで配信されるようになる。また、保留メッセージを送ってきたセッションが別モデルを使っている場合、<code>/model</code>で選択するまでその旨がフッターに表示されるようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>複数セッションをSendMessageやクロスセッションメッセージングで連携させている場合、信頼している送り主には保留メッセージ画面で「Always deliver」を選んでおくと、以後の確認が省ける</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">Tips</span>
+      <h2>`--model default`で指定モデルが使えない場合、エラーではなく利用可能な旧モデルへ自動フォールバックするように</h2>
+      <p>v2.1.332で、<code>--model default</code>を指定したときの挙動が変わった。これまでは既定モデルが現在の環境で使えないとエラーで起動に失敗していたが、今後は利用可能な旧バージョンのモデルへ自動的にフォールバックして起動する。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>Bedrock・Foundryなどデフォルトモデルの利用可否が環境によって異なる構成で<code>--model default</code>を使っている場合、起動時エラーで止まることが減る。実際にどのモデルで起動したかは<code>/model</code>やセッション開始時の表示で確認する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-26.html">Opus 4.8のfast modeは11/30に削除されるため早めの切替が必要。v2.1.332ではMCPサーバー提供のSkillが`server:skill`表示でbeta対応し、Skillのインラインシェルコマンドを拒否できる`PreSkillShellCommand`フックが追加。`/permissions`は起動時に無視されるルールを拒否するようになり、computer use有効時は`computer-use`という名前のSkill・コマンドが予約語に</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
