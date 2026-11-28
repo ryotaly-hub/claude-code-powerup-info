@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>v2.1.328〜332のさらに見落とし分。`/bug`はYes/No確認を挟んでから送信するよう変更され、連打での誤送信を防止。確認ダイアログではPgUp/HomeがNo側に移動し、computer use(macOS)の安全ルール更新で一部操作が拒否されたり入力が遅くなることがある。Desktop・VS Codeのplan modeでは判断できないコマンドが拒否でなく承認待ちに変わり、VS CodeとDesktopのCode tabには会話の一部が保存できなかった場合に`/compact`で保存する方法を示す警告が追加。`/feedback`のドラフトは「Not now」で開くようになり、レポート単体か文字起こし付きかを選べるように｜Claude code の PowerUP info</title>
+<meta name="description" content="今号はv2.1.328〜332の中で、これまでの号で拾っていなかった項目をまとめた。確認ダイアログの誤操作対策から、computer useやplan modeの挙動変更、フィードバック・バグ報告系の地味な改善まで、実務に効く変更を選んだ。">
+<meta property="og:title" content="v2.1.328〜332のさらに見落とし分。`/bug`はYes/No確認を挟んでから送信するよう変更され、連打での誤送信を防止。確認ダイアログではPgUp/HomeがNo側に移動し、computer use(macOS)の安全ルール更新で一部操作が拒否されたり入力が遅くなることがある。Desktop・VS Codeのplan modeでは判断できないコマンドが拒否でなく承認待ちに変わり、VS CodeとDesktopのCode tabには会話の一部が保存できなかった場合に`/compact`で保存する方法を示す警告が追加。`/feedback`のドラフトは「Not now」で開くようになり、レポート単体か文字起こし付きかを選べるように｜Claude code の PowerUP info">
+<meta property="og:description" content="今号はv2.1.328〜332の中で、これまでの号で拾っていなかった項目をまとめた。確認ダイアログの誤操作対策から、computer useやplan modeの挙動変更、フィードバック・バグ報告系の地味な改善まで、実務に効く変更を選んだ。">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../assets/style.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%23e6002d'/><text x='50' y='72' font-size='64' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>P</text></svg>">
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="logo" href="../index.html">
+      <span class="logo__mark">P</span>
+      <span class="logo__text">Claude code の <em>PowerUP</em> info</span>
+    </a>
+    <form class="search" role="search" data-base="../" onsubmit="return false">
+      <button class="search__toggle" type="button" aria-label="記事を検索" aria-expanded="false"></button>
+      <input class="search__input" type="search" placeholder="記事をキーワード検索" aria-label="記事をキーワード検索" autocomplete="off">
+      <div class="search__results" hidden></div>
+    </form>
+    <span class="site-header__tag">DAILY 9:00 JST</span>
+  </div>
+</header>
+
+  <div class="wrap">
+    <article class="article">
+      <p class="breadcrumb"><a href="../index.html">Claude code の PowerUP info</a> ／ VOL.70</p>
+      <div class="article__head">
+        <span class="chip">2026.11.28</span>
+        <h1>v2.1.328〜332のさらに見落とし分。`/bug`はYes/No確認を挟んでから送信するよう変更され、連打での誤送信を防止。確認ダイアログではPgUp/HomeがNo側に移動し、computer use(macOS)の安全ルール更新で一部操作が拒否されたり入力が遅くなることがある。Desktop・VS Codeのplan modeでは判断できないコマンドが拒否でなく承認待ちに変わり、VS CodeとDesktopのCode tabには会話の一部が保存できなかった場合に`/compact`で保存する方法を示す警告が追加。`/feedback`のドラフトは「Not now」で開くようになり、レポート単体か文字起こし付きかを選べるように</h1>
+        <div class="article__date">2026年11月28日(土)公開 ／ VOL.70</div>
+      </div>
+      <div class="article__hero"><div class="thumb" style="background:linear-gradient(135deg,#c2410c 0%,#f0a02b 100%)">
+        <div class="thumb__deco"></div>
+        <div class="thumb__issue">POWERUP INFO / VOL.70</div>
+        <div class="thumb__date" style="font-size:38px">2026.11.28</div>
+      </div></div>
+      <p class="lead">今号はv2.1.328〜332の中で、これまでの号で拾っていなかった項目をまとめた。確認ダイアログの誤操作対策から、computer useやplan modeの挙動変更、フィードバック・バグ報告系の地味な改善まで、実務に効く変更を選んだ。</p>
+      <nav class="toc">
+      <h2>この号の内容</h2>
+      <ol><li><a href="#item-1">VS Code・DesktopのCode tabに、会話の一部が保存できなかった場合の警告が追加</a></li><li><a href="#item-2">`/feedback`のドラフトが「Not now」で開くようになり、レポート単体か文字起こし付きかを選べるように</a></li><li><a href="#item-3">`/bug`はYes/No確認を挟んでから送信するように変更。連打での誤送信を防止</a></li><li><a href="#item-4">確認ダイアログでPgUp/HomeがNo側に移動するように変更</a></li><li><a href="#item-5">computer use(macOS)の安全ルールが更新され、一部操作が拒否されたり入力が遅くなることがある</a></li><li><a href="#item-6">Desktop・VS Codeのplan modeで、判断できないコマンドが拒否でなく承認待ちに変わった</a></li></ol>
+    </nav>
+    <section class="item" id="item-1">
+      <span class="chip">Tips</span>
+      <h2>VS Code・DesktopのCode tabに、会話の一部が保存できなかった場合の警告が追加</h2>
+      <p>VS Code拡張とDesktopアプリのCode tabで、セッションの一部が保存できなかったときに、<code>/compact</code>で保存する方法を案内する警告が表示されるようになった。合わせて、再開したセッションで以前のメッセージが読み込まれていない場合も、ターミナル同様に通知が出るようになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>この警告が出たら、放置せずに<code>/compact</code>を実行して会話を保存し直す</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-2">
+      <span class="chip">Tips</span>
+      <h2>`/feedback`のドラフトが「Not now」で開くようになり、レポート単体か文字起こし付きかを選べるように</h2>
+      <p>ターミナルで<code>/feedback</code>を使うと、ドラフトが「Not now」の状態で開くようになった。その上に、レポートだけを送るか、会話の文字起こしも付けて送るかを選べる行が別に用意されている。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>機密情報を含む会話では、文字起こし付きではなくレポート単体の行を選んで送信する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-3">
+      <span class="chip">注意点</span>
+      <h2>`/bug`はYes/No確認を挟んでから送信するように変更。連打での誤送信を防止</h2>
+      <p><code>/bug</code>でバグレポートを作成したあと、以前はEnterを連打すると確認なしに送信されてしまうことがあった。今はYes/Noで確認が入るようになり、意図せず送信してしまうことがなくなった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li><code>/bug</code>実行後は、送信前のYes/No確認を必ず確認してから進める</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-4">
+      <span class="chip">注意点</span>
+      <h2>確認ダイアログでPgUp/HomeがNo側に移動するように変更</h2>
+      <p><code>/clear</code>をagent viewから実行する場合など、破壊的な操作を確認するダイアログで、PgUpキーとHomeキーを押すとカーソルが<code>No</code>に移動するようになった。従来のキー操作の感覚で押すと、意図と違う選択をしてしまう可能性がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>確認ダイアログでは矢印キーか明示的なクリックで選択し、PgUp/Homeでの誤操作に注意する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-5">
+      <span class="chip">注意点</span>
+      <h2>computer use(macOS)の安全ルールが更新され、一部操作が拒否されたり入力が遅くなることがある</h2>
+      <p>macOSのcomputer useが新しい安全ルールに切り替わった。この影響で、以前は通っていた一部の操作が拒否されるようになったり、文字入力の速度が遅くなる場合がある。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>computer useで以前動いていた操作が急に拒否されるようになったら、安全ルール更新が原因の可能性を考慮する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+    <section class="item" id="item-6">
+      <span class="chip">ワークフロー</span>
+      <h2>Desktop・VS Codeのplan modeで、判断できないコマンドが拒否でなく承認待ちに変わった</h2>
+      <p>Desktopアプリ内のCode tabとVS Code拡張で、ManualまたはAccept editsのモードからplan modeに入ったとき、auto modeの安全チェックが判断できないコマンドは、これまでは拒否されていたが、今は承認を求める扱いになった。</p>
+      <div class="howto">
+        <h3>つまりこう使う</h3>
+        <ul><li>DesktopのCode tabやVS Codeでplan modeを使っているとき、判断不能なコマンドで止まったら拒否ではなく承認待ちだと理解して対応する</li></ul>
+      </div>
+      <ul class="links"><li><a href="https://code.claude.com/docs/en/changelog" target="_blank" rel="noopener">Claude Code Changelog</a></li></ul>
+    </section>
+      <p class="breadcrumb" style="margin:40px 0 0">前号：<a href="2026-11-27.html">v2.1.332のさらに見落とし分。`claude auth login`がログイン情報の保存に失敗したときも「成功」と表示していた不具合と、Readツールが名前付きパイプの読み込みでハングする不具合、SSEのMCPサーバーが接続切断後にハングし続ける不具合が修正された。他セッションからの保留メッセージには「Always deliver」オプションが追加され、`--model default`は指定モデルが使えない場合エラーではなく利用可能な旧モデルへ自動フォールバックするように</a></p>
+    </article>
+  </div>
+<footer class="site-footer">
+  <div class="wrap">
+    <p>Claude code の PowerUP info — 毎朝9時（JST）更新のデイリーダイジェスト。</p>
+    <p>各記事の出典リンクは本文内に記載しています。内容は各出典の公開時点の情報です。</p>
+    <p><a href="../index.html">記事一覧</a></p>
+  </div>
+</footer>
+<script src="../assets/search.js" defer></script>
+</body>
+</html>
